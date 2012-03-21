@@ -1,0 +1,3 @@
+/home/forrest/Documents/dev/plasmoids/WaterWatcher/WaterWatcher-DataEngine/src/build/CMakeFiles/plasma_engine_wateriv.dir
+/home/forrest/Documents/dev/plasmoids/WaterWatcher/WaterWatcher-DataEngine/src/build/CMakeFiles/plasma_engine_wateriv_automoc.dir
+/home/forrest/Documents/dev/plasmoids/WaterWatcher/WaterWatcher-DataEngine/src/build/CMakeFiles/uninstall.dir

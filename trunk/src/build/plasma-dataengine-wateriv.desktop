@@ -1,0 +1,17 @@
+[Desktop Entry]
+Name=WaterIV Engine
+Comment=An engine for interacting with the USGS Instantaneous Values Web Service
+Type=Service
+ 
+X-KDE-ServiceTypes=Plasma/DataEngine
+X-KDE-Library=plasma_engine_wateriv
+X-Plasma-EngineName=wateriv
+X-KDE-PluginInfo-Author=Forrest Guice
+X-KDE-PluginInfo-Email=ftg2@users.sourceforge.net
+X-KDE-PluginInfo-Name=wateriv
+X-KDE-PluginInfo-Version=0.1
+X-KDE-PluginInfo-Website=http://plasma.kde.org/
+X-KDE-PluginInfo-Category=Examples
+X-KDE-PluginInfo-Depends=
+X-KDE-PluginInfo-License=LGPL
+X-KDE-PluginInfo-EnabledByDefault=true

@@ -1,0 +1,2 @@
+/usr/lib/kde4/plasma_engine_wateriv.so
+/usr/share/kde4/services/plasma-dataengine-wateriv.desktop
