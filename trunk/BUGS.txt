@@ -1,9 +1,0 @@
-Send bug reports to ftg2@users.sourceforge.net. Include "WaterIV-DataEngine"
-somewhere in the subject line.
-
-TODO:
--setup bug tracker, setup svn
--replace BUGS text with instructions to visit bug tracker url
--supply a recent_date key (fix loop to iterate by key (next to recent))
--implement major filter bBox
--interpret date strings and convert corresponding keys to QDateTime
