@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>WaterWatcherConfig</class>
+ <widget class="QWidget" name="WaterWatcherConfig">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>369</width>
+    <height>162</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="toolTip">
+   <string>Polling interval in minutes.</string>
+  </property>
+  <layout class="QFormLayout" name="formLayout_2">
+   <property name="fieldGrowthPolicy">
+    <enum>QFormLayout::ExpandingFieldsGrow</enum>
+   </property>
+   <item row="0" column="0" colspan="2">
+    <layout class="QFormLayout" name="formLayout">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetNoConstraint</enum>
+     </property>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Data Source:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Data Request:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Update Every:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="KLineEdit" name="data_request">
+       <property name="toolTip">
+        <string>Data to request from the web service.</string>
+       </property>
+       <property name="whatsThis">
+        <string>The data request to submit to the webservice. This is everything after ? in the request url. Data requests should be kept small and specific to avoid disruption to the web service.</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="KLineEdit" name="data_source">
+       <property name="toolTip">
+        <string>Url to the USGS Instantaneous Values Web Service.</string>
+       </property>
+       <property name="whatsThis">
+        <string>The url to the USGS Instantaneous Values Web Service. This is everything before ? in the request url.</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="KIntNumInput" name="data_polling">
+       <property name="whatsThis">
+        <string>The polling interval in minutes. This should not be less than 15 minutes to avoid disruption of the service (most data sources are not updated more than once an hour).</string>
+       </property>
+       <property name="minimum">
+        <number>15</number>
+       </property>
+       <property name="maximum">
+        <number>10080</number>
+       </property>
+       <property name="singleStep">
+        <number>15</number>
+       </property>
+       <property name="suffix">
+        <string> minutes</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>KLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>klineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KIntNumInput</class>
+   <extends>QWidget</extends>
+   <header>knuminput.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

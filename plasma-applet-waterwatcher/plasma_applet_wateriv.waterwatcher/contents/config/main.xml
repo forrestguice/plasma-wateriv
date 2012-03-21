@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+                          http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+
+<!-- <include>kglobalsettings.h</include> -->
+
+  <kcfgfile/>
+  <group name="waterwatcher">
+    <entry name="dataRequest" type="String">
+      <label>The data to request from the web service (a site code, a set of request arguments, or a fully formed request url).</label>
+      <default>01646500</default>
+    </entry>
+
+    <entry name="pollingInterval" type="int">
+      <label>The update interval (in minutes). The minimum interval is 15minutes. Please consider using a larger interval such as an hour. Most data sources take readings every 15 minutes but updates from the web service occur no more than once an hour.</label>
+      <default>15</default>
+    </entry>
+  </group>
+
+</kcfg>
