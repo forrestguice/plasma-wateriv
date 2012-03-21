@@ -1,9 +1,13 @@
-Send bug reports to ftg2@users.sourceforge.net. Include "WaterIV-DataEngine"
-somewhere in the subject line.
+Users with a Google account can report bugs to the issue tracker at 
+http://code.google.com/p/plasma-wateriv/issues/list
+
+Other users can send bug reports to ftg2@users.sourceforge.net.  Include 
+"plasma-wateriv" somewhere in the subject line.
+
+------------------------------------------------------------------------------
 
 TODO:
--setup bug tracker, setup svn
--replace BUGS text with instructions to visit bug tracker url
 -supply a recent_date key (fix loop to iterate by key (next to recent))
--implement major filter bBox
 -interpret date strings and convert corresponding keys to QDateTime
+-support gzip compressed output (and specifically request it to reduce size)
+-implement major filter bBox
