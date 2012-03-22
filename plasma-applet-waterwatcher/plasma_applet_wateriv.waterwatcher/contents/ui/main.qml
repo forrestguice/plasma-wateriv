@@ -57,7 +57,6 @@ import org.kde.plasma.core 0.1 as PlasmaCore
 
        Provide a valid site code in the settings dialog. Use NSWIS Mapper 
        (http://wdr.water.usgs.gov/nwisgmap/index.html) to locate sites.
-
 */
 
 Item
@@ -67,9 +66,24 @@ Item
     property string setting_dataRequest: "-1";
     property int setting_pollingInterval: -1;
 
-    Component.onCompleted:
+    //property int minimumWidth: paintedWidth;
+    //property int minimumHeight: paintedHeight;
+
+    //Component.onCompleted: {}
+
+    /**
+       loadtimer : Timer
+    */
+    Timer
     {
-        plasmoid.addEventListener("ConfigChanged", configChanged);
+        id: loadtimer;
+        interval: 1000; running: false; repeat: false;
+
+        onTriggered: 
+        {
+            plasmoid.addEventListener("ConfigChanged", configChanged);
+            firstConfig();
+        }
     }
 
     /**
@@ -79,24 +93,23 @@ Item
     {
         id: dataengine
         engine: "wateriv"
-        interval: 60*60*1000;  // 1hr
+        interval: 60 * 60000;  // 1hr
 
         //onSourceAdded: { console.log("onSourceAdded: "+valid+" " + connectedSources); }
         //onSourceRemoved: { console.log("onSourceRemoved: " + source); }
-        //onSourceConnected: { console.log("onSourceConnected: " + source); }
+        onSourceConnected: { console.log("onSourceConnected: " + source); }
+        onSourceDisconnected: { console.log("onSourceDisconnected: " + source); }
         //onIntervalChanged: { console.log("onIntervalChanged: " + interval); }
-        //onNewData: { console.log("onNewData: "); }
+        onNewData: { console.log("onNewData: "); }
 
         onDataChanged:
         {
-            // refresh the display when data changes
-            refreshDisplay();
+            refreshDisplay();   // refresh display when data changes
         }
 
         Component.onCompleted: 
         {
-            // manually trigger configChanged after creation of dataengine
-            configChanged();   // load settings and connect source
+            loadtimer.start(); // load settings after a short delay
         }
     }
 
@@ -115,13 +128,16 @@ Item
     {
         id: displayLabel1
 
-        text: ""
+        text: "-1"
         font.pointSize: 16; font.bold: true;
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
 
         signal customSignal()
-        onCustomSignal: { console.log("custom signal sent and received"); }
+        onCustomSignal: 
+        { 
+           console.log("custom signal sent and received: " + plasmoid.readConfig("datasource"));
+        }
 
         MouseArea
         { 
@@ -169,14 +185,24 @@ Item
         console.log("configChanged");
 
         // setting - polling interval (may not be less than 15min)
-        setting_pollingInterval = plasmoid.readConfig("pollingInterval");
+        setting_pollingInterval = plasmoid.readConfig("datapolling");
         if (setting_pollingInterval < 15) setting_pollingInterval = 15;
         dataengine.interval = setting_pollingInterval * 60 * 1000;
 
         // setting - requested data (dataengine source)
-        dataengine.disconnectSource(setting_dataRequest);
-        setting_dataRequest = plasmoid.readConfig("dataRequest");
+        if (setting_dataRequest != "-1")
+        {
+            dataengine.disconnectSource(setting_dataRequest);
+        }
+        setting_dataRequest = plasmoid.readConfig("datasource");
         dataengine.connectSource(setting_dataRequest);
+    }
+
+    function firstConfig()
+    {
+        console.log("firstConfig");
+        configChanged();   // hack: must try to connect twice before dataUpdated
+        configChanged();   // is triggered for the first time for some reason
     }
 
 }
