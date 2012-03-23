@@ -1,30 +1,27 @@
 /**
     Copyright 2012 Forrest Guice
-    This file is part of WaterIV DataEngine.
+    This file is part of Plasma-WaterIV.
 
-    WaterIV DataEngine is free software: you can redistribute it and/or 
+    Plasma-WaterIV is free software: you can redistribute it and/or 
     modify it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    WaterIV DataEngine is distributed in the hope that it will be useful,
+    Plasma-WaterIV is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with WaterIV DataEngine.  If not, see <http://www.gnu.org/licenses/>.
+    along with Plasma-WaterIV.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "waterivengine.h"
-#include <QtNetwork>
-#include <QDomDocument>
- 
-//#include <Plasma/DataContainer>
-//#include <QDate>
-//#include <QTime>
-//#include <KSystemTimeZones>
-//#include <KDateTime>
+#include "ivrequest.h"
+
+//#include <QtNetwork> //#include <QDomDocument> 
+//#include <Plasma/DataContainer> //#include <QDate> //#include <QTime> 
+//#include <KSystemTimeZones> //#include <KDateTime>
 
 const QString WaterIVEngine::DEFAULT_SERVER = "http://waterservices.usgs.gov/nwis/iv";
 /**
@@ -187,7 +184,7 @@ WaterIVEngine::WaterIVEngine(QObject* parent, const QVariantList& args)
     : Plasma::DataEngine(parent, args)
 {
     Q_UNUSED(args)
-    setMinimumPollingInterval(WaterIVEngine::DEFAULT_MIN_POLLING * 60 * 1000);
+    //setMinimumPollingInterval(WaterIVEngine::DEFAULT_MIN_POLLING * 60 * 1000); // todo: uncomment
 
     replies = new QMap<QNetworkReply*, QString>();
 
@@ -198,54 +195,31 @@ WaterIVEngine::WaterIVEngine(QObject* parent, const QVariantList& args)
 /**
    This function runs when a source is requested for the first time.
 */
-bool WaterIVEngine::sourceRequestEvent(const QString &sourcename)
+bool WaterIVEngine::sourceRequestEvent(const QString &source)
 {
-    setData(sourcename, DataEngine::Data());
-    return updateSourceEvent(sourcename);
+    //setData(source, DataEngine::Data()); // bug: without this line plasmoids don't get initial update
+    return updateSourceEvent(source);      //      but with it plasmaengineexplorer fails to update
 }
  
 /**
    This function runs when a source requests an update; it initiates a fetch
    of the requested data. Execution continues in dataFetchComplete when the 
-   download is complete. Invalid source names are silently ignored.
+   download is complete. Invalid source names are ignored.
 */
 bool WaterIVEngine::updateSourceEvent(const QString &source)
 {
-    QString request;
-    if (source.contains("?"))
+    QString errorMsg;
+    QString request = IVRequest::requestForSource(source, errorMsg);
+
+    if (request != "-1")
     {
-       // full url supplied: pass it as the request
-       if (not hasMajorFilter(source)) return false;
-       request = QString(source);
+        QNetworkReply *reply = manager->get(QNetworkRequest(QUrl(request)));
+        replies->insert(reply, source);
 
     } else {
-        // no url supplied: form the request
-        request.append(DEFAULT_SERVER + "?format=waterml,1.1");
-
-        if (source.contains("&"))
-        {
-            // list of arguments
-            if (not hasMajorFilter(source)) return false;
-            else request.append("&" + source);
-        
-        } else {
-            if (source.contains("="))
-            {
-                // single argument: the source is a major filter
-                if (not hasMajorFilter(source)) return false;
-                else request.append("&" + source);
-            
-            } else {
-                // no arguments: the source is the site code (or list of codes)
-                if (not isSiteCode(source)) return false;
-                request.append("&sites=" + source);
-            }
-        }
+        qDebug() << errorMsg;
     }
 
-    // get the requested source (change to data occurs later in dataFetchComplete)
-    QNetworkReply *reply = manager->get(QNetworkRequest(QUrl(request)));
-    replies->insert(reply, source);
     return false;
 }
 
@@ -286,7 +260,6 @@ void WaterIVEngine::dataFetchComplete(QNetworkReply *reply)
 
     QByteArray bytes = reply->readAll();
     reply->deleteLater();
-
     setData(request, I18N_NOOP(PREFIX_NET + "isvalid"), true);
     extractData(request, bytes);
 }
@@ -312,11 +285,11 @@ void WaterIVEngine::extractData( QString &request, QByteArray &bytes )
             extractTimeSeries(request, &document);
 
         } else {
-           // invalid waterml - return error data
-           setData(request, I18N_NOOP(PREFIX_XML + "isvalid"), false);
-           setData(request, I18N_NOOP(PREFIX_XML + "error_msg"), "XML Error: not WaterML (parent element is not timeSeriesResponse).");
-           setData(request, I18N_NOOP(PREFIX_XML + "error_line"), -1);
-           setData(request, I18N_NOOP(PREFIX_XML + "error_column"), -1);
+            // invalid waterml - return error data
+            setData(request, I18N_NOOP(PREFIX_XML + "isvalid"), false);
+            setData(request, I18N_NOOP(PREFIX_XML + "error_msg"), "XML Error: not WaterML (parent element is not timeSeriesResponse).");
+            setData(request, I18N_NOOP(PREFIX_XML + "error_line"), -1);
+            setData(request, I18N_NOOP(PREFIX_XML + "error_column"), -1);
         }
 
     } else {
@@ -522,184 +495,11 @@ void WaterIVEngine::extractSeriesValues( QString &request, QString &prefix, QDom
     setData(request, I18N_NOOP(prefix + PREFIX_VALUES + "qualifiers"), qualifiersMap);
 }
 
-/**
-   Returns true if the supplied request has one of the required major filters.
-   Returns false if the major filter is missing or if there is more than one 
-   major filter.
-*/
-bool WaterIVEngine::hasMajorFilter( const QString &source )
-{
-    bool retValue = false;
-
-    QString request = source;
-    if (source.contains("?"))
-    {
-        request = source.split("?").at(1);
-    }
-
-    int c = 0;
-    QStringList args = request.split("&");
-    int num_args = args.length();
-    for (int i=0; i<num_args; i++)
-    {
-        QStringList pair = args.at(i).split("=");
-        QString key = pair.at(0).toLower();
-        QString value = pair.at(1);
- 
-        if (key == "sites")
-        {
-            retValue = WaterIVEngine::isSiteCode(value);
-            c++;
-
-        } else if (key == "statecd") {
-            retValue = WaterIVEngine::isStateCode(value);
-            c++;
-
-        } else if (key == "huc") {
-            retValue = WaterIVEngine::isHucCode(value);
-            c++;
-
-        } else if (key == "bbox") {
-            retValue = WaterIVEngine::isBBoxCode(value);
-            c++;
-
-        } else if (key == "countycd") {
-            retValue = WaterIVEngine::isCountyCode(value);
-            c++;
-        }
-        if (retValue == false) break;
-    }
-
-    if (c != 1)
-    {
-        qDebug() << "hasMajorFilter: invalid filters: too many major filters";
-        return false;
-    }
-
-    return retValue;
-}
-
-/**
-   Return true if the supplied request is in the format of a state code.
-   Only one state code is allowed.
-   example: az
-*/
-bool WaterIVEngine::isStateCode( const QString &request )
-{
-    return (request.length() == 2);
-}
-
-/**
-   Return true if the request is in the form of a bBox (bounding box)
-*/
-bool WaterIVEngine::isBBoxCode( const QString &request )
-{
-    qDebug() << "Unsupported major filter: bBox: " + request;
-    return false;  // todo: support bbox as major filter
-}
-
-/**
-   Return true if the supplied request is in the format of a HUC code or a list
-   of HUC codes seperated by comma. Major huc codes are 2 digits, minor huc
-   codes are 8 digits. The max number of codes is 10; the list may contain only
-   one major code.
-*/
-bool WaterIVEngine::isHucCode( const QString &request )
-{
-    int c = 0, major_huc = 0;
-
-    QStringList codes = request.split(",");
-    int num_codes = codes.length();
-    for (int i=0; i<num_codes; i++)
-    {
-        QString code = codes.at(i);
-
-        bool is_int = true;
-        code.toInt(&is_int);
-        if (not is_int) return false;
-
-        if (code.length() == 2)            // a major huc code (one allowed)
-        {
-            major_huc++;
-            c++;
-
-        } else if (code.length() == 8) {   // a minor huc code
-            c++;
-
-        } else {                           // invalid length
-            return false;
-        }
-    }
-
-    if (c > 10 || c < 1 || major_huc > 1) return false;
-    else return true;
-}
-
-/**
-   Return true if the supplied request is in the format of a county code
-   or a list of county codes separated by a comma. County codes are numeric
-   and 5 digits in length. The maximum number of county codes is 20.
-*/
-bool WaterIVEngine::isCountyCode( const QString &request )
-{
-    QStringList codes = request.split(",");
-    int num_codes = codes.length();
-    for (int i=0; i<num_codes; i++)
-    {
-       QString code = codes.at(i);
-
-       bool is_int = true;
-       code.toInt(&is_int);
-       if (not is_int) return false;
-    
-       if (code.length() != 5) return false;
-    }
-
-    if (num_codes > 20 || num_codes < 1) return false;
-    else return true;
-}
-
-/**
-   Returns true if the supplied request is in the format of a single site code
-   or list of sites separated by a comma (with optional agency prefix). Lists 
-   may contain up to 100 codes.
-   Example: USGS:01646500,06306300
-*/
-bool WaterIVEngine::isSiteCode( const QString &request )
-{
-    QStringList codes = request.split(",");
-    int num_codes = codes.length();
-    for (int i=0; i<num_codes; i++)
-    {
-        QString site = codes.at(i);
-        QString agency, code;
-        if (site.contains(":"))   // has optional agency prefix
-        {
-            QStringList pair = request.split(":");
-            agency = pair.at(0);
-            code = pair.at(1);
-
-        } else {
-            agency = "";
-            code = site;
-        }
-
-        bool is_int = true;
-        code.toInt(&is_int);
-        if (not is_int) return false;
-    }
-
-    if (num_codes > 100 || num_codes < 1) return false;
-    else return true;
-}
- 
-//QTemporaryFile temp_file;
-//temp_file.write(reply->readAll());
-//if (request == I18N_NOOP("Local"))
+//QTemporaryFile temp_file; temp_file.write(reply->readAll());
 
 // the first argument must match X-Plasma-EngineName in the .desktop file
 // the second argument is the class that derives from Plasma::DataEngine
 K_EXPORT_PLASMA_DATAENGINE(wateriv, WaterIVEngine)
  
-// needed since WaterIVEngine is a QObject
+// needed since WaterIVEngine is a QObject // todo: whats going on here...
 //#include "waterivengine.moc"
