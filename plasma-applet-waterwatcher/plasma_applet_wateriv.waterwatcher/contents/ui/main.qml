@@ -18,6 +18,7 @@
 
 import QtQuick 1.0
 import org.kde.plasma.core 0.1 as PlasmaCore
+import org.kde.qtextracomponents 0.1 as QtExtraComponents
 
 /**
     WaterWatcher (QML Plasmoid)
@@ -61,15 +62,22 @@ import org.kde.plasma.core 0.1 as PlasmaCore
 
 Item
 {
-    id: plasmoid_waterwatcher;
+    id: main;
+  
+    width: 175;
+    height: 75;
+    property int minimumWidth: 175;
+    property int minimumHeight: 75;
 
     property string setting_dataRequest: "-1";
     property int setting_pollingInterval: -1;
 
-    //property int minimumWidth: paintedWidth;
-    //property int minimumHeight: paintedHeight;
+    //property Component compactRepresentation: Text { text:"test" }
 
-    //Component.onCompleted: {}
+    Component.onCompleted: 
+    {
+        //plasmoid.popupIcon = "konqueror";
+    }
 
     /**
        loadtimer : Timer
@@ -82,7 +90,8 @@ Item
         onTriggered: 
         {
             plasmoid.addEventListener("ConfigChanged", configChanged);
-            firstConfig();
+            configChanged();   // hack: must try to connect twice before dataUpdated
+            configChanged();   // is triggered for the first time for some reason
         }
     }
 
@@ -120,30 +129,49 @@ Item
     {
         id: theme
     }
- 
+
     /**
-        displayLabel1 : Text
+        main_tooltip :: PlasmaCore.ToopTip 
+        The ToolTip UI
     */
-    Text 
+    PlasmaCore.ToolTip
     {
-        id: displayLabel1
+        id: main_tooltip
+        target: main;
+        mainText: "Water Watcher";    // todo: move / localize strings?
+        subText: "(not connected)";
+        image: "konqueror";          // todo: replace icon
+    }
 
-        text: "-1"
-        font.pointSize: 16; font.bold: true;
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.verticalCenter: parent.verticalCenter
+    /**
+        layout :: Column
+        The Main UI
+    */
+    Column
+    {
+        id: layout;
+        anchors.horizontalCenter: parent.horizontalCenter;
+        anchors.verticalCenter: parent.verticalCenter;
+        spacing: 8;
 
-        signal customSignal()
-        onCustomSignal: 
-        { 
-           console.log("custom signal sent and received: " + plasmoid.readConfig("datasource"));
+        Text 
+        {
+            id: displayLabel_value
+            text: "Water Watcher"
+            font.pointSize: 24; font.bold: true;
+            anchors.horizontalCenter: parent.horizontalCenter;
+
+            //signal customSignal()
+            //onCustomSignal: { console.log(plasmoid.readConfig("datasource")); }
+            //MouseArea { id: mouseArea; anchors.fill: parent; onClicked: { displayLabel1.customSignal(); }}
         }
 
-        MouseArea
-        { 
-            id: mouseArea 
-            anchors.fill: parent 
-            onClicked: { displayLabel1.customSignal(); }
+        Text
+        {
+            id: displayLabel_date
+            text: "(not connected)"
+            font.pointSize: 12; font.bold: false;
+            anchors.horizontalCenter: parent.horizontalCenter
         }
     }
 
@@ -162,16 +190,28 @@ Item
             var xmlIsValid = results["xml_isvalid"];
             if (xmlIsValid == true)
             {
+                var site = results["timeseries_0_sourceinfo_sitename"];
                 var value = results["timeseries_0_values_recent"];
                 var units = results["timeseries_0_variable_unitcode"];
-                displayLabel1.text = "" + value + " (" + units + ")";
+                var date = "March 23, 2012 17:45";
+
+                main_tooltip.mainText = "" + site;
+                main_tooltip.subText = "" + date + "<br/>" + value + " (" + units + ")";
+                displayLabel_value.text = "" + value + " (" + units + ")";
+                displayLabel_date.text = "" + date;
 
             } else {
-                displayLabel1.text = "!invalid data!";
+                main_tooltip.mainText = "Water Watcher";
+                main_tooltip.subText = "(received invalid data)";
+                displayLabel_value.text = "Water Watcher";
+                displayLabel_date.text = "(received invalid data)";
             }
 
         } else {
-            displayLabel1.text = "!network request failed!";
+            main_tooltip.mainText = "Water Watcher";
+            main_tooltip.subText = "(network request failed)";
+            displayLabel_value.text = "Water Watcher";
+            displayLabel_date.text = "(network request failed)";
         }
     }
 
@@ -196,13 +236,6 @@ Item
         }
         setting_dataRequest = plasmoid.readConfig("datasource");
         dataengine.connectSource(setting_dataRequest);
-    }
-
-    function firstConfig()
-    {
-        console.log("firstConfig");
-        configChanged();   // hack: must try to connect twice before dataUpdated
-        configChanged();   // is triggered for the first time for some reason
     }
 
 }
