@@ -19,14 +19,15 @@
 #ifndef IVREQUEST_H
 #define IVREQUEST_H
 
-#include <QString>
+class QString;
  
 class IVRequest
 {
     public:
-        static QString requestForSource(const QString &source, QString &errorMsg );
+        IVRequest();
 
-        static bool hasMajorFilter( const QString &request, QString &errorMsg );
+        static QString requestForSource(const QString &source, QString &errorMsg );
+        static bool hasValidFilters( const QString &request, bool &hasFormatFilter, QString &errorMsg );
 
         static bool isSiteCode( const QString &value, QString &errorMsg );
         static bool isStateCode( const QString &value, QString &errorMsg );
@@ -34,7 +35,12 @@ class IVRequest
         static bool isBBoxCode( const QString &value, QString &errorMsg );
         static bool isCountyCode( const QString &value, QString &errorMsg );
 
-        IVRequest();
+        static bool isFormatString( const QString &value, QString &errorMsg );
+        static bool isParameterCode( const QString &value, QString &errorMsg );
+        static bool isSiteType( const QString &value, QString &errorMsg );
+        static bool isAquiferCode( const QString &value, QString &errorMsg );
+        static bool isLocalAquiferCode( const QString &value, QString &errorMsg );
+        static bool isSiteStatus( const QString &value, QString &errorMsg );
 };
  
 #endif
