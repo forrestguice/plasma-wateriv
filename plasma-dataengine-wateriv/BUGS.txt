@@ -7,7 +7,11 @@ Other users can send bug reports to ftg2@users.sourceforge.net.  Include
 ------------------------------------------------------------------------------
 
 TODO:
--supply a recent_date key (fix loop to iterate by key (next to recent))
--interpret date strings and convert corresponding keys to QDateTime
--support gzip compressed output (and specifically request it to reduce size)
--implement major filter bBox
+-implement major filter bBox.
+-check validity of minor filters.
+-data caching to protect service for frequent requests / serve data when network is down.
+
+KNOWN BUGS:
+-in sourceEventRequest: setData(source, DataEngine::Data())) - required for
+ plasmoids to receive the first data update BUT causes results to no longer
+ display in plasmaengineexplorer. workaround: comment line during testing.

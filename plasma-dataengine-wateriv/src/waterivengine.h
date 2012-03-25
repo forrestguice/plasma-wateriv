@@ -20,7 +20,8 @@
 #define WATERIVENGINE_H
  
 #include <Plasma/DataEngine>
-#include <QtNetwork>
+#include <QNetworkReply>
+#include <QNetworkAccessManager>
 #include <QDomElement>
 
 class WaterIVEngine : public Plasma::DataEngine
@@ -29,6 +30,7 @@ class WaterIVEngine : public Plasma::DataEngine
  
     public:
         static const QString DEFAULT_SERVER;
+        static const QString DEFAULT_FORMAT;
         static const int DEFAULT_MIN_POLLING = 15;
 
         static const QString PREFIX_NET;  // key naming scheme
@@ -58,6 +60,7 @@ class WaterIVEngine : public Plasma::DataEngine
         void extractSeriesSourceInfo( QString &request, QString &prefix, QDomElement *timeSeries );
         void extractSeriesVariable( QString &request, QString &prefix, QDomElement *timeSeries );
         void extractSeriesValues( QString &request, QString &prefix, QDomElement *timeSeries );
+
 };
  
 #endif

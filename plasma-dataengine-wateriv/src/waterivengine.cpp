@@ -19,11 +19,11 @@
 #include "waterivengine.h"
 #include "ivrequest.h"
 
-//#include <QtNetwork> //#include <QDomDocument> 
 //#include <Plasma/DataContainer> //#include <QDate> //#include <QTime> 
 //#include <KSystemTimeZones> //#include <KDateTime>
 
 const QString WaterIVEngine::DEFAULT_SERVER = "http://waterservices.usgs.gov/nwis/iv";
+const QString WaterIVEngine::DEFAULT_FORMAT = "waterml,1.1";
 /**
    This dataengine retrieves timeseries data from the USGS Instantaneous Values
    Web Service using REST. The web service returns the data as an XML 
@@ -184,11 +184,10 @@ WaterIVEngine::WaterIVEngine(QObject* parent, const QVariantList& args)
     : Plasma::DataEngine(parent, args)
 {
     Q_UNUSED(args)
-    //setMinimumPollingInterval(WaterIVEngine::DEFAULT_MIN_POLLING * 60 * 1000); // todo: uncomment
-
-    replies = new QMap<QNetworkReply*, QString>();
+    setMinimumPollingInterval(WaterIVEngine::DEFAULT_MIN_POLLING * 60000);
 
     manager = new QNetworkAccessManager(this);
+    replies = new QMap<QNetworkReply*, QString>();
     connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(dataFetchComplete(QNetworkReply*)));
 }
 
@@ -197,29 +196,26 @@ WaterIVEngine::WaterIVEngine(QObject* parent, const QVariantList& args)
 */
 bool WaterIVEngine::sourceRequestEvent(const QString &source)
 {
-    //setData(source, DataEngine::Data()); // bug: without this line plasmoids don't get initial update
+    setData(source, DataEngine::Data());   // bug: without this line plasmoids don't get initial update
     return updateSourceEvent(source);      //      but with it plasmaengineexplorer fails to update
 }
  
 /**
    This function runs when a source requests an update; it initiates a fetch
-   of the requested data. Execution continues in dataFetchComplete when the 
-   download is complete. Invalid source names are ignored.
+   of the requested data. Execution continues afterward in dataFetchComplete.
 */
 bool WaterIVEngine::updateSourceEvent(const QString &source)
 {
     QString errorMsg;
-    QString request = IVRequest::requestForSource(source, errorMsg);
-
-    if (request != "-1")
+    QString requestUrl = IVRequest::requestForSource(source, errorMsg);
+    if (requestUrl == "-1")
     {
-        QNetworkReply *reply = manager->get(QNetworkRequest(QUrl(request)));
-        replies->insert(reply, source);
-
-    } else {
         qDebug() << errorMsg;
+        return false;
     }
 
+    QNetworkReply *reply = manager->get(QNetworkRequest(QUrl(requestUrl)));
+    replies->insert(reply, source);
     return false;
 }
 
@@ -258,9 +254,10 @@ void WaterIVEngine::dataFetchComplete(QNetworkReply *reply)
         return;
     }
 
+    setData(request, I18N_NOOP(PREFIX_NET + "isvalid"), true);
     QByteArray bytes = reply->readAll();
     reply->deleteLater();
-    setData(request, I18N_NOOP(PREFIX_NET + "isvalid"), true);
+
     extractData(request, bytes);
 }
 
@@ -281,7 +278,6 @@ void WaterIVEngine::extractData( QString &request, QByteArray &bytes )
         {
             // appears valid waterml - extract data
             setData(request, I18N_NOOP(PREFIX_XML + "isvalid"), true);
-            extractQueryInfo(request, &document);
             extractTimeSeries(request, &document);
 
         } else {
@@ -301,22 +297,18 @@ void WaterIVEngine::extractData( QString &request, QByteArray &bytes )
     }
 }
 
-/**
-   Extract the queryInfo (ns1:queryInfo) from the supplied QDomElement 
-   (ns1:timeSeriesResponse).
-*/
 void WaterIVEngine::extractQueryInfo( QString &request, QDomElement *document )
 {
     QDomElement queryInfo = document->elementsByTagName("ns1:queryInfo").at(0).toElement();
-    QDomElement queryInfo_url = queryInfo.elementsByTagName("ns2:queryURL").at(0).toElement();
     QDomElement queryInfo_time = queryInfo.elementsByTagName("ns2:creationTime").at(0).toElement();
+    QDomElement queryInfo_url = queryInfo.elementsByTagName("ns2:queryURL").at(0).toElement();
     QDomElement queryInfo_criteria = queryInfo.elementsByTagName("ns2:criteria").at(0).toElement();
     QDomElement queryInfo_location = queryInfo_criteria.elementsByTagName("ns2:locationParam").at(0).toElement();
     QDomElement queryInfo_variable = queryInfo_criteria.elementsByTagName("ns2:variableParam").at(0).toElement();
 
     // gather query notes
     QDomNodeList queryInfo_notesList = queryInfo.elementsByTagName("ns2:note");
-    QMap<QString, QVariant> queryInfo_notes;   
+    QMap<QString, QVariant> queryInfo_notes;
     int num_notes = queryInfo_notesList.length();
     for (int i=0; i<num_notes; i++)
     {
@@ -325,9 +317,12 @@ void WaterIVEngine::extractQueryInfo( QString &request, QDomElement *document )
         queryInfo_notes[title] = note.text();
     }
 
+    // parse query time into QDateTime (iso 8601)
+    QDateTime queryDateTime = QDateTime::fromString(queryInfo_time.text(), Qt::ISODate);
+
     // set the query data
     setData(request, I18N_NOOP(PREFIX_QUERYINFO + "url"), QUrl(queryInfo_url.text()));
-    setData(request, I18N_NOOP(PREFIX_QUERYINFO + "time"), queryInfo_time.text());  // TODO: convert to QTime
+    setData(request, I18N_NOOP(PREFIX_QUERYINFO + "time"), queryDateTime);
     setData(request, I18N_NOOP(PREFIX_QUERYINFO + "notes"), queryInfo_notes);
     setData(request, I18N_NOOP(PREFIX_QUERYINFO + "location"), queryInfo_location.text());
     setData(request, I18N_NOOP(PREFIX_QUERYINFO + "variable"), queryInfo_variable.text());
@@ -339,6 +334,7 @@ void WaterIVEngine::extractQueryInfo( QString &request, QDomElement *document )
 */
 void WaterIVEngine::extractTimeSeries( QString &request, QDomElement *document )
 {
+    // gather time series
     QDomNodeList timeSeriesList = document->elementsByTagName("ns1:timeSeries");
     int num_series = timeSeriesList.length();
     setData(request, I18N_NOOP(PREFIX_TIMESERIES + "count"), num_series);
@@ -477,17 +473,21 @@ void WaterIVEngine::extractSeriesValues( QString &request, QString &prefix, QDom
         QString dateTime = value.attribute("dateTime", "-1");
         if (dateTime != "-1")
         {
-            valuesMap[value.attribute("dateTime", "-1")] = list;
+            valuesMap[dateTime] = list;
         }
     }
 
-    foreach(QVariant vlist, valuesMap)  // iterate over values by order of key
+    QMapIterator<QString, QVariant> i(valuesMap);
+    while (i.hasNext())
     {
-        QList<QVariant> value = vlist.toList();
-        setData(request, I18N_NOOP(prefix + PREFIX_VALUES + "recent"), value.at(0).toDouble());
-        // todo: fix loop to include key - pass keys recent_date
-        //setData(request, I18N_NOOP(prefix + PREFIX_VALUES + "recent_date"), value.at(0).toDouble());
-        setData(request, I18N_NOOP(prefix + PREFIX_VALUES + "recent_qualifier"), value.at(1));
+        i.next();
+        QVariant date = QDateTime::fromString(i.key(), Qt::ISODate);
+        QList<QVariant> recentValue = i.value().toList();
+
+        setData(request, I18N_NOOP(prefix + PREFIX_VALUES + "recent"), recentValue.at(0).toDouble());
+        setData(request, I18N_NOOP(prefix + PREFIX_VALUES + "recent_date"), date);
+        setData(request, I18N_NOOP(prefix + PREFIX_VALUES + "recent_qualifier"), recentValue.at(1));
+
         break;   // we only want the first item
     }
 

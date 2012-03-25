@@ -88,6 +88,10 @@
       $ make clean
       $ make
 
+   3) remove the debugging symbols to reduce the binary size
+
+      $ strip ./lib/plasma_engine_wateriv.so
+
 
   =================================
   V) Installation (on Ubuntu 11.10)
