@@ -278,6 +278,7 @@ void WaterIVEngine::extractData( QString &request, QByteArray &bytes )
         {
             // appears valid waterml - extract data
             setData(request, I18N_NOOP(PREFIX_XML + "isvalid"), true);
+            extractQueryInfo(request, &document);
             extractTimeSeries(request, &document);
 
         } else {

@@ -7,9 +7,8 @@ Other users can send bug reports to ftg2@users.sourceforge.net.  Include
 ------------------------------------------------------------------------------
 
 TODO:
--implement major filter bBox.
--check validity of minor filters.
--data caching to protect service for frequent requests / serve data when network is down.
+-check validity of minor filters (ivrequest.cpp)
+-data caching? to protect service for frequent requests / serve data when network is down.
 
 KNOWN BUGS:
 -in sourceEventRequest: setData(source, DataEngine::Data())) - required for
