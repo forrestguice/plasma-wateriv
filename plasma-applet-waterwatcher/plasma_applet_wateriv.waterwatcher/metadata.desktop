@@ -4,7 +4,7 @@ Comment=Displays real-time water data from sites monitored by USGS.
 Icon=chronometer
 
 Type=Service
-ServiceTypes=Plasma/Applet,Plasma/PopupApplet
+ServiceTypes=Plasma/Applet
  
 X-Plasma-API=declarativeappletscript
 X-Plasma-MainScript=ui/main.qml
