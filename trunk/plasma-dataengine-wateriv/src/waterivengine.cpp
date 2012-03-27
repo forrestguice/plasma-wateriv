@@ -250,6 +250,7 @@ void WaterIVEngine::dataFetchComplete(QNetworkReply *reply)
     {
         setData(request, I18N_NOOP(PREFIX_NET + "isvalid"), false);
         setData(request, I18N_NOOP(PREFIX_NET + "error"), reply->error());
+        setData(request, I18N_NOOP(PREFIX_TIMESERIES + "count"), 0);
         reply->deleteLater();
         return;
     }
@@ -287,6 +288,7 @@ void WaterIVEngine::extractData( QString &request, QByteArray &bytes )
             setData(request, I18N_NOOP(PREFIX_XML + "error_msg"), "XML Error: not WaterML (parent element is not timeSeriesResponse).");
             setData(request, I18N_NOOP(PREFIX_XML + "error_line"), -1);
             setData(request, I18N_NOOP(PREFIX_XML + "error_column"), -1);
+            setData(request, I18N_NOOP(PREFIX_TIMESERIES + "count"), 0);
         }
 
     } else {
@@ -295,6 +297,7 @@ void WaterIVEngine::extractData( QString &request, QByteArray &bytes )
         setData(request, I18N_NOOP(PREFIX_XML + "error_msg"), errorMsg);
         setData(request, I18N_NOOP(PREFIX_XML + "error_line"), errorLine);
         setData(request, I18N_NOOP(PREFIX_XML + "error_column"), errorColumn);
+        setData(request, I18N_NOOP(PREFIX_TIMESERIES + "count"), 0);
     }
 }
 
@@ -426,7 +429,7 @@ void WaterIVEngine::extractSeriesVariable( QString &request, QString &prefix, QD
         variable_option[option.attribute("name", "-1")] = option.attribute("optionCode", "-1");
     }
 
-    setData(request, I18N_NOOP(prefix + PREFIX_VARIABLE + "code"), variable_code.text().toInt());
+    setData(request, I18N_NOOP(prefix + PREFIX_VARIABLE + "code"), variable_code.text());
     setData(request, I18N_NOOP(prefix + PREFIX_VARIABLE + "code_attributes"), variable_code_attribs);
     setData(request, I18N_NOOP(prefix + PREFIX_VARIABLE + "name"), variable_name.text());
     setData(request, I18N_NOOP(prefix + PREFIX_VARIABLE + "description"), variable_desc.text());
