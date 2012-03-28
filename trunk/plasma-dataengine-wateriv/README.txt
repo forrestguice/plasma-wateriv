@@ -108,12 +108,7 @@
 
       $ kbuildsycoca4
 
-   3) test the installation
-
-      $ plasmaengineexplorer --engine wateriv
-      --> supply a sitecode as the request
-
-   4) to uninstall (requires compiled source)
+   3) to uninstall (requires compiled source)
 
       $ sudo make uninstall
 
