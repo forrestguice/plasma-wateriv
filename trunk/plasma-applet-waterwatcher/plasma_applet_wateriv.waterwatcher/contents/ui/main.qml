@@ -120,7 +120,7 @@ Item
 
             text: "Water Watcher";
             style: Text.Raised; 
-            font.bold: true; font.family: "Purisa";
+            font.bold: true; font.family: "Ubuntu";
             color: theme.textColor; styleColor: theme.backgroundColor;
             anchors.horizontalCenter: parent.horizontalCenter;
 
@@ -134,7 +134,7 @@ Item
                 //display_value.current_size = display_value.default_size;
  
                 while (display_value.paintedWidth < main.width && 
-                      display_value.current_size < 64)
+                       display_value.current_size < 64)
                 {
                     //console.log("scaling up: " + display_value.current_size);
                     if (setting_showDate == false)
@@ -165,7 +165,7 @@ Item
 
             text: "(not connected)";
             style: Text.Raised; 
-            font.bold: false; font.family: "Purisa";
+            font.bold: false; font.family: "Ubuntu";
             color: theme.textColor; styleColor: theme.backgroundColor;
             anchors.horizontalCenter: parent.horizontalCenter;
 
