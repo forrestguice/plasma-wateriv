@@ -1,4 +1,4 @@
-/**
+/*
     Copyright 2012 Forrest Guice
     This file is part of Plasma-WaterIV.
 
@@ -38,12 +38,11 @@ Item
     property int setting_displaySeries: 0;      // series # to display
 
     property bool setting_showDate: true;
+    property bool setting_showUnits: true;
     property bool setting_showShadow: true;
     property bool setting_customShadow: false;
     property bool setting_customColor: false;
      
-    //property Component compactRepresentation: smallWidget;
-
     //Component.onCompleted: {}
 
     /**
@@ -70,7 +69,7 @@ Item
         engine: "wateriv";
         interval: 60 * 60000;
 
-        onDataChanged: { console.log("Data Update"); refreshDisplay(); }
+        onDataChanged: { refreshDisplay(); }
         Component.onCompleted: { loadtimer.start(); }
     }
 
@@ -111,7 +110,7 @@ Item
     {
         id: smallWidget;
 
-        spacing: 5;
+        spacing: 0;
         anchors.horizontalCenter: parent.horizontalCenter;
         anchors.verticalCenter: parent.verticalCenter;
 
@@ -120,7 +119,8 @@ Item
             id: display_value;
 
             text: "Water Watcher";
-            style: Text.Raised; font.bold: true;
+            style: Text.Raised; 
+            font.bold: true; font.family: "Purisa";
             color: theme.textColor; styleColor: theme.backgroundColor;
             anchors.horizontalCenter: parent.horizontalCenter;
 
@@ -130,14 +130,32 @@ Item
 
             onTextChanged: 
             {
-                if (main.width <= 0 || display_value.paintedWidth <= 0) return;
-                display_value.current_size = display_value.default_size;
+                if (main.width <= 1 || display_value.paintedWidth <= 1) return;
+                //display_value.current_size = display_value.default_size;
+ 
+                while (display_value.paintedWidth < main.width && 
+                      display_value.current_size < 64)
+                {
+                    //console.log("scaling up: " + display_value.current_size);
+                    if (setting_showDate == false)
+                    {
+                        if ((display_value.paintedHeight) >= main.height) 
+                            break;
+                    } else {
+                        if ((display_value.paintedHeight + display_date.paintedHeight) >= main.height) 
+                            break;
+                    }
+                    display_value.current_size++;   // scale font up
+                }
+                //console.log("done scaling up: " + display_value.current_size);
+
                 while (display_value.paintedWidth > main.width &&
                        display_value.current_size > 8)
                 {
-                    //console.log("looping1: " + display_value.current_size);
-                    display_value.current_size--;
+                    //console.log("scaling down: " + display_value.current_size);
+                    display_value.current_size--;   // scale font down
                 }
+                //console.log("done scaling down: " + display_value.current_size);
             }
         }
 
@@ -146,7 +164,8 @@ Item
             id: display_date;
 
             text: "(not connected)";
-            style: Text.Raised; font.bold: false;
+            style: Text.Raised; 
+            font.bold: false; font.family: "Purisa";
             color: theme.textColor; styleColor: theme.backgroundColor;
             anchors.horizontalCenter: parent.horizontalCenter;
 
@@ -157,11 +176,11 @@ Item
             onTextChanged: 
             {
                 if (main.width <= 0 || display_date.paintedWidth <= 0) return;
-                display_date.current_size = display_date.default_size;
+                // display_date.current_size = display_date.default_size;
+
                 while ( display_date.paintedWidth > main.width && 
                        display_date.current_size > 8)
                 {
-                    //console.log("looping2: " + display_date.current_size);
                     display_date.current_size--;
                 }
             }
@@ -191,8 +210,7 @@ Item
     */
     function refreshDisplay()
     {
-        console.log("refreshDisplay");
-
+        //console.log("refreshDisplay");
         var results = dataengine.data[setting_dataRequest];
         if (typeof results === "undefined") return;
 
@@ -247,7 +265,9 @@ Item
                 main_tooltip.subText = "" + var_name + " (" + var_code + ")<br/><br/><b>" + var_value + " " 
                                        + var_units + "</b><br/>" + var_date + "<br/><br/>"
                                        + qualifier_desc;
-                display_value.text = "" + var_value + " " + var_units;
+
+                if (setting_showUnits) display_value.text = "" + var_value + " " + var_units;
+                else display_value.text = "" + var_value;
                 display_date.text = "" + var_date;
             }
         }
@@ -268,8 +288,7 @@ Item
 
     function updateEngine()
     {
-        console.log("updateEngine");
-
+        //console.log("updateEngine");
         setting_pollingInterval = plasmoid.readConfig("datapolling");
         if (setting_pollingInterval < 15) setting_pollingInterval = 15;
         dataengine.interval = setting_pollingInterval * 60 * 1000;
@@ -288,6 +307,7 @@ Item
     */
     function updateFields()
     {
+        setting_showUnits = plasmoid.readConfig("infoshowunits");
         setting_showDate = plasmoid.readConfig("infoshowdate");
         display_date.visible = setting_showDate;
     }
@@ -299,7 +319,6 @@ Item
     function updateFonts()
     {
         // Apply font style
-        console.log("font family: " + plasmoid.readConfig("fontstyle"));
         display_value.font.family = plasmoid.readConfig("fontstyle");
         display_date.font.family = plasmoid.readConfig("fontstyle");
 
@@ -345,13 +364,13 @@ Item
             display_date.styleColor = display_value.color;
         }
 
-        console.log("wtf-start");
         var tmp_value = display_value.text; 
-        var tmp_date = display_date.text;
-        display_value.text = ""; display_date.text = ""; 
-        display_date.text = tmp_date;
+        display_value.text = ""; 
         display_value.text = tmp_value; 
-        console.log("wtf-end");
+
+        var tmp_date = display_date.text;
+        display_date.text = ""; 
+        display_date.text = tmp_date;
     }
 
 }
