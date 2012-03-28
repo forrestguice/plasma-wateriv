@@ -3,12 +3,12 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
                           http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
-   <kcfgfile name="plasma-applet-waterwatcher"/>
+   <kcfgfile/>
 
    <group name="Appearance">
       <entry name="fontstyle" type="Font">
          <label>The font style.</label>
-         <default></default>
+         <default>Purisa</default>
       </entry>
 
       <entry name="fontbold" type="bool">
@@ -48,6 +48,11 @@
 
       <entry name="infoshowdate" type="bool">
          <label>Show the date of the most recent reading.</label>
+         <default>true</default>
+      </entry>
+
+      <entry name="infoshowunits" type="bool">
+         <label>Show the units of the currently displayed reading.</label>
          <default>true</default>
       </entry>
    </group>
