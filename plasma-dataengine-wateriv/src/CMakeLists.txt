@@ -1,4 +1,7 @@
 project(plasma-dataengine-wateriv)
+set (wateriv_engine_VERSION_MAJOR 0)
+set (wateriv_engine_VERSION_MINOR 1)
+set (wateriv_engine_VERSION_PATCH 0)
 
 find_package(KDE4 REQUIRED)
 include(KDE4Defaults)
@@ -23,3 +26,13 @@ install(TARGETS plasma_engine_wateriv
  
 install(FILES plasma-dataengine-wateriv.desktop
         DESTINATION ${SERVICES_INSTALL_DIR})
+
+# CPack driven installer package
+include (InstallRequiredSystemLibraries)
+set (CPACK_RESOURCE_FILE_README "../README.txt")
+set (CPACK_RESOURCE_FILE_LICENSE "../COPYING.txt")
+set (CPACK_PACKAGE_VERSION_MAJOR "${wateriv_engine_VERSION_MAJOR}")
+set (CPACK_PACKAGE_VERSION_MINOR "${wateriv_engine_VERSION_MINOR}")
+set (CPACK_PACKAGE_VERSION_PATCH "${wateriv_engine_VERSION_PATCH}")
+include (CPack)
+
