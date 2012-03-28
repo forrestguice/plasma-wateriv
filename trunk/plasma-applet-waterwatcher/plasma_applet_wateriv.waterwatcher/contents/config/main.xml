@@ -8,7 +8,7 @@
    <group name="Appearance">
       <entry name="fontstyle" type="Font">
          <label>The font style.</label>
-         <default>Purisa</default>
+         <default>Ubuntu</default>
       </entry>
 
       <entry name="fontbold" type="bool">
