@@ -9,6 +9,20 @@ This page describes the data made available by the WaterIV data engine. Plasmoid
 
 = Available Sources =
 
+The most simple way to access the data engine is to request data from a single site using its site code. This will return a timeseries consisting of the most recent value. More extensive sets of data can be obtained by providing a request url (or partial url) specifying the arguments to pass to the web service. Valid source names include:
+
+  # A site code or comma separated list of site codes (up to 100).
+    See http://wdr.water.usgs.gov/nwisgmap/index.html.
+  # A request string specifying the data to retrieve (the part after the ? in a complete request url).
+    See http://waterservices.usgs.gov/rest/IV-Test-Tool.html.
+  # A complete request url specifying the data to retrieve.
+    See http://waterservices.usgs.gov/rest/IV-Test-Tool.html.
+
+Using (1) is a convenient way to get recent data by site code.
+Using (2) allows more control over the data that is requested.
+Using (3) allows data to be requested from an alternate url.
+
+
 = Available Data =
 
 Data is returned by the data engine using a key naming scheme. The _net_ and _xml_ keys contain meta data describing downloading and parsing the data. The _queryinfo_ keys contain information about the request as it was understood by the web service. The _timeseries_ keys contain the actual dataset.
