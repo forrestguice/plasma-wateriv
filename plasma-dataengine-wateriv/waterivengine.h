@@ -30,6 +30,8 @@ class WaterIVEngine : public Plasma::DataEngine
  
     public:
         static const QString DEFAULT_SERVER;
+        static const QString DEFAULT_SERVER_IV;  // Instantaneous Values
+        static const QString DEFAULT_SERVER_DV;  // Daily Values
         static const QString DEFAULT_FORMAT;
         static const int DEFAULT_MIN_POLLING = 15;
 

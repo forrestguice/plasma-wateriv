@@ -22,8 +22,11 @@
 //#include <Plasma/DataContainer> //#include <QDate> //#include <QTime> 
 //#include <KSystemTimeZones> //#include <KDateTime>
 
-const QString WaterIVEngine::DEFAULT_SERVER = "http://waterservices.usgs.gov/nwis/iv";
+const QString WaterIVEngine::DEFAULT_SERVER_IV = "http://waterservices.usgs.gov/nwis/iv";
+const QString WaterIVEngine::DEFAULT_SERVER_DV = "http://waterservices.usgs.gov/nwis/dv";
 const QString WaterIVEngine::DEFAULT_FORMAT = "waterml,1.1";
+const QString WaterIVEngine::DEFAULT_SERVER = DEFAULT_SERVER_IV;
+
 /**
    This dataengine retrieves timeseries data from the USGS Instantaneous Values
    Web Service using REST. The web service returns the data as an XML 
@@ -34,15 +37,24 @@ const QString WaterIVEngine::DEFAULT_FORMAT = "waterml,1.1";
    ----------------------
    The source name can be:
    ----------------------
-   1) a site code, or comma separated list of site codes (up to 100)
-      (see http://wdr.water.usgs.gov/nwisgmap/index.html)
+   1) a site code, or comma separated list of site codes (up to 100).  Data will
+      be requested from the Instantaneous Values [IV] service.
+      See http://wdr.water.usgs.gov/nwisgmap/index.html.
 
    2) a request string specifying the data to retrieve (the part after 
-      the ? in a complete request url)
-      (see http://waterservices.usgs.gov/rest/IV-Test-Tool.html)
+      the ? in a complete request url). Data will be requested from the 
+      Instantaneous Values [IV] service.
+      See http://waterservices.usgs.gov/rest/IV-Test-Tool.html.
+      Example: sites=01646500&parameterCd=00060,00065
 
    3) a complete request url specifying the data to retrieve 
       (see http://waterservices.usgs.gov/rest/IV-Test-Tool.html)
+      Example: http://waterservices.usgs.gov/nwis/iv?sites=01646500&parameterCd=00060,00065
+
+   4) a psuedo url composed of [IV|DV]?partialurl. Using IV will request
+      data from the Instantaneous Values service. Using DV will request
+      data from the Daily Values service.
+      Examples: DV?sites=01646500  ..  IV?sites=01646500
 
    Using (1) is a convenient way to get recent data by site code.
    Using (2) allows more control over the data that is requested.
@@ -184,7 +196,7 @@ WaterIVEngine::WaterIVEngine(QObject* parent, const QVariantList& args)
     : Plasma::DataEngine(parent, args)
 {
     Q_UNUSED(args)
-    setMinimumPollingInterval(WaterIVEngine::DEFAULT_MIN_POLLING * 60000);
+    //setMinimumPollingInterval(WaterIVEngine::DEFAULT_MIN_POLLING * 60000);
 
     manager = new QNetworkAccessManager(this);
     replies = new QMap<QNetworkReply*, QString>();
@@ -196,7 +208,7 @@ WaterIVEngine::WaterIVEngine(QObject* parent, const QVariantList& args)
 */
 bool WaterIVEngine::sourceRequestEvent(const QString &source)
 {
-    setData(source, DataEngine::Data());   // bug: without this line plasmoids don't get initial update
+    //setData(source, DataEngine::Data());   // bug: without this line plasmoids don't get initial update
     return updateSourceEvent(source);      //      but with it plasmaengineexplorer fails to update
 }
  
@@ -208,6 +220,7 @@ bool WaterIVEngine::updateSourceEvent(const QString &source)
 {
     QString errorMsg;
     QString requestUrl = IVRequest::requestForSource(source, errorMsg);
+    qDebug() << requestUrl;
     if (requestUrl == "-1")
     {
         qDebug() << errorMsg;
