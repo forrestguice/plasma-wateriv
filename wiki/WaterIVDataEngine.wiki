@@ -1,4 +1,5 @@
 #summary A description of the input and output of the WaterIV data engine.
+#labels Phase-Support
 
 || *Engine Name* || *Version* ||
 ||wateriv||0.1.0||
@@ -78,7 +79,7 @@ The _sourceinfo_ keys contain info about the source of a timeseries.
 ||timeseries_i_sourceinfo_longitude||QString||The longitude of the source.||
 ||timeseries_i_sourceinfo_timezone_name||QString||The timezone abreviation of the source.||
 ||timeseries_i_sourceinfo_timezone_offset||QString||The timezone offset.||
-||timeseries_i_sourceinfo_timezone_daylight||QString||The currently using daylight savings (t/f).||
+||timeseries_i_sourceinfo_timezone_daylight||bool||Site currently using daylight savings.||
 ||timeseries_i_sourceinfo_timezone_daylight_name||QString||The daylight savings time name (e.g. EDT).||
 ||timeseries_i_sourceinfo_timezone_daylight_offset||QString||The daylight savings time offset.||
 
