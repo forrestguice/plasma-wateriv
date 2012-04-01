@@ -45,14 +45,27 @@ QString IVRequest::requestForSource(const QString &source, QString &errorMsg)
            errorMsg.prepend("wateriv (url): " + source);
            return "-1";
        }
-       request = QString(source); 
+
+       QString urlPart = source.split("?").at(0).toLower();
+       if (urlPart == "")
+       {
+           // no url: default to instantaneous values service
+           request.prepend(WaterIVEngine::DEFAULT_SERVER);
+
+       } else if (urlPart == "iv") {
+           // pseudo url: instantaneous values
+           request = source.mid(2).prepend(WaterIVEngine::DEFAULT_SERVER_IV);
+
+       } else if (urlPart == "dv") {
+           // pseudo url: daily values
+           request = source.mid(2).prepend(WaterIVEngine::DEFAULT_SERVER_DV);
+
+       } else {
+           request = QString(source); 
+       }
 
        // always specify the format
        if (!hasFormatFilter) request.append("&format=" + WaterIVEngine::DEFAULT_FORMAT);
-
-       // special case: missing host
-       bool missingUrl = (source.split("?").at(0) == "");
-       if (missingUrl) request.prepend(WaterIVEngine::DEFAULT_SERVER);
 
     } else {  // no url supplied: form the request
         request.append(WaterIVEngine::DEFAULT_SERVER); 
