@@ -22,8 +22,8 @@
 //#include <Plasma/DataContainer> //#include <QDate> //#include <QTime> 
 //#include <KSystemTimeZones> //#include <KDateTime>
 
-const QString WaterIVEngine::DEFAULT_SERVER_IV = "http://waterservices.usgs.gov/nwis/iv";
-const QString WaterIVEngine::DEFAULT_SERVER_DV = "http://waterservices.usgs.gov/nwis/dv";
+const QString WaterIVEngine::DEFAULT_SERVER_IV = "http://waterservices.usgs.gov/nwis/iv/";
+const QString WaterIVEngine::DEFAULT_SERVER_DV = "http://waterservices.usgs.gov/nwis/dv/";
 const QString WaterIVEngine::DEFAULT_FORMAT = "waterml,1.1";
 const QString WaterIVEngine::DEFAULT_SERVER = DEFAULT_SERVER_IV;
 
@@ -167,22 +167,32 @@ const QString WaterIVEngine::PREFIX_VALUES = "values_";
 
   ---------------------------------------
 
-   --> PREFIX_TIMESERIES + <#>_ + PREFIX_VALUES + <VALUES_KEY>
+   --> PREFIX_TIMESERIES + <#>_ + PREFIX_VALUES_count
+       Example: timeseries_0_values_count is always >= 1
+       Example: timeseries_0_values_recent is same as
+                timeseries_0_values_0_recent
+
+       --> count            : the number of sets of values
+
+   --> PREFIX_TIMESERIES + <#>_ + PREFIX_VALUES + #_ + <VALUES_KEY>
        The values contains info about individual data points in the timeseries.
-       Example: timeseries_0_values_all
+       Example: timeseries_0_values_0_all
 
        Available VALUES_KEYs:
-       --> all        : a QMap<QString, QList<QVariant>> containing all values.
+       --> #_all        : a QMap<QString, QList<QVariant>> containing all values.
                       : the map key is the datetime string of the value.
                       : each QList contains two values:
                       : [0] the value (e.g. 200)
                       : [1] value qualifiers by code (e.g. "P" is provisional)
 
-       --> recent           : the most recent value (e.g. 200)
-       --> recent_date      : the datetime of the recent value
-       --> recent_qualifier : the qualifier of the most recent value (e.g. "P")
+       --> #_recent           : the most recent value (e.g. 200)
+       --> #_recent_date      : the datetime of the recent value
+       --> #_recent_qualifier : the qualifier of the most recent value (e.g. "P")
 
-       --> qualifiers  : a QMap<QString, QList<QVariant>> of qualifiers (by code)
+       --> #_method_id    : the id of the method used to collect the values
+       --> #_method_description  : a description of the method used to collect the values
+
+       --> #_qualifiers  : a QMap<QString, QList<QVariant>> of qualifiers (by code)
                        : the map key is the qualifier code (e.g. "P")
                        : each QList contains 5 values:
                           : [0] qualifier id (e.g. 0 : an integer id)
@@ -191,12 +201,22 @@ const QString WaterIVEngine::PREFIX_VALUES = "values_";
                           : [3] qualifier network (?)
                           : [4] qualifier vocabulary (?)
 */
+
+/**
+    Changelog (since 0.1.0)
+
+    * Moved keys: timeseries_#_values to timeseries_#_values_#; engine now
+      supports multiple sets of values within a timeseries (differing methods).
+    * Added keys: timeseries_#_values_count, values_#_method_id, values_#_method_description
+    * Added support for Daily Values (DV) service; engine now accepts psuedo urls 
+      that specify which service (DV/IV) to use (defaults to IV).
+*/
  
 WaterIVEngine::WaterIVEngine(QObject* parent, const QVariantList& args)
     : Plasma::DataEngine(parent, args)
 {
     Q_UNUSED(args)
-    //setMinimumPollingInterval(WaterIVEngine::DEFAULT_MIN_POLLING * 60000);
+    setMinimumPollingInterval(WaterIVEngine::DEFAULT_MIN_POLLING * 60000);
 
     manager = new QNetworkAccessManager(this);
     replies = new QMap<QNetworkReply*, QString>();
@@ -208,7 +228,7 @@ WaterIVEngine::WaterIVEngine(QObject* parent, const QVariantList& args)
 */
 bool WaterIVEngine::sourceRequestEvent(const QString &source)
 {
-    //setData(source, DataEngine::Data());   // bug: without this line plasmoids don't get initial update
+    setData(source, DataEngine::Data());   // bug: without this line plasmoids don't get initial update
     return updateSourceEvent(source);      //      but with it plasmaengineexplorer fails to update
 }
  
@@ -220,7 +240,7 @@ bool WaterIVEngine::updateSourceEvent(const QString &source)
 {
     QString errorMsg;
     QString requestUrl = IVRequest::requestForSource(source, errorMsg);
-    qDebug() << requestUrl;
+    //qDebug() << requestUrl;
     if (requestUrl == "-1")
     {
         qDebug() << errorMsg;
@@ -246,12 +266,16 @@ void WaterIVEngine::dataFetchComplete(QNetworkReply *reply)
     QUrl redirectUrl = redirectVariant.toUrl();
     if (!redirectUrl.isEmpty() && redirectUrl != requestUrl)
     {
+        qDebug() << "Redirecting: " << redirectUrl << "( " << requestUrl << ")";
+
         // redirected - create a new QNetworkRequest
         QNetworkReply *reply2 = manager->get(QNetworkRequest(redirectUrl));
         replies->insert(reply2, request);
         reply->deleteLater();
         return;
     }
+
+    //qDebug() << "Redirection over..";
 
     // data - request url
     QStringList request_parts = requestUrl.toString().split("?");
@@ -457,59 +481,72 @@ void WaterIVEngine::extractSeriesVariable( QString &request, QString &prefix, QD
 */
 void WaterIVEngine::extractSeriesValues( QString &request, QString &prefix, QDomElement *timeSeries )
 {
-    QDomElement values = timeSeries->elementsByTagName("ns1:values").at(0).toElement();
 
-    QMap<QString, QVariant> qualifiersMap;  // get qualifiers
-    QDomNodeList qualifiers = values.elementsByTagName("ns1:qualifier");
-    int num_qualifiers = qualifiers.length();
-    for (int i=0; i<num_qualifiers; i++)
+    QDomNodeList valuesets = timeSeries->elementsByTagName("ns1:values");
+    int num_sets = valuesets.length();
+    setData(request, I18N_NOOP(prefix + PREFIX_VALUES + "count"), num_sets);
+
+    for (int j=0; j<num_sets; j++)
     {
-        QDomElement qualifier = qualifiers.at(i).toElement();
-        QDomElement qualifier_code = qualifier.elementsByTagName("ns1:qualifierCode").at(0).toElement();
-        QDomElement qualifier_desc = qualifier.elementsByTagName("ns1:qualifierDescription").at(0).toElement();
+        QDomElement values = valuesets.at(j).toElement();
+        QString prefix2 = PREFIX_VALUES + QString::number(j) + "_";
 
-        QList<QVariant> list;
-        list.insert(0, qualifier.attribute("qualifierID", "-1"));
-        list.append(qualifier_code.text());
-        list.append(qualifier_desc.text());
-        list.append(qualifier.attribute("ns1:network", "-1"));
-        list.append(qualifier.attribute("ns1:vocabulary", "-1"));
-
-        qualifiersMap[qualifier_code.text()] = list;
-    }
-  
-    QMap<QString, QVariant> valuesMap;    // get list of values
-    QDomNodeList valueList = values.elementsByTagName("ns1:value");
-    int num_values = valueList.length();
-    for (int i=0; i<num_values; i++)
-    {
-        QDomElement value = valueList.at(i).toElement();
-        QList<QVariant> list;
-        list.insert(0, value.text());
-        list.append(value.attribute("qualifiers", ""));
-        QString dateTime = value.attribute("dateTime", "-1");
-        if (dateTime != "-1")
+        QMap<QString, QVariant> qualifiersMap;  // get qualifiers
+        QDomNodeList qualifiers = values.elementsByTagName("ns1:qualifier");
+        int num_qualifiers = qualifiers.length();
+        for (int i=0; i<num_qualifiers; i++)
         {
-            valuesMap[dateTime] = list;
+            QDomElement qualifier = qualifiers.at(i).toElement();
+            QDomElement qualifier_code = qualifier.elementsByTagName("ns1:qualifierCode").at(0).toElement();
+            QDomElement qualifier_desc = qualifier.elementsByTagName("ns1:qualifierDescription").at(0).toElement();
+            QList<QVariant> list;
+            list.insert(0, qualifier.attribute("qualifierID", "-1"));
+            list.append(qualifier_code.text());
+            list.append(qualifier_desc.text());
+            list.append(qualifier.attribute("ns1:network", "-1"));
+            list.append(qualifier.attribute("ns1:vocabulary", "-1"));
+
+            qualifiersMap[qualifier_code.text()] = list;
         }
+    
+        // get collection method
+        QDomElement method = values.elementsByTagName("ns1:method").at(0).toElement();
+        QDomElement method_desc = method.elementsByTagName("ns1:methodDescription").at(0).toElement();
+
+        QMap<QString, QVariant> valuesMap;    // get list of values
+        QDomNodeList valueList = values.elementsByTagName("ns1:value");
+        int num_values = valueList.length();
+        for (int i=0; i<num_values; i++)
+        {
+            QDomElement value = valueList.at(i).toElement();
+            QList<QVariant> list;
+            list.insert(0, value.text());
+            list.append(value.attribute("qualifiers", ""));
+            QString dateTime = value.attribute("dateTime", "-1");
+            if (dateTime != "-1")
+            {
+                valuesMap[dateTime] = list;
+            }
+        }
+
+        QMapIterator<QString, QVariant> i(valuesMap);
+        while (i.hasNext())   // get the most recent value
+        {
+            i.next();
+            QVariant date = QDateTime::fromString(i.key(), Qt::ISODate);
+            QList<QVariant> recentValue = i.value().toList();
+
+            setData(request, I18N_NOOP(prefix + prefix2 + "recent"), recentValue.at(0).toDouble());
+            setData(request, I18N_NOOP(prefix + prefix2 + "recent_date"), date);
+            setData(request, I18N_NOOP(prefix + prefix2 + "recent_qualifier"), recentValue.at(1));
+            break;   // we only want the first item
+        }
+
+        setData(request, I18N_NOOP(prefix + prefix2 + "all"), valuesMap);
+        setData(request, I18N_NOOP(prefix + prefix2 + "qualifiers"), qualifiersMap);
+        setData(request, I18N_NOOP(prefix + prefix2 + "method_id"), method.attribute("methodID", "-1").toInt());
+        setData(request, I18N_NOOP(prefix + prefix2 + "method_description"), method_desc.text());
     }
-
-    QMapIterator<QString, QVariant> i(valuesMap);
-    while (i.hasNext())
-    {
-        i.next();
-        QVariant date = QDateTime::fromString(i.key(), Qt::ISODate);
-        QList<QVariant> recentValue = i.value().toList();
-
-        setData(request, I18N_NOOP(prefix + PREFIX_VALUES + "recent"), recentValue.at(0).toDouble());
-        setData(request, I18N_NOOP(prefix + PREFIX_VALUES + "recent_date"), date);
-        setData(request, I18N_NOOP(prefix + PREFIX_VALUES + "recent_qualifier"), recentValue.at(1));
-
-        break;   // we only want the first item
-    }
-
-    setData(request, I18N_NOOP(prefix + PREFIX_VALUES + "all"), valuesMap);
-    setData(request, I18N_NOOP(prefix + PREFIX_VALUES + "qualifiers"), qualifiersMap);
 }
 
 //QTemporaryFile temp_file; temp_file.write(reply->readAll());
