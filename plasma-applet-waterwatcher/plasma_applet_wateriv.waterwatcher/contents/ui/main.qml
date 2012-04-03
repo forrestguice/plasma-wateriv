@@ -1,4 +1,4 @@
-/*
+/**
     Copyright 2012 Forrest Guice
     This file is part of Plasma-WaterIV.
 
@@ -30,29 +30,29 @@ Item
     id: main;
   
     width: 200; height: 100;
-    property int minimumWidth: 50;
-    property int minimumHeight: 25;
+    property int minimumWidth: 50; property int minimumHeight: 25;
 
-    property string setting_dataRequest: "-1";  // data request
-    property int setting_pollingInterval: -1;   // polling interval
-    property int setting_displaySeries: 0;      // series # to display
+    property string app_name: "Water Watcher";
+    property string dataRequest: "-1";
+    property int pollingInterval: 60*60000;
 
-    property bool setting_showDate: true;
-    property bool setting_showUnits: true;
-    property bool setting_showShadow: true;
-    property bool setting_customShadow: false;
-    property bool setting_customColor: false;
-     
-    //Component.onCompleted: {}
+    PlasmaCore.Theme { id: theme; }
 
-    /**
-        loadtimer : this timer runs when the plasmoid is first created.
-    */
+    PlasmaCore.Svg { id: arrowSvg; imagePath: "widgets/arrows"; }
+    PlasmaCore.Svg { id: lineSvg; imagePath: "widgets/line"; }
+
+    PlasmaCore.DataSource 
+    {
+        id: dataengine; engine: "wateriv"; interval: pollingInterval;
+        onDataChanged: { refreshDisplay(); }
+        Component.onCompleted: { plasmoid.busy = true; loadtimer.start(); }
+    }
+
+    onPollingIntervalChanged: { if (pollingInterval < 15) pollingInterval = 15; }
+
     Timer
     {
-        id: loadtimer;
-        interval: 1000; running: false; repeat: false;
-
+        id: loadtimer; interval: 1000; running: false; repeat: false;
         onTriggered: 
         {
             plasmoid.addEventListener("ConfigChanged", configChanged);
@@ -60,148 +60,137 @@ Item
         }
     }
 
-    /**
-        dataengine : the data source (starts loadtimer when completed).
-    */
-    PlasmaCore.DataSource 
-    {
-        id: dataengine;
-        engine: "wateriv";
-        interval: 60 * 60000;
+    MainWidget { id: mainWidget; }
 
-        onDataChanged: { refreshDisplay(); }
-        Component.onCompleted: { loadtimer.start(); }
-    }
-
-    /**
-        theme : access to theme information (fonts, colors, etc)
-    */
-    PlasmaCore.Theme 
-    {
-        id: theme;
-    }
-
-    /**
-        main_tooltip : the tooltip user interface (mouse over)
-    */
-    PlasmaCore.ToolTip
-    {
-        id: main_tooltip
-        target: main;
-        mainText: "Water Watcher";    // todo: move / localize strings?
-        subText: "(not connected)";
-        image: "konqueror";           // todo: replace icon
-    }
-
-    /**
-        main_mousearea : a mouse area over the entire plasmoid (click action)
-    */
     MouseArea
     {
-        id: main_mousearea;
-        anchors.fill: parent;
-        onClicked: { showNextSeries(); }
+        id: main_mousearea; anchors.fill: parent;
+        onPressAndHold: { showNextSeries(); }
+        onClicked: { dialog_info.toggleDialog(); }
     }
 
-    /**
-        smallWidget : the small/compact user interface
-    */
-    Column
+    PlasmaCore.ToolTip
     {
-        id: smallWidget;
+        id: main_tooltip; target: main;
+        image: "timer"; mainText: "Water Watcher"; subText: "(not connected)";
+    }
 
-        spacing: 0;
-        anchors.horizontalCenter: parent.horizontalCenter;
-        anchors.verticalCenter: parent.verticalCenter;
+    PlasmaCore.Dialog
+    {
+        id: dialog_info;
+        mainItem: infodialog; visible: false;
 
-        Text
+        function toggleDialog()
         {
-            id: display_value;
-
-            text: "Water Watcher";
-            style: Text.Raised; 
-            font.bold: true; font.family: "Ubuntu";
-            color: theme.textColor; styleColor: theme.backgroundColor;
-            anchors.horizontalCenter: parent.horizontalCenter;
-
-            property int default_size: 38;
-            property int current_size: 38;
-            font.pixelSize: (current_size * main.width) / 200; 
-
-            onTextChanged: 
+            if (dialog_info.visible == false)
             {
-                if (main.width <= 1 || display_value.paintedWidth <= 1) return;
-                //display_value.current_size = display_value.default_size;
- 
-                while (display_value.paintedWidth < main.width && 
-                       display_value.current_size < 64)
-                {
-                    //console.log("scaling up: " + display_value.current_size);
-                    if (setting_showDate == false)
-                    {
-                        if ((display_value.paintedHeight) >= main.height) 
-                            break;
-                    } else {
-                        if ((display_value.paintedHeight + display_date.paintedHeight) >= main.height) 
-                            break;
-                    }
-                    display_value.current_size++;   // scale font up
-                }
-                //console.log("done scaling up: " + display_value.current_size);
-
-                while (display_value.paintedWidth > main.width &&
-                       display_value.current_size > 8)
-                {
-                    //console.log("scaling down: " + display_value.current_size);
-                    display_value.current_size--;   // scale font down
-                }
-                //console.log("done scaling down: " + display_value.current_size);
+                var popupPosition = dialog_info.popupPosition(main);
+                dialog_info.x = popupPosition.x - 15;
+                dialog_info.y = popupPosition.y - 15;
             }
-        }
-
-        Text
-        {
-            id: display_date;
-
-            text: "(not connected)";
-            style: Text.Raised; 
-            font.bold: false; font.family: "Ubuntu";
-            color: theme.textColor; styleColor: theme.backgroundColor;
-            anchors.horizontalCenter: parent.horizontalCenter;
-
-            property int default_size: 24;
-            property int current_size: 24;
-            font.pixelSize: (current_size * main.width) / 200; 
-
-            onTextChanged: 
-            {
-                if (main.width <= 0 || display_date.paintedWidth <= 0) return;
-                // display_date.current_size = display_date.default_size;
-
-                while ( display_date.paintedWidth > main.width && 
-                       display_date.current_size > 8)
-                {
-                    display_date.current_size--;
-                }
-            }
+            mainItem.focus = !dialog_info.visible;
+            dialog_info.visible = !dialog_info.visible;
         }
     }
+
+    InfoDialog
+    {
+        id: infodialog;
+        onNextSeries: { showNextSeries(); }
+        onPrevSeries: { showPrevSeries(); }
+        onToggleDialog: { dialog_info.toggleDialog(); }
+    }
+
+    //////////////////////////////////////
+    // functions
+    //////////////////////////////////////
 
     /**
         showNextSeries() : function
-        Advance the display to the next available timeseries.
+        Change the display to the next available timeseries.
     */
     function showNextSeries()
     {
-        var results = dataengine.data[setting_dataRequest];
+        var results = dataengine.data[dataRequest];
         if (typeof results === "undefined") return;
 
         var numSeries = results["timeseries_count"];
         if (typeof numSeries === "undefined") return;
 
-        setting_displaySeries += 1;
-        if (setting_displaySeries >= numSeries) setting_displaySeries = 0;
+        var numSubSeries = results["timeseries_" + mainWidget.displaySeries + "_values_count"];
+        if (typeof numSubSeries === "undefined") return;
+
+        mainWidget.displaySubSeries += 1;
+        if (mainWidget.displaySubSeries >= numSubSeries) 
+        {
+            mainWidget.displaySubSeries = 0;
+            mainWidget.displaySeries += 1;
+            if (mainWidget.displaySeries >= numSeries) mainWidget.displaySeries = 0;
+        }
+
         refreshDisplay();
+    }
+
+    /**
+        showPrevSeries() : function
+        Change the display to the previous available timeseries.
+    */
+    function showPrevSeries()
+    {
+        var results = dataengine.data[dataRequest];
+        if (typeof results === "undefined") return;
+        var numSeries = results["timeseries_count"];
+        if (typeof numSeries === "undefined") return;
+
+        var numSubSeries = results["timeseries_" + mainWidget.displaySeries + "_values_count"];
+        if (typeof numSubSeries === "undefined") return;
+
+        mainWidget.displaySubSeries -= 1;
+        if (mainWidget.displaySubSeries < 0) 
+        {
+            mainWidget.displaySeries -= 1;
+            if (mainWidget.displaySeries < 0) mainWidget.displaySeries = numSeries - 1;
+
+            numSubSeries = results["timeseries_" + mainWidget.displaySeries + "_values_count"];
+            mainWidget.displaySubSeries = numSubSeries-1;
+        }
+
+        refreshDisplay();
+    }
+
+    function determineNavText()
+    {
+        var results = dataengine.data[dataRequest];
+        if (typeof results === "undefined") return;
+        var numSeries = results["timeseries_count"];
+        if (typeof numSeries === "undefined") return;
+
+        var current = 0; var total = 0;
+        for (i=0; i<numSeries; i++)
+        {
+            var numSubSeries = results["timeseries_" + i + "_values_count"];
+            if (typeof numSubSeries === "undefined") return;
+
+            if (i == mainWidget.displaySeries)
+            {
+                current = total + mainWidget.displaySubSeries + 1;
+            }
+            total += numSubSeries;
+        }
+
+        return "" + current + " / " + total;
+    }
+
+    function errorMessage(errorMsg)
+    {
+        main_tooltip.mainText = app_name;
+        mainWidget.displayValue = app_name;
+        infodialog.title = app_name; 
+
+        main_tooltip.subText = errorMsg;
+        mainWidget.displayDate = errorMsg;
+        infodialog.content = errorMsg;
+        infodialog.navText = "0/0";
     }
 
     /**
@@ -211,40 +200,31 @@ Item
     function refreshDisplay()
     {
         //console.log("refreshDisplay");
-        var results = dataengine.data[setting_dataRequest];
+        var results = dataengine.data[dataRequest];
         if (typeof results === "undefined") return;
 
         var numSeries = results["timeseries_count"];
-        if (typeof numSeries === "undefined") 
+        if (typeof numSeries === "undefined")
         {
-            setting_displaySeries = 0;
+            mainWidget.displaySeries = 0;
+            mainWidget.displaySubSeries = 0;
             return;
-
-        } else {
-            if (setting_displaySeries >= numSeries)
-            {
-                setting_displaySeries = 0;
-            }
         }
 
-        var prefix = "timeseries_" + setting_displaySeries + "_";
+        var prefix = "timeseries_" + mainWidget.displaySeries + "_";
         var netIsValid = results["net_isvalid"];
-        if (typeof netIsValid === "undefined" || netIsValid == false)
+        if (typeof netIsValid === "undefined")
         {
-            main_tooltip.mainText = "Water Watcher";
-            main_tooltip.subText = "(network request failed)";
-            display_value.text = "Water Watcher";
-            display_date.text = "(network request failed)";
-            return;
+            errorMessage("Connection to engine failed.");
+
+        } else if (netIsValid == false) {
+            errorMessage("Network request failed: " + results["net_error"] + ".");
 
         } else {
             var xmlIsValid = results["xml_isvalid"];
             if (typeof xmlIsValid === "undefined" || xmlIsValid == false)
             {
-                main_tooltip.mainText = "Water Watcher";
-                main_tooltip.subText = "(received invalid data)";
-                display_value.text = "Water Watcher";
-                display_date.text = "(received invalid data)";
+                errorMessage("Received invalid data.");
 
             } else {
                 var site_name = results[prefix + "sourceinfo_sitename"];
@@ -253,24 +233,38 @@ Item
                 var var_code = results[prefix + "variable_code"];
                 var var_name = results[prefix + "variable_name"];
                 var var_desc = results[prefix + "variable_description"];
-                var var_value = results[prefix + "values_recent"];
                 var var_units = results[prefix + "variable_unitcode"];
-                var var_date = Qt.formatDateTime(results[prefix + "values_recent_date"]);
+                var var_date = Qt.formatDateTime(results[prefix + "values_"+mainWidget.displaySubSeries+"_recent_date"]);
+                var var_value = results[prefix + "values_"+mainWidget.displaySubSeries+"_recent"];
+                var var_method_id = results[prefix + "values_"+mainWidget.displaySubSeries+"_method_id"];
+                var var_method_desc = results[prefix + "values_"+mainWidget.displaySubSeries+"_method_description"];
 
-                var qualifiers = results[prefix + "values_qualifiers"];
-                var qualifier_code = results[prefix + "values_recent_qualifier"];
+                var qualifiers = results[prefix + "values_"+mainWidget.displaySubSeries+"_qualifiers"];
+                var qualifier_code = results[prefix + "values_"+mainWidget.displaySubSeries+"_recent_qualifier"];
                 var qualifier_desc = qualifiers[qualifier_code][2];
 
+                // refresh tooltip content
                 main_tooltip.mainText = "" + site_name + " (" + site_code + ")";
                 main_tooltip.subText = "" + var_name + " (" + var_code + ")<br/><br/><b>" + var_value + " " 
                                        + var_units + "</b><br/>" + var_date + "<br/><br/>"
                                        + qualifier_desc;
 
-                if (setting_showUnits) display_value.text = "" + var_value + " " + var_units;
-                else display_value.text = "" + var_value;
-                display_date.text = "" + var_date;
+                // refresh main widget
+                mainWidget.displayValue = "" + var_value;
+                mainWidget.displayUnits = "" + var_units;
+                mainWidget.displayDate = "" + var_date;
+
+                // refresh info dialog
+                infodialog.title = site_name + " (" + site_code + ")";
+                infodialog.content = "" + var_name + " (" + var_code + ")<br/>"
+                                        + var_method_desc + " (method " + var_method_id + ")<br/><br/>" 
+                                        + "<b>" + var_value + " " + var_units + "</b><br/>"
+                                        + var_date + "<br/><br/>"
+                                        +  qualifier_desc;
+                infodialog.navText = determineNavText();
             }
         }
+        plasmoid.busy = false;
     }
 
     /** 
@@ -280,36 +274,28 @@ Item
     */
     function configChanged()
     {
+        plasmoid.busy = true;
         updateFonts();
-        updateFields();
+        mainWidget.showUnits = plasmoid.readConfig("infoshowunits");
+        mainWidget.showDate = plasmoid.readConfig("infoshowdate");
         updateEngine();    // bug: source never connects unless we do this twice
         updateEngine();    // ... what is going on here.
     }
 
     function updateEngine()
     {
-        //console.log("updateEngine");
-        setting_pollingInterval = plasmoid.readConfig("datapolling");
-        if (setting_pollingInterval < 15) setting_pollingInterval = 15;
-        dataengine.interval = setting_pollingInterval * 60 * 1000;
+        pollingInterval = plasmoid.readConfig("datapolling");
 
-        if (setting_dataRequest != "-1")
+        if (dataRequest != "-1") dataengine.disconnectSource(dataRequest);
+        dataRequest = plasmoid.readConfig("datasource");
+        if (dataRequest == "-1" || dataRequest == "" || dataRequest == " ")
         {
-            dataengine.disconnectSource(setting_dataRequest);
+            errorMessage("Configuration Required");
+            plasmoid.busy = false;
+            return;
         }
-        setting_dataRequest = plasmoid.readConfig("datasource");
-        dataengine.connectSource(setting_dataRequest);
-    }
 
-    /** 
-        updateFields() : function
-        Updates visibility of the display fields using the config object.
-    */
-    function updateFields()
-    {
-        setting_showUnits = plasmoid.readConfig("infoshowunits");
-        setting_showDate = plasmoid.readConfig("infoshowdate");
-        display_date.visible = setting_showDate;
+        dataengine.connectSource(dataRequest);
     }
 
     /**
@@ -318,59 +304,29 @@ Item
     */
     function updateFonts()
     {
-        // Apply font style
-        display_value.font.family = plasmoid.readConfig("fontstyle");
-        display_date.font.family = plasmoid.readConfig("fontstyle");
+        mainWidget.fontStyle = plasmoid.readConfig("fontstyle");    // style
+        mainWidget.fontItalic = plasmoid.readConfig("fontitalic");  // italic
+        mainWidget.fontBold = plasmoid.readConfig("fontbold");      // bold
 
-        // Set italic
-        display_value.font.italic = plasmoid.readConfig("fontitalic");
+        mainWidget.showCustomColor = plasmoid.readConfig("fontusecolor");
+        if (!mainWidget.showCustomColor) mainWidget.fontColor = theme.textColor;
+        else mainWidget.fontColor = plasmoid.readConfig("fontcolor");
 
-        // Set bold
-        display_value.font.bold = plasmoid.readConfig("fontbold");
-
-        setting_customColor = plasmoid.readConfig("fontusecolor");
-        if (setting_customColor)
+        mainWidget.showShadow = plasmoid.readConfig("fontshowshadow");
+        if (mainWidget.showShadow)
         {
-            // Use custom font color
-            display_value.color = plasmoid.readConfig("fontcolor");
-            display_date.color = plasmoid.readConfig("fontcolor");
-
-        } else {
-            // Use default font color
-            display_value.color = theme.textColor;
-            display_date.color = theme.textColor;
-        }
-
-        setting_showShadow = plasmoid.readConfig("fontshowshadow");
-        if (setting_showShadow)
-        {
-            // Show a shadow behind text
-            setting_customShadow = plasmoid.readConfig("fontuseshadow");
-            if (setting_customShadow)
+            mainWidget.showCustomShadow = plasmoid.readConfig("fontuseshadow");
+            if (mainWidget.showCustomShadow)                   // custom shadow
             {
-                // Use custom shadow color
-                display_value.styleColor = plasmoid.readConfig("fontshadow");
-                display_date.styleColor = plasmoid.readConfig("fontshadow");
-
+                mainWidget.fontShadow = plasmoid.readConfig("fontshadow");
             } else {
-                // Use default shadow color
-                display_value.styleColor = theme.backgroundColor;
-                display_date.styleColor = theme.backgroundColor;
+                mainWidget.fontShadow = theme.backgroundColor; // default shadow
             }
-
         } else {
-            // Use no shadow color (set same as foreground color)
-            display_value.styleColor = display_value.color;
-            display_date.styleColor = display_value.color;
+            mainWidget.fontShadow = mainWidget.fontColor;       // no shadow
         }
 
-        var tmp_value = display_value.text; 
-        display_value.text = ""; 
-        display_value.text = tmp_value; 
-
-        var tmp_date = display_date.text;
-        display_date.text = ""; 
-        display_date.text = tmp_date;
+        mainWidget.triggerFontResize();
     }
 
 }
