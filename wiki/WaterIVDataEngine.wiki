@@ -1,8 +1,8 @@
 #summary A description of the input and output of the WaterIV data engine.
 #labels Phase-Support
 
-|| *Engine Name* || *Version* ||
-||wateriv||0.1.0||
+|| *Engine Name* || *Version* || *engine_version*
+||wateriv||0.1.0||undefined||
 
 = Introduction =
 
@@ -100,11 +100,11 @@ The _variable_ keys contain info about the dependent variable in the timeseries.
 The _values_ keys contain info about individual data points in the timeseries.
 
 || *Key* || *Type* || *Description* ||
-||timeseries_0_values_recent||double||The most recent value (e.g. 200).||
-||timeseries_0_values_recent_date||QDateTime||The datetime of the recent value.||
-||timeseries_0_values_recent_qualifier||QString||The qualifier of the most recent value (e.g. "P").||
-||timeseries_0_values_all||QMap`<`QString,QList`<`QVariant`>``>`||A QMap of all values by QDateTime.||
-||timeseries_0_values_qualifiers||QMap`<`QString,QList`<`QVariant`>``>`||A QMap of qualifiers by code.||
+||timeseries_i_values_recent||double||The most recent value (e.g. 200).||
+||timeseries_i_values_recent_date||QDateTime||The datetime of the recent value.||
+||timeseries_i_values_recent_qualifier||QString||The qualifier of the most recent value (e.g. "P").||
+||timeseries_i_values_all||QMap`<`QString,QList`<`QVariant`>``>`||A QMap of all values by QDateTime.||
+||timeseries_i_values_qualifiers||QMap`<`QString,QList`<`QVariant`>``>`||A QMap of qualifiers by code.||
  
 
 Each value in _all_ consists of a tuple.
