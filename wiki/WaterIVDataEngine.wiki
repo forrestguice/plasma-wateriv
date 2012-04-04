@@ -1,8 +1,8 @@
 #summary A description of the input and output of the WaterIV data engine (latest version 0.2.0).
 #labels Phase-Support
 
-|| *Engine Name* || *Version* || *engine_version* || *status* ||
-||wateriv||0.2.0||1||current||
+|| *status* || *Engine Name* || *Version* || *engine_version* ||
+||current||wateriv||0.2.0||1||
 
 = Introduction =
 
@@ -19,8 +19,7 @@ The most simple way to access the data engine is to request data from a single s
   # A complete request url specifying the data to retrieve.
     See http://waterservices.usgs.gov/rest/IV-Test-Tool.html.
   # A psuedo url specifying IV (Instant Values) or DV (Daily Values).
-    Example: IV?sites=10133650
-             DV?sites=10133650
+    Example: IV?sites=10133650 DV?sites=10133650
 
 Using (1) is a convenient way to get recent data by site code.
 Using (2) allows more control over the data that is requested.
@@ -33,7 +32,7 @@ Using (4) is a convenient way to get historic daily values instead of instantane
 Data is returned by the data engine using a key naming scheme. The engine_version key returns a unique engine version id and can be used by plasmoids to verify compatibility. The _net_ and _xml_ keys contain meta data describing downloading and parsing the data. The _queryinfo_ keys contain information about the request as it was understood by the web service. The _timeseries_ keys contain the actual dataset.
 
 || *Key* || *Type* || *Description* ||
-||engine`_`version||int|A unique engine version id.||
+||engine`_`version||int||A unique version id.||
 
   ---------------------------------------
 
@@ -107,14 +106,17 @@ The _variable_ keys contain info about the dependent variable in the timeseries.
 ||timeseries_i_variable_nodatavalue||double||The value to assign if a value has no data.||
 
 
-The _values_ keys contain info about individual data points in the timeseries.
+The _values_ keys contain info about individual data points in the timeseries. The _timeseries`_`i`_`values`_`count_ key returns the number of value sets in the time series. The data for each set can be found under _timeseries`_`i`_`values`_`j_ (where 0 <= j < _timeseries`_`i`_`values`_`count_).
 
 || *Key* || *Type* || *Description* ||
-||timeseries_i_values_recent||double||The most recent value (e.g. 200).||
-||timeseries_i_values_recent_date||QDateTime||The datetime of the recent value.||
-||timeseries_i_values_recent_qualifier||QString||The qualifier of the most recent value (e.g. "P").||
-||timeseries_i_values_all||QMap`<`QString,QList`<`QVariant`>``>`||A QMap of all values by QDateTime.||
-||timeseries_i_values_qualifiers||QMap`<`QString,QList`<`QVariant`>``>`||A QMap of qualifiers by code.||
+||timeseries_i_values_count||int||The number of available value sets.||
+
+|| *Key* || *Type* || *Description* ||
+||timeseries_i_values_j_recent||double||The most recent value (e.g. 200).||
+||timeseries_i_values_j_recent_date||QDateTime||The datetime of the recent value.||
+||timeseries_i_values_j_recent_qualifier||QString||The qualifier of the most recent value (e.g. "P").||
+||timeseries_i_values_j_all||QMap`<`QString,QList`<`QVariant`>``>`||A QMap of all values by QDateTime.||
+||timeseries_i_values_j_qualifiers||QMap`<`QString,QList`<`QVariant`>``>`||A QMap of qualifiers by code.||
  
 
 Each value in _all_ consists of a tuple.
