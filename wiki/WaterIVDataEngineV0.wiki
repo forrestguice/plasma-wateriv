@@ -1,0 +1,122 @@
+#summary A description of the input and output of the WaterIV data engine.
+#labels Phase-Support
+
+|| *Engine Name* || *Version* || *engine_version* ||
+||wateriv||0.1.0||undefined||
+
+= Introduction =
+
+This page describes the data made available by the WaterIV data engine. Plasmoids are able to access this data by connecting to the data engine (_wateriv_), requesting a source, and then using the key naming scheme described in "Available Data".
+
+= Available Sources =
+
+The most simple way to access the data engine is to request data from a single site using its site code. This will return a timeseries consisting of the most recent value. More extensive sets of data can be obtained by providing a request url (or partial url) specifying the arguments to pass to the web service. Valid source names include:
+
+  # A site code or comma separated list of site codes (up to 100).
+    See http://wdr.water.usgs.gov/nwisgmap/index.html.
+  # A request string specifying the data to retrieve (the part after the ? in a complete request url).
+    See http://waterservices.usgs.gov/rest/IV-Test-Tool.html.
+  # A complete request url specifying the data to retrieve.
+    See http://waterservices.usgs.gov/rest/IV-Test-Tool.html.
+
+Using (1) is a convenient way to get recent data by site code.
+Using (2) allows more control over the data that is requested.
+Using (3) allows data to be requested from an alternate url.
+
+
+= Available Data =
+
+Data is returned by the data engine using a key naming scheme. The _net_ and _xml_ keys contain meta data describing downloading and parsing the data. The _queryinfo_ keys contain information about the request as it was understood by the web service. The _timeseries_ keys contain the actual dataset.
+
+  ---------------------------------------
+
+Keys starting with _net`_`_ contain info about the network request for data. The error key is available when _net`_`isvalid_ is false. Other keys will not be available unless _net`_`isvalid_ is true.
+
+|| *Key* || *Type* || *Description* ||
+||net`_`isvalid||bool||The result of the network operation||
+||net`_`url||QString||The base url of the web service.||
+||net`_`request||QString||The request made to the web service.||
+||net`_`error||QString||Any network errors that occurred||
+
+Keys starting with _xml`_`_ contain info about the raw xml returned by the request. The _xml`_`error`_`_ keys are available when _xml`_`isvalid_ is false. Other keys will not be available unless _xml`_`isvalid_ is true.
+
+|| *Key* || *Type* || *Description* ||
+||xml_isvalid||bool||The request returned valid xml||
+||xml_schema||QString||The xsi:schemaLocation (should be WaterML-1.1.xsd)||
+||xml_error_msg||QString||Any error messages that occurred.||
+||xml_error_line||int||The line the error occured on.||
+||xml_error_column||int||The column the error occured on.||
+
+  ---------------------------------------
+
+Keys starting with _queryinfo`_`_ contain info about the data request as it was understood by the web service. These keys will not be available when _net`_`isvalid_ or _xml`_`isvalid_ is false.
+
+|| *Key* || *Type* || *Description* ||
+||queryinfo_url||QString||The url of the web service.||
+||queryinfo_time||QDateTime||The time the query was processed.||
+||queryinfo_notes||QMap<String,QVariant>||A QMap of query notes by title.||
+||queryinfo_location||QString||The requested location (site/other codes).||
+||queryinfo_variable||QString||The requested variables (parameter codes).||
+
+  ---------------------------------------
+
+The _timeseries`_`count_ key returns the number of available data sets. The data for each individual time series can be found under _timeseries`_`i_ (where 0 <= i < _timeseries`_`count_). This key will return 0 when _net`_`isvalid_ or _xml`_`isvalid_ is false.
+
+|| *Key* || *Type* || *Description* ||
+||timeseries_count||int||The number of available timeseries.||
+
+  ---------------------------------------
+
+Keys starting with _timeseries`_`i`_`_ contain info about an individual timeseries. Each timeseries is composed of three segments; sourceinfo, variable, and values.
+
+The _sourceinfo_ keys contain info about the source of a timeseries.
+
+|| *Key* || *Type* || *Description* ||
+||timeseries_i_sourceinfo_sitename||QString||The name of the source (physical site name).||
+||timeseries_i_sourceinfo_sitecode||QString||The agency code of the source (e.g. usgs)||
+||timeseries_i_sourceinfo_properties||QMap<String,QVariant>||A QMap of site properties by name.||
+||timeseries_i_sourceinfo_latitude||QString||The latitude of the source.||
+||timeseries_i_sourceinfo_longitude||QString||The longitude of the source.||
+||timeseries_i_sourceinfo_timezone_name||QString||The timezone abreviation of the source.||
+||timeseries_i_sourceinfo_timezone_offset||QString||The timezone offset.||
+||timeseries_i_sourceinfo_timezone_daylight||bool||Site currently using daylight savings.||
+||timeseries_i_sourceinfo_timezone_daylight_name||QString||The daylight savings time name (e.g. EDT).||
+||timeseries_i_sourceinfo_timezone_daylight_offset||QString||The daylight savings time offset.||
+
+
+The _variable_ keys contain info about the dependent variable in the timeseries.
+
+|| *Key* || *Type* || *Description* ||
+||timeseries_i_variable_code||QString||The variable code (e.g. 00060).||
+||timeseries_i_variable_code_attributes||QMap<QString,QVariant>||A QMap of code attributes by name.||
+||timeseries_i_variable_name||QString||The name of the variable.||
+||timeseries_i_variable_description||QString||A description of the variable.||
+||timeseries_i_variable_valuetype||QString||The type of value the variable describes (e.g. Derived).||
+||timeseries_i_variable_unitcode||QString||The unit code (e.g. ft, cfs, etc).||
+||timeseries_i_variable_options||QMap<QString,QVariant>||A QMap of options by name.||
+||timeseries_i_variable_nodatavalue||double||The value to assign if a value has no data.||
+
+
+The _values_ keys contain info about individual data points in the timeseries.
+
+|| *Key* || *Type* || *Description* ||
+||timeseries_i_values_recent||double||The most recent value (e.g. 200).||
+||timeseries_i_values_recent_date||QDateTime||The datetime of the recent value.||
+||timeseries_i_values_recent_qualifier||QString||The qualifier of the most recent value (e.g. "P").||
+||timeseries_i_values_all||QMap`<`QString,QList`<`QVariant`>``>`||A QMap of all values by QDateTime.||
+||timeseries_i_values_qualifiers||QMap`<`QString,QList`<`QVariant`>``>`||A QMap of qualifiers by code.||
+ 
+
+Each value in _all_ consists of a tuple.
+|| *Index* || *Type* || *Description* ||
+||0||double||The value (e.g. 200).||
+||1||QString||The qualifier codes assigned to the value (e.g. P is provisional data).||
+
+
+Each qualifier consists of a QList of five values.
+|| *Index* || *Type* || *Description* ||
+||0||int||qualifier id (e.g. 0 : an integer id)||
+||1||QString||qualifier code (e.g. "P" same as map key)||
+||2||QString||qualifier description (e.g. "Provisional)||
+||3||QString||qualifier network (?)||
+||4||QString||qualifier vocabulary (?)||
