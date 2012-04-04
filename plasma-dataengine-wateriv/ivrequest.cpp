@@ -42,7 +42,7 @@ QString IVRequest::requestForSource(const QString &source, QString &errorMsg)
     {
        if (not hasValidFilters(source, hasFormatFilter, errorMsg))
        {
-           errorMsg.prepend("wateriv (url): " + source);
+           //errorMsg.prepend("wateriv (url): " + source);
            return "-1";
        }
 
@@ -73,7 +73,7 @@ QString IVRequest::requestForSource(const QString &source, QString &errorMsg)
         {
             if (not hasValidFilters(source, hasFormatFilter, errorMsg))
             {
-                errorMsg.prepend("wateriv (args): " + source);
+                //errorMsg.prepend("wateriv (args): " + source);
                 return "-1";
             }
             if (hasFormatFilter) request.append("?");
@@ -85,7 +85,7 @@ QString IVRequest::requestForSource(const QString &source, QString &errorMsg)
             {
                 if (not hasValidFilters(source, hasFormatFilter, errorMsg)) 
                 {
-                    errorMsg.prepend("wateriv (arg): " + source);
+                    //errorMsg.prepend("wateriv (arg): " + source);
                     return "-1";
                 }
                 request.append("?format=" + WaterIVEngine::DEFAULT_FORMAT + "&" + source);
@@ -93,7 +93,7 @@ QString IVRequest::requestForSource(const QString &source, QString &errorMsg)
             } else {                      // no args: source is list of sites
                 if (not isSiteCode(source, errorMsg))
                 {
-                    errorMsg.prepend("wateriv (site): " + source);
+                    //errorMsg.prepend("wateriv (site): " + source);
                     return "-1";
                 }
                 request.append("?format=" + WaterIVEngine::DEFAULT_FORMAT + "&sites=" + source);
@@ -129,7 +129,7 @@ bool IVRequest::hasValidFilters( const QString &source, bool &hasFormatFilter, Q
         if (args.at(i) == "") continue;    // special case: started with &
         if (not args.at(i).contains("="))  // invalid case: not a key=value pair
         {
-            errorMsg.prepend(": syntax error: argument without an equal sign (=) :: " + args.at(i));
+            errorMsg.prepend("syntax error: argument without an equal sign (=) :: " + args.at(i));
             return false;
         }
 
@@ -211,8 +211,8 @@ bool IVRequest::hasValidFilters( const QString &source, bool &hasFormatFilter, Q
 
     if (c != 1)
     {
-        if (c == 0) errorMsg.prepend(": filter error: no major filters");
-        else errorMsg.prepend(": filter error: too many major filters: " + QString::number(c));
+        if (c == 0) errorMsg.prepend("missing a major filter");
+        else errorMsg.prepend("too many major filters " + QString::number(c));
         return false;
     }
 
@@ -230,7 +230,7 @@ bool IVRequest::isParameterCode( const QString &value, QString &errorMsg )
 
     if (num_codes > 100 || num_codes < 1)
     {
-        errorMsg.append(": filter error: too many variable codes (limit 100): " + QString::number(num_codes));
+        errorMsg.append("too many variable codes (limit 100): " + QString::number(num_codes));
         return false;
     }
 
@@ -241,7 +241,7 @@ bool IVRequest::isParameterCode( const QString &value, QString &errorMsg )
         bool an_int = false;
         if (!code.toInt(&an_int) || code.length() != 5)
         {
-            errorMsg.append(": filter error: invalid variable code: " + code);
+            errorMsg.append("invalid variable code: " + code);
             return false;
         }
     }
@@ -268,7 +268,7 @@ bool IVRequest::isFormatString( const QString &value, QString &errorMsg )
     }
    
     bool isSupported = (format == "waterml");
-    if (not isSupported) errorMsg.append(": filter error: unsupported format: " + format + "(supported: " + WaterIVEngine::DEFAULT_FORMAT + ")");
+    if (not isSupported) errorMsg.append("unsupported format: " + format + "(supported: " + WaterIVEngine::DEFAULT_FORMAT + ")");
     return isSupported;
 }
 
@@ -280,7 +280,7 @@ bool IVRequest::isFormatString( const QString &value, QString &errorMsg )
 bool IVRequest::isStateCode( const QString &request, QString &errorMsg )
 {
     bool retValue = (request.length() == 2);
-    if (not retValue) errorMsg.append(": filter error: invalid state code: " + request);
+    if (not retValue) errorMsg.append("invalid state code: " + request);
     return retValue;
 }
 
@@ -298,7 +298,7 @@ bool IVRequest::isBBoxCode( const QString &request, QString &errorMsg )
     int num_components = components.length();
     if (num_components != 4)
     {
-        errorMsg.append(": filter error: bBox requires 4 arguments but was given "
+        errorMsg.append("filter bBox requires 4 arguments but was given "
                         + QString::number(num_components) +  ": " + request);
         return false;
     }
@@ -310,7 +310,7 @@ bool IVRequest::isBBoxCode( const QString &request, QString &errorMsg )
         bool a_double = false;
         if (!component.toDouble(&a_double))
         {
-            errorMsg.append(": filter error: invalid bBox component: " + component +  ": " + request);
+            errorMsg.append("invalid bBox filter: " + component +  ": " + request);
             return false;
         }
         // todo: check product of lat range and long range against 25 degrees
@@ -332,8 +332,8 @@ bool IVRequest::isHucCode( const QString &request, QString &errorMsg )
     int num_codes = codes.length();
     if (c > 10 || c < 1 || major_huc > 1) 
     {
-        if (major_huc > 1) errorMsg.append(": filter error: too many HUC codes (major) (limit 1): " + QString::number(major_huc));
-        else errorMsg.append(": filter error: too many HUC codes (all) (limit 10): " + QString::number(num_codes));
+        if (major_huc > 1) errorMsg.append("too many HUC codes (major) (limit 1): " + QString::number(major_huc));
+        else errorMsg.append("too many HUC codes (all) (limit 10): " + QString::number(num_codes));
         return false;
     }
 
@@ -344,7 +344,7 @@ bool IVRequest::isHucCode( const QString &request, QString &errorMsg )
         bool an_int = false;
         if (!code.toInt(&an_int))
         {
-            errorMsg.append(": filter error: invalid HUC code: " + code);
+            errorMsg.append("invalid HUC code: " + code);
             return false;
         }
 
@@ -357,7 +357,7 @@ bool IVRequest::isHucCode( const QString &request, QString &errorMsg )
             c++;
 
         } else {                           // invalid length
-            errorMsg.append(": filter error: invalid HUC code: " + code);
+            errorMsg.append("invalid HUC code: " + code);
             return false;
         }
     }
@@ -375,7 +375,7 @@ bool IVRequest::isCountyCode( const QString &request, QString &errorMsg )
     int num_codes = codes.length();
     if (num_codes > 20 || num_codes < 1) 
     {
-        errorMsg.append(": filter error: too many county codes (limit 20): " + QString::number(num_codes));
+        errorMsg.append("too many county codes (limit 20): " + QString::number(num_codes));
         return false;
     }
 
@@ -386,7 +386,7 @@ bool IVRequest::isCountyCode( const QString &request, QString &errorMsg )
        bool an_int = false;
        if (!code.toInt(&an_int) || code.length() != 5)
        {
-           errorMsg.append(": filter error: invalid county code: " + code);
+           errorMsg.append("invalid county code: " + code);
            return false;
        }
     }
@@ -405,7 +405,7 @@ bool IVRequest::isSiteCode( const QString &request, QString &errorMsg )
     int num_codes = codes.length();
     if (num_codes > 100 || num_codes < 1) 
     {
-        errorMsg.append(": filter error: too many site codes (limit 100): " + QString::number(num_codes));
+        errorMsg.append("too many site codes (limit 100): " + QString::number(num_codes));
         return false;
     }
 
@@ -426,7 +426,7 @@ bool IVRequest::isSiteCode( const QString &request, QString &errorMsg )
         bool an_int = false;
         if (!code.toInt(&an_int))
         {
-            errorMsg.append(": filter error: invalid site code: " + code);
+            errorMsg.append("invalid site code: " + code);
             return false;
         }
     }
@@ -442,7 +442,7 @@ bool IVRequest::isSiteType( const QString &value, QString &errorMsg )
     int num_types = types.length();
     if (num_types < 1)
     {
-        errorMsg.append(": filter error: invalid site type: " + value);
+        errorMsg.append("invalid site type: " + value);
         return false;
     }
 
@@ -456,7 +456,7 @@ bool IVRequest::isSiteType( const QString &value, QString &errorMsg )
             major != "SP" || major != "GW" || major != "SB" || major != "FA" ||
             major != "AG" || major != "AS" || major != "AW")
         {
-            errorMsg.append(": filter error: invalid site type: " + value);
+            errorMsg.append("invalid site type: " + value);
             return false;
         }
     }
@@ -472,7 +472,7 @@ bool IVRequest::isAquiferCode( const QString &value, QString &errorMsg )
     int num_codes = codes.length();
     if (num_codes > 1000 || num_codes < 1)
     {
-        errorMsg.append(": filter error: too many aquifer codes (limit 1000): " + QString::number(num_codes));
+        errorMsg.append("too many aquifer codes (limit 1000): " + QString::number(num_codes));
         return false;
     }
 
@@ -481,7 +481,7 @@ bool IVRequest::isAquiferCode( const QString &value, QString &errorMsg )
         QString code = codes.at(i);
         if (code.length() != 10)
         {
-            errorMsg.append(": filter error: invalid aquifer code: " + code);
+            errorMsg.append("invalid aquifer code: " + code);
             return false;
         }
     }
@@ -497,7 +497,7 @@ bool IVRequest::isLocalAquiferCode( const QString &value, QString &errorMsg )
     int num_codes = codes.length();
     if (num_codes > 1000 || num_codes < 1)
     {
-        errorMsg.append(": filter error: too many local aquifer codes (limit 1000): " + QString::number(num_codes));
+        errorMsg.append("too many local aquifer codes (limit 1000): " + QString::number(num_codes));
         return false;
     }
 
@@ -509,7 +509,7 @@ bool IVRequest::isLocalAquiferCode( const QString &value, QString &errorMsg )
 
         if (state.length() != 2 || code.length() != 7)
         {
-            errorMsg.append(": filter error: invalid local aquifer code: " + code);
+            errorMsg.append("invalid local aquifer code: " + code);
             return false;
         }
     }
@@ -522,7 +522,7 @@ bool IVRequest::isLocalAquiferCode( const QString &value, QString &errorMsg )
 bool IVRequest::isSiteStatus( const QString &value, QString &errorMsg )
 {
     bool isvalid = (value == "all" || value == "active" || value == "inactive");
-    if (!isvalid) errorMsg.append(": filter error: invalid site status: " + value);
+    if (!isvalid) errorMsg.append("invalid site status: " + value);
     return isvalid;
 }
 
