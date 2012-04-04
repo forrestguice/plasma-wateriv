@@ -29,9 +29,15 @@ class WaterIVEngine : public Plasma::DataEngine
     Q_OBJECT
  
     public:
+        /** 
+            VERSION_ID gets increment every time compatibility is broken.
+            Plasmoids can get this value with 'engine_version'.
+        */
+        static const int VERSION_ID = 1;
+
         static const QString DEFAULT_SERVER;
-        static const QString DEFAULT_SERVER_IV;  // Instantaneous Values
-        static const QString DEFAULT_SERVER_DV;  // Daily Values
+        static const QString DEFAULT_SERVER_IV;  // IV is Instantaneous Values
+        static const QString DEFAULT_SERVER_DV;  // DV is Daily Values
         static const QString DEFAULT_FORMAT;
         static const int DEFAULT_MIN_POLLING = 15;
 
@@ -62,7 +68,6 @@ class WaterIVEngine : public Plasma::DataEngine
         void extractSeriesSourceInfo( QString &request, QString &prefix, QDomElement *timeSeries );
         void extractSeriesVariable( QString &request, QString &prefix, QDomElement *timeSeries );
         void extractSeriesValues( QString &request, QString &prefix, QDomElement *timeSeries );
-
 };
  
 #endif

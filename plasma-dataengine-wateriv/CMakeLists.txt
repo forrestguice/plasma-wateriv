@@ -27,20 +27,30 @@ install(TARGETS plasma_engine_wateriv
 install(FILES plasma-dataengine-wateriv.desktop
         DESTINATION ${SERVICES_INSTALL_DIR})
 
+#
 # CPack driven installer package
+#
 include (InstallRequiredSystemLibraries)
+set (CPACK_GENERATOR "DEB")
+set (CPACK_SOURCE_GENERATOR "TGZ")
 
 set (CPACK_PACKAGE_VERSION_MAJOR "${wateriv_engine_VERSION_MAJOR}")
 set (CPACK_PACKAGE_VERSION_MINOR "${wateriv_engine_VERSION_MINOR}")
 set (CPACK_PACKAGE_VERSION_PATCH "${wateriv_engine_VERSION_PATCH}")
 
+set (CPACK_DEBIAN_PACKAGE_DEPENDS "Forrest Guice <ftg2@users.sourceforge.net>")
+set (CPACK_DEBIAN_PACKAGE_MAINTAINER "Forrest Guice <ftg2@users.sourceforge.net>")
+set (CPACK_DEBIAN_PACKAGE_DESCRIPTION "A plasma data engine for accessing USGS real-time water data.")
+set (CPACK_DEBIAN_PACKAGE_SECTION "devel")
+set (CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
+
 set (CPACK_SOURCE_IGNORE_FILES "Makefile;lib/;CMakeFiles/;CMakeTmp/;CMakeCache.txt;./*.cmake;./*automoc*;./moc_*;./*.tar.gz;./.svn/")
-set (CPACK_GENERATOR "TGZ")
-set (CPACK_SOURCE_GENERATOR "TGZ")
 
 set (CPACK_RESOURCE_FILE_README "README.txt")
 set (CPACK_RESOURCE_FILE_LICENSE "COPYING.txt")
 
 set (CPACK_STRIP_FILES "lib/plasma_dataengine_wateriv.so")
+
+
 include (CPack)
 

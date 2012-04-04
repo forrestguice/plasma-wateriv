@@ -19,8 +19,7 @@
 #include "waterivengine.h"
 #include "ivrequest.h"
 
-//#include <Plasma/DataContainer> //#include <QDate> //#include <QTime> 
-//#include <KSystemTimeZones> //#include <KDateTime>
+//#include <Plasma/DataContainer> //#include <KSystemTimeZones> //#include <KDateTime>
 
 const QString WaterIVEngine::DEFAULT_SERVER_IV = "http://waterservices.usgs.gov/nwis/iv/";
 const QString WaterIVEngine::DEFAULT_SERVER_DV = "http://waterservices.usgs.gov/nwis/dv/";
@@ -228,8 +227,8 @@ WaterIVEngine::WaterIVEngine(QObject* parent, const QVariantList& args)
 */
 bool WaterIVEngine::sourceRequestEvent(const QString &source)
 {
-    setData(source, DataEngine::Data());   // bug: without this line plasmoids don't get initial update
-    return updateSourceEvent(source);      //      but with it plasmaengineexplorer fails to update
+    setData(source, "engine_version", WaterIVEngine::VERSION_ID);
+    return updateSourceEvent(source);
 }
  
 /**
