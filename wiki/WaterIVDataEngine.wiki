@@ -1,8 +1,8 @@
-#summary A description of the input and output of the WaterIV data engine.
+#summary A description of the input and output of the WaterIV data engine (latest version 0.2.0).
 #labels Phase-Support
 
-|| *Engine Name* || *Version* || *engine_version* ||
-||wateriv||0.1.0||undefined||
+|| *Engine Name* || *Version* || *engine_version* || *status* ||
+||wateriv||0.2.0||1||current||
 
 = Introduction =
 
@@ -18,25 +18,35 @@ The most simple way to access the data engine is to request data from a single s
     See http://waterservices.usgs.gov/rest/IV-Test-Tool.html.
   # A complete request url specifying the data to retrieve.
     See http://waterservices.usgs.gov/rest/IV-Test-Tool.html.
+  # A psuedo url specifying IV (Instant Values) or DV (Daily Values).
+    Example: IV?sites=10133650
+             DV?sites=10133650
 
 Using (1) is a convenient way to get recent data by site code.
 Using (2) allows more control over the data that is requested.
 Using (3) allows data to be requested from an alternate url.
+Using (4) is a convenient way to get historic daily values instead of instantaneous values.
 
 
 = Available Data =
 
-Data is returned by the data engine using a key naming scheme. The _net_ and _xml_ keys contain meta data describing downloading and parsing the data. The _queryinfo_ keys contain information about the request as it was understood by the web service. The _timeseries_ keys contain the actual dataset.
+Data is returned by the data engine using a key naming scheme. The engine_version key returns a unique engine version id and can be used by plasmoids to verify compatibility. The _net_ and _xml_ keys contain meta data describing downloading and parsing the data. The _queryinfo_ keys contain information about the request as it was understood by the web service. The _timeseries_ keys contain the actual dataset.
+
+|| *Key* || *Type* || *Description* ||
+||engine`_`version||int|A unique engine version id.||
 
   ---------------------------------------
 
-Keys starting with _net`_`_ contain info about the network request for data. The error key is available when _net`_`isvalid_ is false. Other keys will not be available unless _net`_`isvalid_ is true.
+Keys starting with _net`_`_ contain info about the network request for data. The _net`_`request`_`isvalid_ key is false when the data engine rejects a request. The _net`_`request`_`error_ key contains the error. The _net`_`error key is available when _net`_`isvalid_ is false. Other keys will not be available unless _net`_`isvalid_ and _net`_`request`_`isvalid_ are true.
 
 || *Key* || *Type* || *Description* ||
-||net`_`isvalid||bool||The result of the network operation||
+||net`_`isvalid||bool||The result of the network operation.||
 ||net`_`url||QString||The base url of the web service.||
 ||net`_`request||QString||The request made to the web service.||
+||net`_`request_isvalid||bool||The request was accepted by the data engine.||
+||net`_`request_error||bool||Any error messages generated when parsing the request (when request_isvalid is false)||
 ||net`_`error||QString||Any network errors that occurred||
+
 
 Keys starting with _xml`_`_ contain info about the raw xml returned by the request. The _xml`_`error`_`_ keys are available when _xml`_`isvalid_ is false. Other keys will not be available unless _xml`_`isvalid_ is true.
 
