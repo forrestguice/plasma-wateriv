@@ -33,7 +33,7 @@ Item
     property int minimumWidth: 50; property int minimumHeight: 25;
 
     property string app_name: "Water Watcher";
-
+    property int minEngineVersion: 1;
     property int pollingInterval: 60*60000;
     property string dataRequest: "-1";
     property bool dataRequestIsEmpty: (dataRequest == "-1" || dataRequest == "" || dataRequest == " ");
@@ -214,15 +214,27 @@ Item
     */
     function refreshDisplay()
     {
-        //console.log("refreshDisplay");
         var results = dataengine.data[dataRequest];
-        if (typeof results === "undefined") return;
+        if (typeof results === "undefined")
+        {
+            plasmoid.busy = false;
+            return;
+        }
 
+        var engineVersion = results["engine_version"];
+        if (typeof engineVersion === "undefined" || engineVersion < minEngineVersion)
+        {
+            errorMessage("Insufficient data engine:<br/>wateriv >= 0.2.0 required");
+            plasmoid.busy = false;
+            return;
+        }
+ 
         var numSeries = results["timeseries_count"];
         if (typeof numSeries === "undefined") 
         {
             mainWidget.displaySeries = 0;
             mainWidget.displaySubSeries = 0;
+            plasmoid.busy = false;
             return;
         }
        
