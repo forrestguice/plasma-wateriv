@@ -1,5 +1,5 @@
 #summary A description of the input and output of the WaterIV data engine (latest version 0.2.0).
-#labels Phase-Support
+#labels Phase-Support,Featured
 
 || *status* || *Engine Name* || *Version* || *engine_version* ||
 ||current||wateriv||0.2.0||1||
