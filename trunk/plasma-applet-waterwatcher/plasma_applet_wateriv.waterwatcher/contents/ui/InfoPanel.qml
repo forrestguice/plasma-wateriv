@@ -17,39 +17,28 @@
 */
 
 import QtQuick 1.0
-import org.kde.plasma.core 0.1 as PlasmaCore
 
-Rectangle
+Column
 {
-    id: btn; radius: 5; smooth: true;
-    width: 25; height: 25; color: "transparent";
+    id: panel; 
+    spacing: 5; anchors.bottomMargin: 5;
 
-    signal action;
+    property string title: main.app_name;
+    property string content: "<br/><br/>";
 
-    property string arrowElement;
-
-    PlasmaCore.SvgItem
+    TextEdit
     {
-        svg: arrowSvg; elementId: arrowElement; anchors.fill: parent;
-
-        MouseArea
-        {
-            anchors.fill: parent; hoverEnabled: true;
-            onEntered: { btn.color = theme.viewHoverColor; }
-            onExited: { btn.color = "transparent"; }
-            onPressed: { actionEntered(); }
-            onReleased: { actionExited(); }
-            onClicked: { btn.action(); }
-        }
+        id: txtTitle; text: title; 
+        font.bold: true; color: theme.viewTextColor;
+        readOnly: true; selectByMouse: true;
+        anchors.left: parent.left; anchors.leftMargin: 5; anchors.rightMargin: 10;
     }
 
-    function actionEntered()
+    TextEdit
     {
-        btn.color = theme.viewFocusColor;
-    }
-
-    function actionExited()
-    {
-        btn.color = "transparent";
+        id: txtContent; text: content; 
+        font.bold: false; color: theme.textColor;
+        readOnly: true; selectByMouse: true;
+        anchors.left: parent.left; anchors.leftMargin: 5; anchors.rightMargin: 10;
     }
 }
