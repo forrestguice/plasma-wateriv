@@ -37,6 +37,7 @@ Item
     property int pollingInterval: 60*60000;
     property string dataRequest: "-1";
     property bool dataRequestIsEmpty: (dataRequest == "-1" || dataRequest == "" || dataRequest == " ");
+    property bool dataRequestIsValid: true;
 
     PlasmaCore.Theme { id: theme; }
 
@@ -78,7 +79,7 @@ Item
         }
         onClicked: 
         {
-            if (dataRequestIsEmpty && dataengine.valid) infodialog.state = "CONFIGURE";
+            if ((dataRequestIsEmpty || !dataRequestIsValid) && dataengine.valid) infodialog.state = "CONFIGURE";
             dialog_info.toggleDialog()
         }
     }
@@ -209,24 +210,36 @@ Item
     }
 
     /**
-        refreshDisplay() : function
-        Retrieve data from the connected dataengine and update the display.
+        Checks for common errors; returns true if the calling function should
+        return as a result of errors, or false if it should continue (no error).
     */
-    function refreshDisplay()
+    function errorChecking()
     {
         var results = dataengine.data[dataRequest];
         if (typeof results === "undefined")
         {
-            plasmoid.busy = false;
-            return;
+            plasmoid.busy = false;   // error: no result from data engine
+            return true;             // (probably delayed)
         }
 
         var engineVersion = results["engine_version"];
         if (typeof engineVersion === "undefined" || engineVersion < minEngineVersion)
         {
             errorMessage("Insufficient data engine:<br/>wateriv >= 0.2.0 required");
+            console.log("Water Watcher: requires version_id 1, found version_id " + engineVersion);
             plasmoid.busy = false;
-            return;
+            return true;             // error: insufficient data engine version
+        }
+
+        dataRequestIsValid = results["net_request_isvalid"];
+        if (!dataRequestIsValid)
+        {
+            errorMessage("Invalid data source.");
+            infodialog.panelConfig.field.state = "ERROR";
+            infodialog.panelConfig.error.input.text = results["net_request_error"];
+            infodialog.panelConfig.state = "ERROR";
+            plasmoid.busy = false;
+            return true;
         }
  
         var numSeries = results["timeseries_count"];
@@ -235,74 +248,94 @@ Item
             mainWidget.displaySeries = 0;
             mainWidget.displaySubSeries = 0;
             plasmoid.busy = false;
-            return;
-        }
-       
-        if (mainWidget.displaySeries >= numSeries )
-        {
-            mainWidget.displaySeries = 0;
-            mainWidget.displaySubSeries = 0;
+            return true;             // error: no timeseries to display
         }
 
-        var prefix = "timeseries_" + mainWidget.displaySeries + "_";
         var netIsValid = results["net_isvalid"];
         if (typeof netIsValid === "undefined")
         {
             errorMessage("Connection to engine failed.");
-
-        } else if (netIsValid == false) {
-            errorMessage("Network request failed: " + results["net_error"] + ".");
-
-        } else {
-            var xmlIsValid = results["xml_isvalid"];
-            if (typeof xmlIsValid === "undefined" || xmlIsValid == false)
-            {
-                errorMessage("Received invalid data.");
-
-            } else {
-                var numSubSeries = results[prefix+"values_count"];
-                if (mainWidget.displaySubSeries >= numSubSeries)
-                {
-                    mainWidget.displaySubSeries = 0;
-                }
-           
-                var site_name = results[prefix + "sourceinfo_sitename"];
-                var site_code = results[prefix + "sourceinfo_sitecode"];
-
-                var var_code = results[prefix + "variable_code"];
-                var var_name = results[prefix + "variable_name"];
-                var var_desc = results[prefix + "variable_description"];
-                var var_units = results[prefix + "variable_unitcode"];
-                var var_date = Qt.formatDateTime(results[prefix + "values_"+mainWidget.displaySubSeries+"_recent_date"]);
-                var var_value = results[prefix + "values_"+mainWidget.displaySubSeries+"_recent"];
-                var var_method_id = results[prefix + "values_"+mainWidget.displaySubSeries+"_method_id"];
-                var var_method_desc = results[prefix + "values_"+mainWidget.displaySubSeries+"_method_description"];
-
-                var qualifiers = results[prefix + "values_"+mainWidget.displaySubSeries+"_qualifiers"];
-                var qualifier_code = results[prefix + "values_"+mainWidget.displaySubSeries+"_recent_qualifier"];
-                var qualifier_desc = qualifiers[qualifier_code][2];
-
-                // refresh tooltip content
-                main_tooltip.mainText = "" + site_name + " (" + site_code + ")";
-                main_tooltip.subText = "" + var_name + " (" + var_code + ")<br/><br/><b>" + var_value + " " 
-                                       + var_units + "</b><br/>" + var_date + "<br/><br/>"
-                                       + qualifier_desc;
-
-                // refresh main widget
-                mainWidget.displayValue = "" + var_value;
-                mainWidget.displayUnits = "" + var_units;
-                mainWidget.displayDate = "" + var_date;
-
-                // refresh info dialog
-                infodialog.panelRecent.title = site_name + " (" + site_code + ")";
-                infodialog.panelRecent.content = "" + var_name + " (" + var_code + ")<br/>"
-                                        + var_method_desc + " (method " + var_method_id + ")<br/><br/>" 
-                                        + "<b>" + var_value + " " + var_units + "</b><br/>"
-                                        + var_date + "<br/><br/>"
-                                        +  qualifier_desc;
-                infodialog.navText = determineNavText();
-            }
+            plasmoid.busy = false;
+            return true;                      // error: connection to engine failed
         }
+
+        if (netIsValid == false) 
+        {
+            errorMessage("Network request failed: " + results["net_error"] + ".");
+            plasmoid.busy = false;
+            return true;                      // error: connection to network failed
+        }
+
+        var xmlIsValid = results["xml_isvalid"];
+        if (typeof xmlIsValid === "undefined" || xmlIsValid == false)
+        {
+            errorMessage("Received invalid data.");
+            plasmoid.busy = false;
+            return true;                      // error: xml errors
+        }
+
+        if (mainWidget.displaySeries >= numSeries )
+        {
+            mainWidget.displaySeries = 0;     // error: series out of bounds
+            mainWidget.displaySubSeries = 0;  // corrent and ignore error
+        }
+
+        return false;   // end reached - no major errors occured
+    }
+
+    /**
+        refreshDisplay() : function
+        Retrieve data from the connected dataengine and update the display.
+    */
+    function refreshDisplay()
+    {
+        if (errorChecking()) return;
+
+        var results = dataengine.data[dataRequest];
+        var prefix = "timeseries_" + mainWidget.displaySeries + "_";
+
+        var numSubSeries = results[prefix+"values_count"];
+        if (mainWidget.displaySubSeries >= numSubSeries)
+        {
+            mainWidget.displaySubSeries = 0;
+        }
+    
+        var site_name = results[prefix + "sourceinfo_sitename"];
+        var site_code = results[prefix + "sourceinfo_sitecode"];
+
+        var var_code = results[prefix + "variable_code"];
+        var var_name = results[prefix + "variable_name"];
+        var var_desc = results[prefix + "variable_description"];
+        var var_units = results[prefix + "variable_unitcode"];
+        var var_date = Qt.formatDateTime(results[prefix + "values_"+mainWidget.displaySubSeries+"_recent_date"]);
+        var var_value = results[prefix + "values_"+mainWidget.displaySubSeries+"_recent"];
+        var var_method_id = results[prefix + "values_"+mainWidget.displaySubSeries+"_method_id"];
+        var var_method_desc = results[prefix + "values_"+mainWidget.displaySubSeries+"_method_description"];
+
+        var qualifiers = results[prefix + "values_"+mainWidget.displaySubSeries+"_qualifiers"];
+        var qualifier_code = results[prefix + "values_"+mainWidget.displaySubSeries+"_recent_qualifier"];
+        var qualifier_desc = qualifiers[qualifier_code][2];
+
+        // refresh tooltip content
+        main_tooltip.mainText = "" + site_name + " (" + site_code + ")";
+        main_tooltip.subText = "" + var_name + " (" + var_code + ")<br/><br/><b>" + var_value + " " 
+                               + var_units + "</b><br/>" + var_date + "<br/><br/>"
+                               + qualifier_desc;
+
+        // refresh main widget
+        mainWidget.displayValue = "" + var_value;
+        mainWidget.displayUnits = "" + var_units;
+        mainWidget.displayDate = "" + var_date;
+
+        // refresh info dialog
+        infodialog.panelRecent.title = site_name + " (" + site_code + ")";
+        infodialog.panelRecent.content = "" + var_name + " (" + var_code + ")<br/>"
+                                + var_method_desc + " (method " + var_method_id + ")<br/><br/>" 
+                                + "<b>" + var_value + " " + var_units + "</b><br/>"
+                                + var_date + "<br/><br/>"
+                                +  qualifier_desc;
+        infodialog.navText = determineNavText();
+
         plasmoid.busy = false;
     }
 
