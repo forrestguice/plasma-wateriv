@@ -33,8 +33,9 @@ Rectangle
     property color textNormalColor: theme.textColor;
     property color textErrorColor: "red";
     property color backgroundNormalColor: theme.viewBackgroundColor;
-    property color backgroundModifiedColor: theme.buttonFocusColor;
-    property color backgroundErrorColor: theme.viewBackgroundColor;
+    property color backgroundModifiedColor: theme.buttonHoverColor;
+    property color backgroundErrorColor: theme.buttonFocusColor;
+    property color backgroundReadonlyColor: theme.buttonBackgroundColor;
 
     signal action;
 
@@ -43,6 +44,7 @@ Rectangle
         State
         {
             name: "NORMAL";
+            PropertyChanges { target: txt; readOnly: false; }
             PropertyChanges { target: field; color: backgroundNormalColor; }
             PropertyChanges { target: txt; color: textNormalColor; }
             PropertyChanges { target: btnAccept; visible: false; }
@@ -63,29 +65,17 @@ Rectangle
             PropertyChanges { target: field; color: backgroundErrorColor; }
             PropertyChanges { target: txt; color: textErrorColor; }
             PropertyChanges { target: btnAccept; visible: false; }
-            PropertyChanges { target: btnCancel; visible: true; }
+            PropertyChanges { target: btnCancel; visible: false; }
+        },
+        State
+        {
+            name: "READONLY";
+            PropertyChanges { target: field; color: backgroundReadonlyColor; }
+            PropertyChanges { target: txt; readOnly: true; }
+            PropertyChanges { target: btnAccept; visible: false; }
+            PropertyChanges { target: btnCancel; visible: false; }
         }
     ]
-
-
-    /** MouseArea
-    {
-        anchors.fill: parent; hoverEnabled: true;
-        onClicked: { btn.action(); }
-        onEntered: { btn.state = "HOVERED"; }
-        onExited: 
-        {
-            if (toggled) btn.state = "TOGGLED";
-            else btn.state = "NORMAL";
-        }
-        onPressed: { btn.state = "PRESSED"; }
-        onReleased: 
-        { 
-            if (toggled) btn.state = "TOGGLED";
-            else btn.state = "NORMAL";
-        }
-    }*/
- 
 
     TextInput
     {
