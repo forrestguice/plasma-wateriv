@@ -85,15 +85,19 @@ const QString WaterIVEngine::PREFIX_VALUES = "values_";
 
    --> PREFIX_NET + <NET_KEY>
        The NET keys contain info about the network request for data.
-       The error key is available when isvalid is false. All other keys are
-       available when isvalid is true.
+       When the request_isvalid key is false the data engine has rejected
+       the request; the error message is in request_error. The isvalid key
+       is false when network transmission has failed; the error code is in 
+       error. All other keys are unavailable when isvalid is false.
        Examples: net_url net_request net_error
 
        Available NET_KEYs:
-       --> url           : the base url of the web service
-       --> request       : the request made to the web service
-       --> isvalid       : the result of the network operation (t/f)
-       --> error         : failed to retrieve data (network error)
+       --> url              : the base url of the web service
+       --> request          : the request made to the web service
+       --> request_isvalid  : the result of attemping to parse the request
+       --> request_error    : the result of attemping to parse the request
+       --> isvalid          : the result of the network operation (t/f)
+       --> error            : failed to retrieve data (network error)
 
   ---------------------------------------
 
@@ -204,6 +208,7 @@ const QString WaterIVEngine::PREFIX_VALUES = "values_";
 /**
     Changelog (since 0.1.0)
 
+    * Added keys: engine_version, net_request_isvalid, net_request_error
     * Moved keys: timeseries_#_values to timeseries_#_values_#; engine now
       supports multiple sets of values within a timeseries (differing methods).
     * Added keys: timeseries_#_values_count, values_#_method_id, values_#_method_description
@@ -227,7 +232,6 @@ WaterIVEngine::WaterIVEngine(QObject* parent, const QVariantList& args)
 */
 bool WaterIVEngine::sourceRequestEvent(const QString &source)
 {
-    setData(source, "engine_version", WaterIVEngine::VERSION_ID);
     return updateSourceEvent(source);
 }
  
@@ -239,13 +243,17 @@ bool WaterIVEngine::updateSourceEvent(const QString &source)
 {
     QString errorMsg;
     QString requestUrl = IVRequest::requestForSource(source, errorMsg);
-    //qDebug() << requestUrl;
+    setData(source, "engine_version", WaterIVEngine::VERSION_ID);
+
     if (requestUrl == "-1")
     {
-        qDebug() << errorMsg;
-        return false;
+        setData(source, I18N_NOOP(PREFIX_NET + "request_isvalid"), false);
+        setData(source, I18N_NOOP(PREFIX_NET + "request_error"), errorMsg);
+        //qDebug() << errorMsg;
+        return true;
     }
 
+    setData(source, I18N_NOOP(PREFIX_NET + "request_isvalid"), true);
     QNetworkReply *reply = manager->get(QNetworkRequest(QUrl(requestUrl)));
     replies->insert(reply, source);
     return false;
@@ -265,16 +273,13 @@ void WaterIVEngine::dataFetchComplete(QNetworkReply *reply)
     QUrl redirectUrl = redirectVariant.toUrl();
     if (!redirectUrl.isEmpty() && redirectUrl != requestUrl)
     {
-        qDebug() << "Redirecting: " << redirectUrl << "( " << requestUrl << ")";
-
+        //qDebug() << "Redirecting: " << redirectUrl << "( " << requestUrl << ")";
         // redirected - create a new QNetworkRequest
         QNetworkReply *reply2 = manager->get(QNetworkRequest(redirectUrl));
         replies->insert(reply2, request);
         reply->deleteLater();
         return;
     }
-
-    //qDebug() << "Redirection over..";
 
     // data - request url
     QStringList request_parts = requestUrl.toString().split("?");
