@@ -22,49 +22,97 @@ import org.kde.plasma.core 0.1 as PlasmaCore
 Column
 {
     id: infodialog; spacing: 5; anchors.bottomMargin: 5;
-    width: (rowNav.combinedWidth > txtTitle.paintedWidth) ? rowNav.combinedWidth :
-            txtTitle.paintedWidth + txtTitle.anchors.rightMargin + txtTitle.anchors.leftMargin;
-    height: rowNav.combinedHeight + txtContent.paintedHeight + 
-            txtTitle.paintedHeight + anchors.bottomMargin + (spacing * 3) + navSeparator.height;
+    width: (rowNav.width > panelCurrent.width) ? rowNav.width : 
+           panelCurrent.width + panelCurrent.anchors.leftMargin + panelCurrent.anchors.rightMargin;
+    height: rowNav.height + panelCurrent.height + navSeparator.height + 
+            anchors.topMargin + anchors.bottomMargin + (spacing*2);
 
     signal nextSeries;
     signal prevSeries;
     signal toggleDialog;
 
-    property string title: main.app_name;
-    property string content;
     property string navText: "0/0";
+    property variant panelConfig: configpanel;
+    property variant panelRecent: recentpanel;
+    property variant panelCurrent: panelRecent;
 
     Keys.onEscapePressed: { toggleDialog(); }
-
     Keys.onPressed:
     {
-        if (event.key == Qt.Key_Left) btnPrev.actionEntered();
-        else if (event.key == Qt.Key_Right) btnNext.actionEntered();
+        if (event.key == Qt.Key_Left) btnPrev.state = "PRESSED";
+        else if (event.key == Qt.Key_Right) btnNext.state = "PRESSED";
     }
 
     Keys.onReleased:
     {
         if (event.key == Qt.Key_Left) 
         {
-            btnPrev.actionExited();
-            btnPrev.action();
+            btnPrev.state = "NORMAL";
+            if (btnPrev.visible) btnPrev.action();
 
         } else if (event.key == Qt.Key_Right) {
-            btnNext.actionExited();
-            btnNext.action();
+            btnNext.state = "NORMAL";
+            if (btnNext.visible) btnNext.action();
         }
     }
+
+    onPanelCurrentChanged:
+    {
+        panelConfig.visible = false;
+        panelRecent.visible = false;
+        panelCurrent.visible = true;
+    }
+
+    state: "RECENT";
+    states: [
+        State
+        {
+            name: "CONFIGURE";
+            PropertyChanges { target: infodialog; panelCurrent: panelConfig }
+            PropertyChanges { target: tabrecent; toggled: false }
+            PropertyChanges { target: tabconfig; toggled: true }
+            PropertyChanges { target: btnPrev; visible: false }
+            PropertyChanges { target: txtNav; visible: false }
+            PropertyChanges { target: btnNext; visible: false }
+        },
+        State
+        {
+            name: "RECENT";
+            PropertyChanges { target: infodialog; panelCurrent: panelRecent }
+            PropertyChanges { target: tabrecent; toggled: true }
+            PropertyChanges { target: tabconfig; toggled: false }
+            PropertyChanges { target: btnPrev; visible: true }
+            PropertyChanges { target: txtNav; visible: true }
+            PropertyChanges { target: btnNext; visible: true }
+        }
+    ]
 
     Row
     {
         id: rowNav; spacing: 2;
-        property int combinedWidth: btnPrev.width + btnNext.width + tabinfo.width + txtNav.paintedWidth + tabinfo.marginleft + tabinfo.marginRight + txtNav.marginLeft + txtNav.marginRight + btnNext.marginLeft + btnNext.marginRight + btnPrev.marginLeft + btnPrev.marginRight + (spacing * 5);
-        property int combinedHeight: (txtNav.paintedHeight > btnPrev.height) ? txtNav.paintedHeight : btnPrev.height;
 
-        ArrowButton
+        TextButton
         {
-            id: btnPrev; arrowElement: "left-arrow";
+            id: tabconfig; buttonText: "Configuration";
+            anchors.verticalCenter: parent.verticalCenter;
+            toggled: false;
+            anchors.leftMargin: 10; anchors.rightMargin: 10;
+            onAction: { infodialog.state = "CONFIGURE"; }
+        }
+
+        TextButton
+        {
+            id: tabrecent; buttonText: "Most Recent Value";
+            anchors.verticalCenter: parent.verticalCenter;
+            anchors.leftMargin: 10; anchors.rightMargin: 10;
+            onAction: { infodialog.state = "RECENT"; }
+        }
+
+        ImgButton
+        {
+            id: btnPrev; 
+            image: arrowSvg; element: "left-arrow";
+            anchors.leftMargin: 10;
             onAction: { infodialog.prevSeries(); }
         }
 
@@ -75,18 +123,11 @@ Column
             anchors.verticalCenter: parent.verticalCenter;
         }
 
-        ArrowButton
+        ImgButton
         {
-            id: btnNext; arrowElement: "right-arrow";
-            anchors.rightMargin: 10;
+            id: btnNext; 
+            image: arrowSvg; element: "right-arrow";
             onAction: { infodialog.nextSeries(); }
-        }
-
-        TextButton
-        {
-            id: tabinfo; buttonText: "Most Recent Value";
-            anchors.verticalCenter: parent.verticalCenter;
-            onAction: {}
         }
     }
 
@@ -96,19 +137,16 @@ Column
         width: infodialog.width; height: 3;
     }
 
-    TextEdit
+    SitesPanel
     {
-        id: txtTitle; text: title; 
-        font.bold: true; color: theme.viewTextColor;
-        readOnly: true; selectByMouse: true;
-        anchors.left: parent.left; anchors.leftMargin: 5; anchors.rightMargin: 10;
+        id: configpanel;
+        visible: false;
     }
 
-    TextEdit
+    InfoPanel
     {
-        id: txtContent; text: content; 
-        font.bold: false; color: theme.textColor;
-        readOnly: true; selectByMouse: true;
-        anchors.left: parent.left; anchors.leftMargin: 5; anchors.rightMargin: 10;
+        id: recentpanel;
+        visible: false;
     }
+
 }

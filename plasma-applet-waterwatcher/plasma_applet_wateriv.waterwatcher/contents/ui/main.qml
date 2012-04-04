@@ -33,19 +33,25 @@ Item
     property int minimumWidth: 50; property int minimumHeight: 25;
 
     property string app_name: "Water Watcher";
-    property string dataRequest: "-1";
+
     property int pollingInterval: 60*60000;
+    property string dataRequest: "-1";
+    property bool dataRequestIsEmpty: (dataRequest == "-1" || dataRequest == "" || dataRequest == " ");
 
     PlasmaCore.Theme { id: theme; }
 
     PlasmaCore.Svg { id: arrowSvg; imagePath: "widgets/arrows"; }
     PlasmaCore.Svg { id: lineSvg; imagePath: "widgets/line"; }
+    PlasmaCore.Svg { id: configSvg; imagePath: "widgets/configuration-icons"; }
 
     PlasmaCore.DataSource 
     {
         id: dataengine; engine: "wateriv"; interval: pollingInterval;
         onDataChanged: { refreshDisplay(); }
-        Component.onCompleted: { plasmoid.busy = true; loadtimer.start(); }
+        Component.onCompleted: 
+        { 
+            plasmoid.busy = true; loadtimer.start(); 
+        }
     }
 
     onPollingIntervalChanged: { if (pollingInterval < 15) pollingInterval = 15; }
@@ -64,9 +70,17 @@ Item
 
     MouseArea
     {
-        id: main_mousearea; anchors.fill: parent;
-        onPressAndHold: { showNextSeries(); }
-        onClicked: { dialog_info.toggleDialog(); }
+        id: mainMouseArea; anchors.fill: parent;
+        onPressAndHold: 
+        {
+            if (dataRequestIsEmpty) { infodialog.state = "CONFIGURE"; dialog_info.toggleDialog(); }
+            else { showNextSeries() }; 
+        }
+        onClicked: 
+        {
+            if (dataRequestIsEmpty && dataengine.valid) infodialog.state = "CONFIGURE";
+            dialog_info.toggleDialog()
+        }
     }
 
     PlasmaCore.ToolTip
@@ -88,6 +102,7 @@ Item
                 dialog_info.x = popupPosition.x - 15;
                 dialog_info.y = popupPosition.y - 15;
             }
+
             mainItem.focus = !dialog_info.visible;
             dialog_info.visible = !dialog_info.visible;
         }
@@ -185,11 +200,11 @@ Item
     {
         main_tooltip.mainText = app_name;
         mainWidget.displayValue = app_name;
-        infodialog.title = app_name; 
+        infodialog.panelRecent.title = app_name; 
 
         main_tooltip.subText = errorMsg;
         mainWidget.displayDate = errorMsg;
-        infodialog.content = errorMsg;
+        infodialog.panelRecent.content = errorMsg;
         infodialog.navText = "0/0";
     }
 
@@ -204,11 +219,17 @@ Item
         if (typeof results === "undefined") return;
 
         var numSeries = results["timeseries_count"];
-        if (typeof numSeries === "undefined")
+        if (typeof numSeries === "undefined") 
         {
             mainWidget.displaySeries = 0;
             mainWidget.displaySubSeries = 0;
             return;
+        }
+       
+        if (mainWidget.displaySeries >= numSeries )
+        {
+            mainWidget.displaySeries = 0;
+            mainWidget.displaySubSeries = 0;
         }
 
         var prefix = "timeseries_" + mainWidget.displaySeries + "_";
@@ -227,6 +248,12 @@ Item
                 errorMessage("Received invalid data.");
 
             } else {
+                var numSubSeries = results[prefix+"values_count"];
+                if (mainWidget.displaySubSeries >= numSubSeries)
+                {
+                    mainWidget.displaySubSeries = 0;
+                }
+           
                 var site_name = results[prefix + "sourceinfo_sitename"];
                 var site_code = results[prefix + "sourceinfo_sitecode"];
 
@@ -255,8 +282,8 @@ Item
                 mainWidget.displayDate = "" + var_date;
 
                 // refresh info dialog
-                infodialog.title = site_name + " (" + site_code + ")";
-                infodialog.content = "" + var_name + " (" + var_code + ")<br/>"
+                infodialog.panelRecent.title = site_name + " (" + site_code + ")";
+                infodialog.panelRecent.content = "" + var_name + " (" + var_code + ")<br/>"
                                         + var_method_desc + " (method " + var_method_id + ")<br/><br/>" 
                                         + "<b>" + var_value + " " + var_units + "</b><br/>"
                                         + var_date + "<br/><br/>"
@@ -284,11 +311,18 @@ Item
 
     function updateEngine()
     {
-        pollingInterval = plasmoid.readConfig("datapolling");
+        if (!dataengine.valid)
+        {
+            errorMessage("Missing data engine:<br/>wateriv >= 0.2.0 required");
+            plasmoid.busy = false;
+            return;
+        }
 
-        if (dataRequest != "-1") dataengine.disconnectSource(dataRequest);
+        pollingInterval = plasmoid.readConfig("datapolling");
+        if (!dataRequestIsEmpty) dataengine.disconnectSource(dataRequest);
+
         dataRequest = plasmoid.readConfig("datasource");
-        if (dataRequest == "-1" || dataRequest == "" || dataRequest == " ")
+        if (dataRequestIsEmpty)
         {
             errorMessage("Configuration Required");
             plasmoid.busy = false;
