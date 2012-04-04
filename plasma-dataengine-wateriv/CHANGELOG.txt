@@ -1,0 +1,19 @@
+WaterIV Data Engine ChangeLog
+
+ ----------------------------------
+ 0.2.0 : plasma-dataengine-wateriv
+
+ * Added support for Daily Values (DV) service; engine now accepts psuedo urls 
+   that specify which service (DV/IV) to use (defaults to IV).
+ * Added keys: timeseries_#_values_count, values_#_method_id, values_#_method_description
+ * Moved keys: timeseries_#_values to timeseries_#_values_#; bugfix 5; engine now
+   supports multiple sets of values (of differing methods) within a timeseries;
+   change breaks compatibility with plasmoids using older versions.
+ * Added constant: VERSION_ID = 1; a unique version id that is incremented when
+   compatibility with older plasmoids is broken due to major changes.
+ * Added keys: engine_version, net_request_isvalid, net_request_error
+   
+ ----------------------------------
+ 0.1.0 : plasma-dataengine-wateriv
+
+ * Initial release. 
