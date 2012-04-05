@@ -87,7 +87,7 @@ Item
     PlasmaCore.ToolTip
     {
         id: main_tooltip; target: main;
-        image: "timer"; mainText: "Water Watcher"; subText: "(not connected)";
+        image: "chronometer"; mainText: "Water Watcher"; subText: "(not connected)";
     }
 
     PlasmaCore.Dialog
@@ -200,6 +200,7 @@ Item
     function errorMessage(errorMsg)
     {
         main_tooltip.mainText = app_name;
+        mainWidget.state = "ERROR";
         mainWidget.displayValue = app_name;
         infodialog.panelRecent.title = app_name; 
 
@@ -290,6 +291,7 @@ Item
     function refreshDisplay()
     {
         if (errorChecking()) return;
+        mainWidget.state = "NORMAL";
 
         var results = dataengine.data[dataRequest];
         var prefix = "timeseries_" + mainWidget.displaySeries + "_";

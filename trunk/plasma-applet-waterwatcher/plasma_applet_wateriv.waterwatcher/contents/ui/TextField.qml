@@ -31,7 +31,7 @@ Rectangle
     onTextInitialChanged: { txt.text = textInitial; }
 
     property color textNormalColor: theme.textColor;
-    property color textErrorColor: "red";
+    property color textErrorColor: theme.textColor;
     property color backgroundNormalColor: theme.viewBackgroundColor;
     property color backgroundModifiedColor: theme.buttonHoverColor;
     property color backgroundErrorColor: theme.buttonFocusColor;
