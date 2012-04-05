@@ -48,8 +48,17 @@ Column
 
     onDisplayValueChanged: 
     {
-        if (showUnits) display_value.text = displayValue + " " + displayUnits; 
-        else display_value.text = displayValue;
+        if (showUnits) 
+        {
+            if (mainWidget.state == "NORMAL")
+            {
+                display_value.text = displayValue + " " + displayUnits; 
+            } else {
+                display_value.text = displayValue; 
+            }
+        } else {
+            display_value.text = displayValue;
+        }
     }
     
     onDisplayUnitsChanged:
@@ -59,6 +68,18 @@ Column
     }
 
     onDisplayDateChanged: { display_date.text = displayDate; }
+
+    state: "NORMAL";
+    states: [
+        State
+        {
+            name: "NORMAL";
+        },
+        State
+        {
+            name: "ERROR";
+        }
+    ]
 
     Text
     {

@@ -1,5 +1,5 @@
 
-    WaterWatcher (QML Plasmoid) README
+    WaterWatcher (QML Plasmoid) 0.2.0 README
     http://code.google.com/p/plasma-wateriv/
 
     ==========================================================================
@@ -18,7 +18,7 @@
        KDE 4.7+
        http://www.kde.org
 
-       WaterIV DataEngine v0.1 (plasma-dataengine-wateriv)
+       WaterIV DataEngine v0.2.0 (plasma-dataengine-wateriv)
        http://code.google.com/p/plasma-wateriv/
 
     ==========================================================================
@@ -28,9 +28,23 @@
        1) Install the required data engine (plasma-dataengine-wateriv)
           (http://code.google.com/p/plasma-wateriv/downloads/list)
 
-       2) Install the plasmoid
+          If upgrading from a previous version, logging-out and logging-in may
+          be required for KDE to recognize the new engine version.
+
+       2) Install or upgrade the plasmoid
           
-          $ plasmapkg -i plasma_applet_wateriv.waterwatcher
+          Using plasmapkg:
+             installing:
+             $ plasmapkg -r plasma_applet_wateriv.waterwatcher
+             $ plasmapkg -i plasma_applet_wateriv.waterwatcher
+         
+             upgrading:
+             $ plasmapkg -u plasma_applet_wateriv.waterwatcher
+
+          Using cmake:
+             $ cmake -DCMAKE_INSTALL_PREFIX=/usr ./
+             $ sudo make install
+             $ sudo make uninstall
 
     ==========================================================================
     || Configuration:                                                       ||
