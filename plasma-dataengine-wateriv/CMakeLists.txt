@@ -44,13 +44,12 @@ set (CPACK_DEBIAN_PACKAGE_DESCRIPTION "A plasma data engine for accessing USGS r
 set (CPACK_DEBIAN_PACKAGE_SECTION "devel")
 set (CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
 
-set (CPACK_SOURCE_IGNORE_FILES "Makefile;lib/;CMakeFiles/;CMakeTmp/;CMakeCache.txt;./*.cmake;./*automoc*;./moc_*;./*.tar.gz;./.svn/")
+set (CPACK_SOURCE_IGNORE_FILES "Makefile;lib/;test/;CMakeFiles/;CMakeTmp/;_CPack_Packages/;CMakeCache.txt;./*.cmake;./*automoc*;./moc_*;./*.tar.gz;./*.deb;./*.rpm;./.svn/;./*.save;./*.tmp")
 
 set (CPACK_RESOURCE_FILE_README "README.txt")
 set (CPACK_RESOURCE_FILE_LICENSE "COPYING.txt")
 
 set (CPACK_STRIP_FILES "lib/plasma_dataengine_wateriv.so")
-
 
 include (CPack)
 

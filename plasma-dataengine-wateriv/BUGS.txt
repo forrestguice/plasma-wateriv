@@ -8,9 +8,6 @@ Other users can send bug reports to ftg2@users.sourceforge.net.  Include
 
 TODO:
 -check validity of minor filters (ivrequest.cpp)
--data caching? to protect service for frequent requests / serve data when network is down.
+-?data caching? to protect service for frequent requests / serve data when network is down.
+-?signal changes in network availability? to cause connected plasmoids to attempt to update
 
-KNOWN BUGS:
--in sourceEventRequest: setData(source, DataEngine::Data())) - required for
- plasmoids to receive the first data update BUT causes results to no longer
- display in plasmaengineexplorer. workaround: comment line during testing.

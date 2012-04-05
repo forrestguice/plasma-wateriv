@@ -30,7 +30,7 @@ class WaterIVEngine : public Plasma::DataEngine
  
     public:
         /** 
-            VERSION_ID gets increment every time compatibility is broken.
+            VERSION_ID gets incremented every time compatibility is broken.
             Plasmoids can get this value with 'engine_version'.
         */
         static const int VERSION_ID = 1;
