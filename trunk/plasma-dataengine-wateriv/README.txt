@@ -1,5 +1,5 @@
 ==============================================================================
-||  WaterIV DataEngine v0.1 README                                           ||
+||  WaterIV DataEngine v0.2.0 README                                        ||
 ==============================================================================
 
   ==============================
@@ -49,6 +49,10 @@
    3) a complete request url specifying the data to retrieve 
       (see http://waterservices.usgs.gov/rest/IV-Test-Tool.html)
 
+   4) a psuedo request url specifying DV (Daily) or IV (Instantaneous) values
+      Examples: DV?sites=01646500  .. to retrieve from daily values service
+                IV?sites=01646500  .. to retrieve from instantaneous values
+
    Using (1) is a convenient way to get recent data by site code.
    Using (2) allows more control over the data that is requested.
    Using (3) allows data to be requested from an alternate url.
@@ -56,7 +60,7 @@
    ------
    OUTPUT: a set of key/value pairs organized by simple naming scheme
 
-   Browse the comment blocks at the beginning of waterivengine.cpp for
+   See http://code.google.com/p/plasma-wateriv/wiki/WaterIVDataEngine for
    a complete listing of available data keys (key naming scheme).
 
 
@@ -64,7 +68,7 @@
   III) Requirements
   ==============================
 
-    * To run this DataEngine requires KDE 4.6+.
+    * To run this data engine requires KDE 4.6+.
 
     * To compile requires kdelibs-dev (kdelibs5-dev).
     * To compile requries some common build tools (build-essential, cmake).
@@ -80,7 +84,7 @@
 
    1) change to the source directory
 
-      $ cd plasma-dataengine-wateriv/src
+      $ cd plasma-dataengine-wateriv
 
    2) compile the source code
 
@@ -100,11 +104,12 @@
    0) succesfully compile the source code (see section IV Compiling)
 
    1) install directly from the compiled source to /usr 
-      (see IV Compiling step 2; cmake)
+      (see IV Compiling step 2; cmake to change this location)
 
       $ sudo make install
 
    2) get KDE to find the newly installed files by rebuilding the config cache
+      (logging-out then logging-in be required when upgrading a previous version)
 
       $ kbuildsycoca4
 
