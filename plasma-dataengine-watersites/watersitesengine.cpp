@@ -27,16 +27,39 @@ const QString WaterSitesEngine::DEFAULT_FORMAT = "mapper,1.0";
 
 const QString WaterSitesEngine::PREFIX_NET = "net_";
 const QString WaterSitesEngine::PREFIX_XML = "xml_";
+const QString WaterSitesEngine::PREFIX_SITE = "site_";
 
 /**
-   DOCS HERE
+    Data Keys:
+
+      engine_version      : int
+
+      net_url             : QString
+      net_request         : QString
+      net_request_isvalid : bool
+      net_request_error   : QString
+      net_isvalid         : bool
+      net_error           : QString
+
+      xml_isvalid         : bool
+      xml_error_msg       : QString
+      xml_error_line      : int
+      xml_error_column    : int
+
+      site_<CODE>          :  QHash<QString, QVariant>
+                              keys: code      : QString
+                                    name      : QString
+                                    agency    : QString
+                                    latitude  : QString
+                                    longitude : QString
+                                    cat       : QString
 */
  
 WaterSitesEngine::WaterSitesEngine(QObject* parent, const QVariantList& args)
     : Plasma::DataEngine(parent, args)
 {
     Q_UNUSED(args)
-    //setMinimumPollingInterval(WaterSitesEngine::DEFAULT_MIN_POLLING * 60000);  // todo: specify interval
+    setMinimumPollingInterval(WaterSitesEngine::DEFAULT_MIN_POLLING * 60000);
 
     manager = new QNetworkAccessManager(this);
     replies = new QMap<QNetworkReply*, QString>();
@@ -48,8 +71,7 @@ WaterSitesEngine::WaterSitesEngine(QObject* parent, const QVariantList& args)
 */
 bool WaterSitesEngine::sourceRequestEvent(const QString &source)
 {
-    //setData(source, DataEngine::Data());   // bug: without this line plasmoids don't get initial update
-    return updateSourceEvent(source);      //      but with it plasmaengineexplorer fails to update
+    return updateSourceEvent(source);
 }
  
 /**
@@ -58,14 +80,19 @@ bool WaterSitesEngine::sourceRequestEvent(const QString &source)
 */
 bool WaterSitesEngine::updateSourceEvent(const QString &source)
 {
+    setData(source, "engine_version", WaterSitesEngine::VERSION_ID);
     QString errorMsg;
     QString requestUrl = SitesRequest::requestForSource(source, errorMsg);
+
     if (requestUrl == "-1")
     {
         qDebug() << errorMsg;
+        setData(request, I18N_NOOP(PREFIX_NET + "request_isvalid"), false);
+        setData(request, I18N_NOOP(PREFIX_NET + "request_error"), errorMsg);
         return false;
     }
 
+    setData(request, I18N_NOOP(PREFIX_NET + "request_isvalid"), true);
     QNetworkReply *reply = manager->get(QNetworkRequest(QUrl(requestUrl)));
     replies->insert(reply, source);
     return false;
@@ -174,7 +201,7 @@ void WaterSitesEngine::extractSites( QString &request, QDomElement *document )
             siteHash["longitude"] = site.attribute("lng", "-1");
             siteHash["cat"] = site.attribute("cat", "");
 
-            setData(request, siteHash["code"].toString(), siteHash);
+            setData(request, PREFIX_SITE + siteHash["code"].toString(), siteHash);
         }
     }
 
@@ -199,9 +226,10 @@ void WaterSitesEngine::extractSites( QString &request, QDomElement *document )
             siteHash["longitude"] = site.attribute("lng", "-1");
             siteHash["cat"] = site.attribute("cat", "");
 
-            setData(request, siteHash["code"].toString(), siteHash);
+            setData(request, PREFIX_SITE + siteHash["code"].toString(), siteHash);
         }
     }
+    setData(request, PREFIX_SITE + "count", siteCount);
 }
 
 // the first argument must match X-Plasma-EngineName in the .desktop file

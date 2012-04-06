@@ -34,12 +34,14 @@ set (CPACK_PACKAGE_VERSION_MAJOR "${watersites_engine_VERSION_MAJOR}")
 set (CPACK_PACKAGE_VERSION_MINOR "${watersites_engine_VERSION_MINOR}")
 set (CPACK_PACKAGE_VERSION_PATCH "${watersites_engine_VERSION_PATCH}")
 
-set (CPACK_SOURCE_IGNORE_FILES "Makefile;lib/;CMakeFiles/;CMakeTmp/;CMakeCache.txt;./*.cmake;./*automoc*;./moc_*;./*.tar.gz;./.svn/")
 set (CPACK_GENERATOR "TGZ")
-set (CPACK_SOURCE_GENERATOR "TGZ")
 
-set (CPACK_RESOURCE_FILE_README "README.txt")
-set (CPACK_RESOURCE_FILE_LICENSE "COPYING.txt")
+set (CPACK_SOURCE_GENERATOR "TGZ")
+set (CPACK_SOURCE_PACKAGE_FILE_NAME "plasma-dataengine-watersites-${watersites_engine_VERSION_MAJOR}.${watersites_engine_VERSION_MINOR}.${watersites_engine_VERSION_PATCH}")
+set (CPACK_SOURCE_IGNORE_FILES "Makefile;lib/;CMakeFiles/;CMakeTmp/;CMakeCache.txt;./*.cmake;./*automoc*;./moc_*;./*.tar.gz;./.svn/")
+
+#set (CPACK_RESOURCE_FILE_README "README.txt")
+#set (CPACK_RESOURCE_FILE_LICENSE "COPYING.txt")
 
 set (CPACK_STRIP_FILES "lib/plasma_dataengine_watersites.so")
 include (CPack)
