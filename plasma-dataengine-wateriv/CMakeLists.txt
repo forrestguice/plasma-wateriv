@@ -1,7 +1,7 @@
 project(plasma-dataengine-wateriv)
 set (wateriv_engine_VERSION_MAJOR 0)
 set (wateriv_engine_VERSION_MINOR 2)
-set (wateriv_engine_VERSION_PATCH 0)
+set (wateriv_engine_VERSION_PATCH 1)
 
 find_package(KDE4 REQUIRED)
 include(KDE4Defaults)
@@ -31,23 +31,23 @@ install(FILES plasma-dataengine-wateriv.desktop
 # CPack driven installer package
 #
 include (InstallRequiredSystemLibraries)
-set (CPACK_GENERATOR "DEB")
-set (CPACK_SOURCE_GENERATOR "TGZ")
+#set (CPACK_PACKAGE_NAME "plasma-dataengine-wateriv")
+#set (CPACK_RESOURCE_FILE_README "README.txt")
+#set (CPACK_RESOURCE_FILE_LICENSE "COPYING.txt")
 
 set (CPACK_PACKAGE_VERSION_MAJOR "${wateriv_engine_VERSION_MAJOR}")
 set (CPACK_PACKAGE_VERSION_MINOR "${wateriv_engine_VERSION_MINOR}")
 set (CPACK_PACKAGE_VERSION_PATCH "${wateriv_engine_VERSION_PATCH}")
 
-set (CPACK_DEBIAN_PACKAGE_DEPENDS "Forrest Guice <ftg2@users.sourceforge.net>")
+set (CPACK_GENERATOR "DEB")
 set (CPACK_DEBIAN_PACKAGE_MAINTAINER "Forrest Guice <ftg2@users.sourceforge.net>")
-set (CPACK_DEBIAN_PACKAGE_DESCRIPTION "A plasma data engine for accessing USGS real-time water data.")
-set (CPACK_DEBIAN_PACKAGE_SECTION "devel")
+set (CPACK_DEBIAN_PACKAGE_DESCRIPTION "Plasma data engine for accessing USGS real-time water data.")
+set (CPACK_DEBIAN_PACKAGE_SECTION "kde")
 set (CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
 
-set (CPACK_SOURCE_IGNORE_FILES "Makefile;lib/;test/;CMakeFiles/;CMakeTmp/;_CPack_Packages/;CMakeCache.txt;./*.cmake;./*automoc*;./moc_*;./*.tar.gz;./*.deb;./*.rpm;./.svn/;./*.save;./*.tmp")
-
-set (CPACK_RESOURCE_FILE_README "README.txt")
-set (CPACK_RESOURCE_FILE_LICENSE "COPYING.txt")
+set (CPACK_SOURCE_GENERATOR "TGZ")
+set (CPACK_SOURCE_PACKAGE_FILE_NAME "plasma-dataengine-wateriv-${wateriv_engine_VERSION_MAJOR}.${wateriv_engine_VERSION_MINOR}.${wateriv_engine_VERSION_PATCH}")
+set (CPACK_SOURCE_IGNORE_FILES "Makefile;lib/;test/;CMakeFiles/;CMakeTmp/;_CPack_Packages/;CMakeCache.txt;./*.cmake;./*automoc*;./moc_*;./*.tar.gz;./.svn/;./*.save;./*.tmp")
 
 set (CPACK_STRIP_FILES "lib/plasma_dataengine_wateriv.so")
 

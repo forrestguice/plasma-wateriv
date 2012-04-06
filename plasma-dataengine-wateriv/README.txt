@@ -1,5 +1,5 @@
 ==============================================================================
-||  WaterIV DataEngine v0.2.0 README                                        ||
+||  WaterIV DataEngine v0.2.1 README                                        ||
 ==============================================================================
 
   ==============================
@@ -84,12 +84,11 @@
 
    1) change to the source directory
 
-      $ cd plasma-dataengine-wateriv
+      $ cd plasma-dataengine-wateriv-0.2.1
 
    2) compile the source code
 
       $ cmake -DCMAKE_INSTALL_PREFIX=/usr ./
-      $ make clean
       $ make
 
    3) remove the debugging symbols to reduce the binary size
@@ -98,7 +97,7 @@
 
 
   =================================
-  V) Installation (on Ubuntu 11.10)
+  V) Installation from Compiled Source (on Ubuntu 11.10)
   =================================
 
    0) succesfully compile the source code (see section IV Compiling)
@@ -117,6 +116,26 @@
 
       $ sudo make uninstall
 
+
+  =================================
+  V) Packaging (on Ubuntu 11.10)
+  =================================
+
+    ## prepare a source package
+    $ cmake -DCMAKE_INSTALL_PREFIX=/usr ./
+    $ make package_source
+
+    ## prepare to create a deb
+    $ mkdir packaging
+    $ cd packaging/
+    $ mv ../plasma-dataengine-wateriv-0.2.1.tar.gz ./
+    $ tar -zxvf plasma-dataengine-wateriv-0.2.1.tar.gz
+    $ mv plasma-dataengine-wateriv-0.2.1.tar.gz plasma-dataengine-wateriv_0.2.1.orig.tar.gz
+    $ cd plasma-dataengine-wateriv-0.2.1
+
+    ## create a deb (local build (not signed with gpg))
+    $ debuild -uc -us
+    
 
   ==============================
   VI) Bugs
