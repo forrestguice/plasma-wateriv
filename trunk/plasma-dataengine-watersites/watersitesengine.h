@@ -35,11 +35,6 @@ class WaterSitesEngine : public Plasma::DataEngine
 
         static const QString PREFIX_NET;  // key naming scheme
         static const QString PREFIX_XML;
-        //static const QString PREFIX_QUERYINFO; 
-        //static const QString PREFIX_TIMESERIES;
-        //static const QString PREFIX_SOURCEINFO;
-        //static const QString PREFIX_VARIABLE;
-        //static const QString PREFIX_VALUES;
 
         WaterSitesEngine(QObject* parent, const QVariantList& args);
 
@@ -55,11 +50,7 @@ class WaterSitesEngine : public Plasma::DataEngine
         QMap<QNetworkReply*, QString> *replies;
 
         void extractData( QString &request, QByteArray &bytes );
-        //void extractQueryInfo( QString &request, QDomElement *element );
-        //void extractTimeSeries( QString &request, QDomElement *element );
-        //void extractSeriesSourceInfo( QString &request, QString &prefix, QDomElement *timeSeries );
-        //void extractSeriesVariable( QString &request, QString &prefix, QDomElement *timeSeries );
-        //void extractSeriesValues( QString &request, QString &prefix, QDomElement *timeSeries );
+        void extractSites( QString &request, QDomElement *element );
 
 };
  

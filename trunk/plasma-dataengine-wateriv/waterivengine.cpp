@@ -205,17 +205,6 @@ const QString WaterIVEngine::PREFIX_VALUES = "values_";
                           : [4] qualifier vocabulary (?)
 */
 
-/**
-    Changelog (since 0.1.0)
-
-    * Added keys: engine_version, net_request_isvalid, net_request_error
-    * Moved keys: timeseries_#_values to timeseries_#_values_#; engine now
-      supports multiple sets of values within a timeseries (differing methods).
-    * Added keys: timeseries_#_values_count, values_#_method_id, values_#_method_description
-    * Added support for Daily Values (DV) service; engine now accepts psuedo urls 
-      that specify which service (DV/IV) to use (defaults to IV).
-*/
- 
 WaterIVEngine::WaterIVEngine(QObject* parent, const QVariantList& args)
     : Plasma::DataEngine(parent, args)
 {
