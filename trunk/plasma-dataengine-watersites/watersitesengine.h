@@ -29,12 +29,19 @@ class WaterSitesEngine : public Plasma::DataEngine
     Q_OBJECT
  
     public:
+        /** 
+            VERSION_ID is incremented whenever compatibility breaks. Plasmoids
+            can get this value with 'engine_version'.
+        */
+        static const int VERSION_ID = 0;    // 0 : 0.1.0
+
         static const QString DEFAULT_SERVER;
         static const QString DEFAULT_FORMAT;
         static const int DEFAULT_MIN_POLLING = 15;
 
         static const QString PREFIX_NET;  // key naming scheme
         static const QString PREFIX_XML;
+        static const QString PREFIX_SITE;
 
         WaterSitesEngine(QObject* parent, const QVariantList& args);
 
