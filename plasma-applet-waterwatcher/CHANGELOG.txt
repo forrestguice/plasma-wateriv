@@ -1,6 +1,12 @@
 Water Watcher Plasmoid ChangeLog
 
  ----------------------------------
+ 0.2.1 : plasma-applet-waterwatcher
+
+ * Add UI: the configuration tab remembers recent sources (last ten) and allows
+           switching between them with the up / down keys.
+
+ ----------------------------------
  0.2.0 : plasma-applet-waterwatcher
 
  * Add UI: a "configuration" tab that allows changing the data source and

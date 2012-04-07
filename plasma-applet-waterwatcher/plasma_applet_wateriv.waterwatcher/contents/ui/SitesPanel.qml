@@ -25,6 +25,9 @@ Column
     anchors.bottomMargin: 5;
     property variant field: inputDataSource;
     property variant error: errorField;
+  
+    property int recent_sources_top: -1;
+    property int recent_sources_max: 10;
 
     state: "NORMAL";
     states: [
@@ -60,13 +63,19 @@ Column
             anchors.verticalCenter: parent.verticalCenter;
             onAction: 
             {
+                addToRecentSources(input.text);
                 plasmoid.writeConfig("datasource", input.text); 
+
                 dialog_info.toggleDialog();
                 infodialog.state = "RECENT";
                 panel.state = "NORMAL";
+
                 main.configChanged();
             }
+            Keys.onDownPressed: { nextRecentSource(); }
+            Keys.onUpPressed: { prevRecentSource(); }
         }
+
     }
 
     TextField
@@ -76,4 +85,66 @@ Column
         anchors.left: parent.left;
         width: 250;
     }
+
+    SitesSearch
+    {
+        id: siteSearch;
+    }
+
+     
+    function nextRecentSource()
+    {
+        recent_sources_top = plasmoid.readConfig("recent_source_top", 0);
+        var c = recent_sources_top;
+        do {
+            recent_sources_top += 1;
+            if (recent_sources_top >= recent_sources_max) recent_sources_top = 0;
+            var value = plasmoid.readConfig("recent_source_" + recent_sources_top, "");
+            if (value != "")  
+            {
+                plasmoid.writeConfig("recent_source_top", recent_sources_top);
+                break;
+            }
+        } while (recent_sources_top != c);
+
+        var value = plasmoid.readConfig("recent_source_" + recent_sources_top, "");
+        if (value != "") field.input.text = value;
+        console.log("next to: " + recent_sources_top);
+    }
+   
+    function prevRecentSource()
+    {
+        recent_sources_top = plasmoid.readConfig("recent_source_top", 0);
+        var c = recent_sources_top;
+        do {
+            recent_sources_top -= 1;
+            if (recent_sources_top < 0) recent_sources_top = recent_sources_max - 1;
+            var value = plasmoid.readConfig("recent_source_" + recent_sources_top, "");
+            if (value != "")  
+            {
+                plasmoid.writeConfig("recent_source_top", recent_sources_top);
+                break;
+            }
+        } while (recent_sources_top != c);
+
+        var value = plasmoid.readConfig("recent_source_" + recent_sources_top, "");
+        if (value != "") field.input.text = value;
+        console.log("previous to: " + recent_sources_top);
+    }
+
+    function addToRecentSources(source)
+    {
+        recent_sources_top = plasmoid.readConfig("recent_source_top", -1);
+        if (recent_sources_top == -1)
+        {   // init first element (first use)
+            plasmoid.writeConfig("recent_source_0", "");
+            recent_sources_top = 0;
+        }
+        recent_sources_top++;
+        if (recent_sources_top >= recent_sources_max) recent_sources_top = 0;
+        plasmoid.writeConfig("recent_source_top", recent_sources_top);
+        plasmoid.writeConfig("recent_source_" + recent_sources_top, source);
+        console.log("added recent source: " + recent_sources_top);
+    }
+
 }
