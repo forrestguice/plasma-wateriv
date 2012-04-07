@@ -1,4 +1,4 @@
-Source: plasma-dataengine-wateriv
+Source: plasma-applet-waterwatcher
 Section: kde
 Priority: optional
 Maintainer: Forrest Guice <ftg2@users.sourceforge.net>
@@ -6,8 +6,8 @@ Build-Depends: debhelper (>= 8.0.0), cmake
 Standards-Version: 3.9.2
 Homepage: http://code.google.com/p/plasma-wateriv/
 
-Package: plasma-dataengine-wateriv
+Package: plasma-applet-waterwatcher
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: Plasma data engine providing access to USGS water data.
- A plasma data engine for the KDE 4 Desktop that provides access to recent real-time water data using public web services provided by the United States Geological Survey.
+Description: Plasmoid that displays recent water data from USGS web services.
+ A plasmoid for the KDE 4 Desktop that provides access to recent real-time water data using public web services provided by the United States Geological Survey.

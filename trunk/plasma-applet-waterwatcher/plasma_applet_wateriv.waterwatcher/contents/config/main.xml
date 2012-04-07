@@ -69,4 +69,20 @@
        </entry>
    </group>
 
+   <group name="RecentSources">
+      <entry name="recent_source_top" type="int">
+         <default>-1</default>
+      </entry>
+      <entry name="recent_source_0" type="String"><default></default></entry>
+      <entry name="recent_source_1" type="String"><default></default></entry>
+      <entry name="recent_source_2" type="String"><default></default></entry>
+      <entry name="recent_source_3" type="String"><default></default></entry>
+      <entry name="recent_source_4" type="String"><default></default></entry>
+      <entry name="recent_source_5" type="String"><default></default></entry>
+      <entry name="recent_source_6" type="String"><default></default></entry>
+      <entry name="recent_source_7" type="String"><default></default></entry>
+      <entry name="recent_source_8" type="String"><default></default></entry>
+      <entry name="recent_source_9" type="String"><default></default></entry>
+   </group>
+
 </kcfg>
