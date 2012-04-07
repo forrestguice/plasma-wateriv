@@ -18,8 +18,7 @@
 
 #include "waterivengine.h"
 #include "ivrequest.h"
-
-//#include <Plasma/DataContainer> //#include <KSystemTimeZones> //#include <KDateTime>
+#include <Plasma/DataContainer> //#include <KSystemTimeZones> //#include <KDateTime>
 
 const QString WaterIVEngine::DEFAULT_SERVER_IV = "http://waterservices.usgs.gov/nwis/iv/";
 const QString WaterIVEngine::DEFAULT_SERVER_DV = "http://waterservices.usgs.gov/nwis/dv/";
@@ -278,9 +277,15 @@ void WaterIVEngine::dataFetchComplete(QNetworkReply *reply)
     // data - check for retrieval errors
     if (reply->error() != QNetworkReply::NoError)
     {
+        Plasma::DataContainer *container = containerForSource(request);
+        if (container == 0 || not container->data().contains(PREFIX_TIMESERIES + "count"))
+        {
+            // set count to 0 only when it does not already exist
+            setData(request, I18N_NOOP(PREFIX_TIMESERIES + "count"), 0);
+        }
+
         setData(request, I18N_NOOP(PREFIX_NET + "isvalid"), false);
         setData(request, I18N_NOOP(PREFIX_NET + "error"), reply->error());
-        setData(request, I18N_NOOP(PREFIX_TIMESERIES + "count"), 0);
         reply->deleteLater();
         return;
     }

@@ -1,6 +1,12 @@
 WaterIV Data Engine ChangeLog
 
  ----------------------------------
+ 0.2.1 : plasma-dataengine-wateriv
+
+ * (issue 7) (fixed) previous timeseries_count now preserved on network errors 
+    during update instead of blindly set to 0.
+
+ ----------------------------------
  0.2.0 : plasma-dataengine-wateriv
 
  * Added support for Daily Values (DV) service; engine now accepts psuedo urls 
