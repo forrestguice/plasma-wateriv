@@ -1,6 +1,9 @@
 WaterIV Data Engine ChangeLog
 
  ----------------------------------
+ 0.3.0 : plasma-dataengine-wateriv
+
+ ----------------------------------
  0.2.1 : plasma-dataengine-wateriv
 
  * incremented VERSION_ID = 2; compatibility broken (issue#8 modifies behavior)

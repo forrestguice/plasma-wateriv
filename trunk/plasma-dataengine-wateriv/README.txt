@@ -1,5 +1,5 @@
 ==============================================================================
-||  WaterIV DataEngine v0.2.1 README                                        ||
+||  WaterIV DataEngine v0.3.0 README                                        ||
 ==============================================================================
 
   ==============================
@@ -128,10 +128,10 @@
     ## prepare to create a deb
     $ mkdir packaging
     $ cd packaging/
-    $ mv ../plasma-dataengine-wateriv-0.2.1.tar.gz ./
-    $ tar -zxvf plasma-dataengine-wateriv-0.2.1.tar.gz
-    $ mv plasma-dataengine-wateriv-0.2.1.tar.gz plasma-dataengine-wateriv_0.2.1.orig.tar.gz
-    $ cd plasma-dataengine-wateriv-0.2.1
+    $ mv ../plasma-dataengine-wateriv-0.3.0.tar.gz ./
+    $ tar -zxvf plasma-dataengine-wateriv-0.3.0.tar.gz
+    $ mv plasma-dataengine-wateriv-0.3.0.tar.gz plasma-dataengine-wateriv_0.3.0.orig.tar.gz
+    $ cd plasma-dataengine-wateriv-0.3.0
 
     ## create a deb (local build (not signed with gpg))
     $ debuild -uc -us

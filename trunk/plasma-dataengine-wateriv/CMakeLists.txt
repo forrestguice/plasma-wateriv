@@ -1,7 +1,7 @@
 project(plasma-dataengine-wateriv)
 set (wateriv_engine_VERSION_MAJOR 0)
-set (wateriv_engine_VERSION_MINOR 2)
-set (wateriv_engine_VERSION_PATCH 1)
+set (wateriv_engine_VERSION_MINOR 3)
+set (wateriv_engine_VERSION_PATCH 0)
 
 find_package(KDE4 REQUIRED)
 include(KDE4Defaults)
