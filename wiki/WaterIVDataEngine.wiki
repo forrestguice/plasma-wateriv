@@ -2,7 +2,7 @@
 #labels Phase-Support,Featured
 
 || *status* || *Engine Name* || *Version* || *engine_version* ||
-||current||wateriv||0.2.0||1||
+||current||wateriv||0.2.0, 0.2.1||1, 2||
 
 = Introduction =
 
@@ -43,7 +43,7 @@ Keys starting with _net`_`_ contain info about the network request for data. The
 ||net`_`url||QString||The base url of the web service.||
 ||net`_`request||QString||The request made to the web service.||
 ||net`_`request_isvalid||bool||The request was accepted by the data engine.||
-||net`_`request_error||bool||Any error messages generated when parsing the request (when request_isvalid is false)||
+||net`_`request_error||QString||Any error messages generated when parsing the request (when request_isvalid is false)||
 ||net`_`error||int||Any net error codes that occurred||
 
 
