@@ -21,9 +21,11 @@ import org.kde.plasma.core 0.1 as PlasmaCore
 
 Rectangle
 {
-    id: field; radius: 5; smooth: true;
-    width: 100; 
-    height: (txt.desiredHeight > 25) ? txt.desiredHeight : 25;
+    id: field; 
+    radius: 5; smooth: true;
+    width: 100; height: (txt.desiredHeight > 25) ? txt.desiredHeight : 25;
+
+    signal action;
 
     property variant input: txt;
     property string textInitial: "";
@@ -36,8 +38,6 @@ Rectangle
     property color backgroundModifiedColor: theme.buttonHoverColor;
     property color backgroundErrorColor: theme.buttonFocusColor;
     property color backgroundReadonlyColor: theme.buttonBackgroundColor;
-
-    signal action;
 
     state: "NORMAL";
     states: [
