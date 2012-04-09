@@ -1,5 +1,5 @@
 
-    WaterWatcher (QML Plasmoid) 0.2.0 README
+    WaterWatcher (QML Plasmoid) 0.2.1 README
     http://code.google.com/p/plasma-wateriv/
 
     ==========================================================================
@@ -18,7 +18,7 @@
        KDE 4.7+
        http://www.kde.org
 
-       WaterIV DataEngine v0.2.0 (plasma-dataengine-wateriv)
+       WaterIV DataEngine v0.2.1 (plasma-dataengine-wateriv)
        http://code.google.com/p/plasma-wateriv/
 
     ==========================================================================
