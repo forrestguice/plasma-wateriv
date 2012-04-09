@@ -2,7 +2,7 @@ Format: http://dep.debian.net/deps/dep5
 Upstream-Name: plasma-applet-waterwatcher
 Source: http://plasma-wateriv.googlecode.com/files/plasma-applet-waterwatcher-0.2.1.tar.gz
 
-Files: debian/*
+Files: *
 Copyright: 2012 Forrest Guice <ftg2@users.sourceforge.net>
 License: GPL-3+
  This package is free software: you can redistribute it and/or 
