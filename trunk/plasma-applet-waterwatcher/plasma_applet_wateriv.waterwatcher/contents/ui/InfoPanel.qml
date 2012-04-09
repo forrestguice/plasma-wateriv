@@ -23,8 +23,8 @@ Column
     id: panel; 
     spacing: 5; anchors.bottomMargin: 5;
 
-    property string title: main.app_name;
-    property string content: "<br/><br/>";
+    property string title: i18n(main.app_name);
+    property string content: i18n("<br/><br/>");
 
     TextEdit
     {

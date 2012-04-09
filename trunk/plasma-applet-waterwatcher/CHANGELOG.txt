@@ -5,6 +5,12 @@ Water Watcher Plasmoid ChangeLog
 
  * Add UI: the configuration tab remembers recent sources (last ten) and allows
            switching between them with the up / down keys.
+ * Add UI: a net_error indicator that is displayed next to values that are from 
+           cache; a net_error dialog that shows a more detailed error message.
+ * BugFix: display / retain cached values when update results in network error.
+ * BugFix: polling interval reads correctly from config (units are mins not ms).
+ * BugFix: engine updates are recognized immediately and not after next update.
+ * Engine: now requires plasma-dataengine-wateriv-0.2.1 (engine update bugfix).
 
  ----------------------------------
  0.2.0 : plasma-applet-waterwatcher
@@ -17,7 +23,7 @@ Water Watcher Plasmoid ChangeLog
  * Mod UI: switching between data series now done with long click on plasmoid. 
  * Mod UI: improved error reporting; major refactoring of UI into components.
  * BugFix: displays all values in a series instead of only first set.
- * Engine: now requires plasma-dataengine-wateriv-0.2.0.
+ * Engine: now requires plasma-dataengine-wateriv-0.2.0 (engine data bugfix).
    
  ----------------------------------
  0.1.0 : plasma-applet-waterwatcher

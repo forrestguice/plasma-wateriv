@@ -20,106 +20,185 @@ import QtQuick 1.0
 import org.kde.plasma.core 0.1 as PlasmaCore
 import org.kde.qtextracomponents 0.1 as QtExtraComponents
 
-/**
-    WaterWatcher (QML Plasmoid)
-    http://code.google.com/p/plasma-wateriv/
+/**  
+    Water Watcher QML Plasmoid (http://code.google.com/p/plasma-wateriv/)  
 */
-
 Item
 {
-    id: main;
-  
+    id: main; 
     width: 200; height: 100;
-    property int minimumWidth: 50; property int minimumHeight: 25;
+    property int minimumWidth: 50; 
+    property int minimumHeight: 25;
 
     property string app_name: "Water Watcher";
-    property int minEngineVersion: 1;
-    property int pollingInterval: 60*60000;
+    property int minEngineVersion: 2;
+    property variant currentDialog: -1;
+
     property string dataRequest: "-1";
-    property bool dataRequestIsEmpty: (dataRequest == "-1" || dataRequest == "" || dataRequest == " ");
     property bool dataRequestIsValid: true;
+    property bool dataRequestIsEmpty: (dataRequest == "-1" || dataRequest == "" || dataRequest == " ");
 
-    PlasmaCore.Theme { id: theme; }
+    property int pollingInterval: 15;   // interval in minutes
+    onPollingIntervalChanged: { if (pollingInterval < 15) pollingInterval = 15; }
 
-    PlasmaCore.Svg { id: arrowSvg; imagePath: "widgets/arrows"; }
-    PlasmaCore.Svg { id: lineSvg; imagePath: "widgets/line"; }
-    PlasmaCore.Svg { id: configSvg; imagePath: "widgets/configuration-icons"; }
+    Component.onCompleted: { plasmoid.busy = true; }
 
     PlasmaCore.DataSource 
     {
-        id: dataengine; engine: "wateriv"; interval: pollingInterval;
+        id: dataengine; engine: "wateriv"; 
+        property bool virgin: true;             // hack: has yet to connect flag
+        interval: pollingInterval * 60000;
         onDataChanged: { refreshDisplay(); }
-        Component.onCompleted: 
-        { 
-            plasmoid.busy = true; loadtimer.start(); 
+        //onIntervalChanged: { console.log("engine: interval set: " + interval); }
+        Component.onCompleted: { loadtimer.start(); }
+
+        function makeConnection()
+        {
+            if (dataengine.virgin)
+            {   // hack: on first time connect then disconnect then connect
+                // otherwise the plasmoid never receives the first update
+                dataengine.connectSource(dataRequest);
+                dataengine.disconnectSource(dataRequest);
+            }
+            connecttimer.start();
         }
     }
-
-    onPollingIntervalChanged: { if (pollingInterval < 15) pollingInterval = 15; }
 
     Timer
     {
         id: loadtimer; interval: 1000; running: false; repeat: false;
         onTriggered: 
         {
-            plasmoid.addEventListener("ConfigChanged", configChanged);
-            configChanged();
+            plasmoid.addEventListener("ConfigChanged", main.configChanged);
+            main.configChanged();
         }
     }
 
-    MainWidget { id: mainWidget; }
+    Timer
+    {
+        id: connecttimer; interval: 1000; running: false; repeat: false;
+        onTriggered: { dataengine.connectSource(dataRequest); }
+    }
 
     MouseArea
     {
         id: mainMouseArea; anchors.fill: parent;
         onPressAndHold: 
         {
-            if (dataRequestIsEmpty) { infodialog.state = "CONFIGURE"; dialog_info.toggleDialog(); }
-            else { showNextSeries() }; 
+            if ((dataRequestIsEmpty || !dataRequestIsValid) && dataengine.valid)
+            { main.toggleDialogState(dialog_info, mainWidget, "CONFIGURE"); }
+            else { main.showNextSeries() }; 
         }
         onClicked: 
         {
-            if ((dataRequestIsEmpty || !dataRequestIsValid) && dataengine.valid) infodialog.state = "CONFIGURE";
-            dialog_info.toggleDialog()
+            if ((dataRequestIsEmpty || !dataRequestIsValid) && dataengine.valid) 
+            { main.toggleDialogState(dialog_info, mainWidget, "CONFIGURE"); }
+            else { main.toggleDialog(dialog_info, mainWidget); }
         }
     }
+
+    PlasmaCore.Theme { id: theme; }
+    PlasmaCore.Svg { id: arrowSvg; imagePath: "widgets/arrows"; }
+    PlasmaCore.Svg { id: lineSvg; imagePath: "widgets/line"; }
+    PlasmaCore.Svg { id: configSvg; imagePath: "widgets/configuration-icons"; }
+    PlasmaCore.Svg { id: netSvg; imagePath: "icons/network"; }
 
     PlasmaCore.ToolTip
     {
         id: main_tooltip; target: main;
-        image: "chronometer"; mainText: "Water Watcher"; subText: "(not connected)";
+        image: "chronometer"; mainText: main.app_name; subText: i18n("(not connected)");
     }
 
     PlasmaCore.Dialog
     {
-        id: dialog_info;
-        mainItem: infodialog; visible: false;
-
-        function toggleDialog()
-        {
-            if (dialog_info.visible == false)
-            {
-                var popupPosition = dialog_info.popupPosition(main);
-                dialog_info.x = popupPosition.x - 15;
-                dialog_info.y = popupPosition.y - 15;
-            }
-
-            mainItem.focus = !dialog_info.visible;
-            dialog_info.visible = !dialog_info.visible;
-        }
+        id: dialog_info; mainItem: infodialog; 
+        visible: false;
     }
-
     InfoDialog
     {
         id: infodialog;
-        onNextSeries: { showNextSeries(); }
-        onPrevSeries: { showPrevSeries(); }
-        onToggleDialog: { dialog_info.toggleDialog(); }
+        onNextSeries: { main.showNextSeries(); }
+        onPrevSeries: { main.showPrevSeries(); }
+        onToggleDialog: { main.toggleDialog(dialog_info, main); }
+        onConfigChanged: { main.configChanged(); }
     }
+
+    PlasmaCore.Dialog
+    {
+        id: dialog_net; mainItem: netdialog; 
+        visible: false;
+    }
+    NetErrorPanel
+    {
+        id: netdialog;
+        //width: 100; height: 200;
+    }
+
+    PlasmaCore.SvgItem
+    {
+        id: netErrorIndicator; svg: netSvg; elementId: "network-wired";
+        width: (24 * main.width) / 200; height: (24 * main.height) / 100;
+        anchors.top: main.top; anchors.right: main.right;
+        visible: false;
+
+        MouseArea 
+        {
+            id: netErrorMouseArea; anchors.fill: parent;
+            onClicked: { main.toggleDialog(dialog_net, netErrorIndicator); }
+        }
+    }
+
+    MainWidget { id: mainWidget; }
 
     //////////////////////////////////////
     // functions
     //////////////////////////////////////
+
+    /**
+        toggleDialog( dialog, popupTarget) : function   
+        Toggle an existing dialog (PlasmaCore.Dialog id) at popupTarget (id).
+    */
+    function toggleDialog( dialog, popupTarget )
+    {
+        if (dialog.visible) hideDialog(dialog, popupTarget);
+        else showDialog(dialog, popupTarget, -1);
+    }
+    function toggleDialogState( dialog, popupTarget, dialogState)
+    {
+        if (dialog.visible) hideDialog(dialog, popupTarget);
+        else showDialog(dialog, popupTarget, dialogState);
+    }
+
+    /**
+        showDialog( dialog, popupTarget) : function   
+        Show an existing dialog (PlasmaCore.Dialog id) at popupTarget (id).
+    */
+    function showDialog( dialog, popupTarget, dialogState )
+    {
+        if (main.currentDialog != -1) 
+        {   // can not show - a dialog is already shown - hide it
+            main.hideDialog(main.currentDialog); 
+            return; 
+        }
+        main.currentDialog = dialog;
+        var popupPosition = dialog.popupPosition(popupTarget);
+        dialog.x = popupPosition.x - 15;                             // x pos
+        dialog.y = popupPosition.y - 15;                             // y pos
+        if (dialogState != -1) dialog.mainItem.state = dialogState;  // state
+        dialog.mainItem.focus = true                                 // focus
+        dialog.visible = true;                                       // visible
+    }
+
+    /**
+        hideDialog( dialog, popupTarget) : function   
+        Hide an existing dialog (PlasmaCore.Dialog id).
+    */
+    function hideDialog( dialog )
+    {
+        dialog.mainItem.focus = false
+        dialog.visible = false;
+        if (dialog == main.currentDialog) main.currentDialog = -1;
+    }
 
     /**
         showNextSeries() : function
@@ -144,7 +223,7 @@ Item
             if (mainWidget.displaySeries >= numSeries) mainWidget.displaySeries = 0;
         }
 
-        refreshDisplay();
+        main.refreshDisplay();
     }
 
     /**
@@ -171,7 +250,7 @@ Item
             mainWidget.displaySubSeries = numSubSeries-1;
         }
 
-        refreshDisplay();
+        main.refreshDisplay();
     }
 
     function determineNavText()
@@ -207,81 +286,88 @@ Item
         main_tooltip.subText = errorMsg;
         mainWidget.displayDate = errorMsg;
         infodialog.panelRecent.content = errorMsg;
-        infodialog.navText = "0/0";
+        infodialog.navText = "-/-";
     }
 
     /**
         Checks for common errors; returns true if the calling function should
         return as a result of errors, or false if it should continue (no error).
+        @return true no errors, false errors
     */
     function errorChecking()
     {
         var results = dataengine.data[dataRequest];
         if (typeof results === "undefined")
         {
-            plasmoid.busy = false;   // error: no result from data engine
-            return true;             // (probably delayed)
+            //console.log("error: results not ready..leaving for now.");
+            return false;             // error: no result (probably delayed)
         }
 
         var engineVersion = results["engine_version"];
         if (typeof engineVersion === "undefined" || engineVersion < minEngineVersion)
         {
-            errorMessage("Insufficient data engine:<br/>wateriv >= 0.2.0 required");
-            console.log("Water Watcher: requires version_id 1, found version_id " + engineVersion);
-            plasmoid.busy = false;
-            return true;             // error: insufficient data engine version
+            console.log(i18n("Water Watcher: requires version_id 1, found version_id ") + engineVersion);
+            errorMessage(i18n("Insufficient data engine:<br/>wateriv >= 0.2.0 required"));
+            return false;             // error: insufficient data engine version
         }
 
         dataRequestIsValid = results["net_request_isvalid"];
         if (!dataRequestIsValid)
         {
-            errorMessage("Invalid data source.");
+            errorMessage(i18n("Invalid data source."));
             infodialog.panelConfig.field.state = "ERROR";
             infodialog.panelConfig.error.input.text = results["net_request_error"];
             infodialog.panelConfig.state = "ERROR";
-            plasmoid.busy = false;
-            return true;
-        }
- 
-        var numSeries = results["timeseries_count"];
-        if (typeof numSeries === "undefined") 
-        {
-            mainWidget.displaySeries = 0;
-            mainWidget.displaySubSeries = 0;
-            plasmoid.busy = false;
-            return true;             // error: no timeseries to display
+            //console.log("error: invalid data source.");
+            return false;
         }
 
         var netIsValid = results["net_isvalid"];
         if (typeof netIsValid === "undefined")
         {
-            errorMessage("Connection to engine failed.");
-            plasmoid.busy = false;
-            return true;                      // error: connection to engine failed
+            //console.log("error: no net_isvalid key");
+            errorMessage("");
+            return false;
         }
 
+        var numSeries = results["timeseries_count"];
+        if (typeof numSeries === "undefined") 
+        {
+            console.log("error: no timeseries_count key");
+            mainWidget.displaySeries = 0;
+            mainWidget.displaySubSeries = 0;
+            return false;             // error: no timeseries to display
+        }
+ 
+        netErrorIndicator.visible = !netIsValid;
         if (netIsValid == false) 
         {
-            errorMessage("Network request failed: " + results["net_error"] + ".");
-            plasmoid.busy = false;
-            return true;                      // error: connection to network failed
+            var netError = results["net_error"];
+            if (typeof netError == "number") netdialog.error = netError;
+
+            if (!netIsValid && numSeries <= 0)
+            {
+                errorMessage(i18n("Network request failed: ") + results["net_error"] + "  ");
+                return false;                     // error: connection to network failed
+            }
         }
 
         var xmlIsValid = results["xml_isvalid"];
         if (typeof xmlIsValid === "undefined" || xmlIsValid == false)
         {
-            errorMessage("Received invalid data.");
-            plasmoid.busy = false;
-            return true;                      // error: xml errors
+            //console.log("error: missing xml_isvalid key or invalid xml");
+            errorMessage(i18n("Received invalid data."));
+            return false;                      // error: xml errors
         }
 
         if (mainWidget.displaySeries >= numSeries )
         {
+            //console.log("warning: current series larger than numSeries, adjusting");
             mainWidget.displaySeries = 0;     // error: series out of bounds
             mainWidget.displaySubSeries = 0;  // corrent and ignore error
         }
 
-        return false;   // end reached - no major errors occured
+        return true;   // end reached - no major errors occured
     }
 
     /**
@@ -290,8 +376,9 @@ Item
     */
     function refreshDisplay()
     {
-        if (errorChecking()) return;
-        mainWidget.state = "NORMAL";
+        //console.log("refreshDisplay (entered)");
+        if ((plasmoid.busy = errorChecking()) == false) return;
+        else mainWidget.state = "NORMAL";
 
         var results = dataengine.data[dataRequest];
         var prefix = "timeseries_" + mainWidget.displaySeries + "_";
@@ -335,10 +422,11 @@ Item
                                 + var_method_desc + " (method " + var_method_id + ")<br/><br/>" 
                                 + "<b>" + var_value + " " + var_units + "</b><br/>"
                                 + var_date + "<br/><br/>"
-                                +  qualifier_desc;
-        infodialog.navText = determineNavText();
+                                + qualifier_desc;
+        infodialog.navText = main.determineNavText();
 
         plasmoid.busy = false;
+        plasmoid.paused = true;
     }
 
     /** 
@@ -350,33 +438,51 @@ Item
     {
         plasmoid.busy = true;
         updateFonts();
-        mainWidget.showUnits = plasmoid.readConfig("infoshowunits");
-        mainWidget.showDate = plasmoid.readConfig("infoshowdate");
-        updateEngine();    // bug: source never connects unless we do this twice
-        updateEngine();    // ... what is going on here.
+        updateShown();
+        plasmoid.busy = updateEngine();
     }
 
+    /**
+        updateEngine() : function
+        Checks that the engine is available, disconnects currently connected
+        source, sets the polling interval from config, sets the source from 
+        config, and then attempts to connect.
+    */
     function updateEngine()
     {
-        if (!dataengine.valid)
+        if (!dataengine.valid)      // is the engine available?
         {
-            errorMessage("Missing data engine:<br/>wateriv >= 0.2.0 required");
-            plasmoid.busy = false;
-            return;
+            errorMessage(i18n("Missing data engine:<br/>wateriv >= 0.2.0 required"));
+            return false;           // missing engine; abort engine update
+        }
+
+        if (!dataRequestIsEmpty) 
+        {
+            console.log("disconnecting source: " + dataRequest);
+            dataengine.disconnectSource(dataRequest);
         }
 
         pollingInterval = plasmoid.readConfig("datapolling");
-        if (!dataRequestIsEmpty) dataengine.disconnectSource(dataRequest);
-
         dataRequest = plasmoid.readConfig("datasource");
+
         if (dataRequestIsEmpty)
         {
-            errorMessage("Configuration Required");
-            plasmoid.busy = false;
-            return;
+            errorMessage(i18n("Configuration Required"));
+            return false;
         }
 
-        dataengine.connectSource(dataRequest);
+        dataengine.makeConnection();
+        return true;
+    }
+
+    /**
+       updateShown() : function
+       Update the information shown in the main widget.
+    */
+    function updateShown()
+    {
+        mainWidget.showUnits = plasmoid.readConfig("infoshowunits");
+        mainWidget.showDate = plasmoid.readConfig("infoshowdate");
     }
 
     /**

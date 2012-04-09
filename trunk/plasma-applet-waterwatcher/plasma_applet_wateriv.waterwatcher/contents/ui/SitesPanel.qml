@@ -21,13 +21,14 @@ import QtQuick 1.0
 Column
 {
     id: panel; 
-    spacing: 5; 
-    anchors.bottomMargin: 5;
-    property variant field: inputDataSource;
-    property variant error: errorField;
-  
-    property int recent_sources_top: -1;
-    property int recent_sources_max: 10;
+    spacing: 5; anchors.bottomMargin: 5;
+
+    property variant field: inputDataSource;   // input field
+    property variant error: errorField;        // error field
+    property int recent_sources_top: -1;       // recent sources top
+    property int recent_sources_max: 10;       // recent sources max
+
+    signal dataSourceChanged;
 
     state: "NORMAL";
     states: [
@@ -46,14 +47,14 @@ Column
 
     Row
     {
-        spacing: 5;
+        spacing: 5; 
         anchors.left: parent.left;
         Text
         {
             id: label;
             text: "Data Source:";
-            anchors.verticalCenter: parent.verticalCenter;
             anchors.leftMargin: 5;
+            anchors.verticalCenter: parent.verticalCenter;
         }
 
         TextField
@@ -61,21 +62,10 @@ Column
             id: inputDataSource;
             width: 250; textInitial: dataRequest;
             anchors.verticalCenter: parent.verticalCenter;
-            onAction: 
-            {
-                addToRecentSources(input.text);
-                plasmoid.writeConfig("datasource", input.text); 
-
-                dialog_info.toggleDialog();
-                infodialog.state = "RECENT";
-                panel.state = "NORMAL";
-
-                main.configChanged();
-            }
+            onAction: { setDataSource(); }
             Keys.onDownPressed: { nextRecentSource(); }
             Keys.onUpPressed: { prevRecentSource(); }
         }
-
     }
 
     TextField
@@ -86,12 +76,42 @@ Column
         width: 250;
     }
 
-    SitesSearch
+    //SitesSearch
+    //{
+    //    id: siteSearch;
+    //}
+
+    /**
+        Set the data source, add to the recent sources, and close the dialog.
+        @param string the data source to change to
+    */
+    function setDataSource()
     {
-        id: siteSearch;
+        addToRecentSources(field.input.text);
+        plasmoid.writeConfig("datasource", field.input.text); 
+        panel.state = "NORMAL";
+        panel.dataSourceChanged();
     }
 
+    /**
+        hasRecentSource(source) : function
+        @returns true if source is already in recent sources, false otherwise
+    */
+    function hasRecentSource(source)
+    {
+        var i = 0;
+        for (i=0; i<10; i++)
+        {
+            var value = plasmoid.readConfig("recent_source_" + i, "");
+            if (value == source) return true;
+        }
+        return false;
+    }
      
+    /**
+        Shift top of the recent sources list up by one or more (show next).
+        @return int the new index of top
+    */
     function nextRecentSource()
     {
         recent_sources_top = plasmoid.readConfig("recent_source_top", 0);
@@ -109,9 +129,13 @@ Column
 
         var value = plasmoid.readConfig("recent_source_" + recent_sources_top, "");
         if (value != "") field.input.text = value;
-        console.log("next to: " + recent_sources_top);
+        //console.log("next to: " + recent_sources_top);
     }
    
+    /**
+        Shift top of the recent sources list down by one or more (show prev).
+        @return int the new index of top
+    */
     function prevRecentSource()
     {
         recent_sources_top = plasmoid.readConfig("recent_source_top", 0);
@@ -129,11 +153,16 @@ Column
 
         var value = plasmoid.readConfig("recent_source_" + recent_sources_top, "");
         if (value != "") field.input.text = value;
-        console.log("previous to: " + recent_sources_top);
+        //console.log("previous to: " + recent_sources_top);
     }
 
+    /**
+        Add a source to the top of the recent sources list (circular buffer).
+        @param source a string to add to the top of the recent sources
+    */
     function addToRecentSources(source)
     {
+        if (hasRecentSource(source)) return;
         recent_sources_top = plasmoid.readConfig("recent_source_top", -1);
         if (recent_sources_top == -1)
         {   // init first element (first use)
@@ -144,7 +173,7 @@ Column
         if (recent_sources_top >= recent_sources_max) recent_sources_top = 0;
         plasmoid.writeConfig("recent_source_top", recent_sources_top);
         plasmoid.writeConfig("recent_source_" + recent_sources_top, source);
-        console.log("added recent source: " + recent_sources_top);
+        //console.log("added recent source: " + recent_sources_top);
     }
 
 }

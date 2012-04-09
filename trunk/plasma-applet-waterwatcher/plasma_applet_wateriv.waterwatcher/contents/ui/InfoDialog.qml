@@ -30,6 +30,7 @@ Column
     signal nextSeries;
     signal prevSeries;
     signal toggleDialog;
+    signal configChanged;
 
     property string navText: "0/0";
     property variant panelConfig: configpanel;
@@ -93,16 +94,17 @@ Column
 
         TextButton
         {
-            id: tabconfig; buttonText: "Configuration";
+            id: tabconfig; toggled: false;
+            buttonText: "Configuration";
             anchors.verticalCenter: parent.verticalCenter;
-            toggled: false;
             anchors.leftMargin: 10; anchors.rightMargin: 10;
             onAction: { infodialog.state = "CONFIGURE"; }
         }
 
         TextButton
         {
-            id: tabrecent; buttonText: "Most Recent Value";
+            id: tabrecent; toggled: true;
+            buttonText: "Most Recent Value";
             anchors.verticalCenter: parent.verticalCenter;
             anchors.leftMargin: 10; anchors.rightMargin: 10;
             onAction: { infodialog.state = "RECENT"; }
@@ -141,6 +143,12 @@ Column
     {
         id: configpanel;
         visible: false;
+        onDataSourceChanged: 
+        {
+            infodialog.toggleDialog();
+            infodialog.state = "RECENT";
+            infodialog.configChanged();
+        }
     }
 
     InfoPanel
