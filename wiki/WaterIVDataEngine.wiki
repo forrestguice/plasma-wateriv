@@ -44,7 +44,7 @@ Keys starting with _net`_`_ contain info about the network request for data. The
 ||net`_`request||QString||The request made to the web service.||
 ||net`_`request_isvalid||bool||The request was accepted by the data engine.||
 ||net`_`request_error||bool||Any error messages generated when parsing the request (when request_isvalid is false)||
-||net`_`error||QString||Any network errors that occurred||
+||net`_`error||int||Any net error codes that occurred||
 
 
 Keys starting with _xml`_`_ contain info about the raw xml returned by the request. The _xml`_`error`_`_ keys are available when _xml`_`isvalid_ is false. Other keys will not be available unless _xml`_`isvalid_ is true.
