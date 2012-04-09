@@ -2,7 +2,7 @@ Source: plasma-dataengine-wateriv
 Section: kde
 Priority: optional
 Maintainer: Forrest Guice <ftg2@users.sourceforge.net>
-Build-Depends: debhelper (>= 8.0.0), cmake
+Build-Depends: debhelper (>= 8.0.0), cdbs, cmake, kdelibs5-dev (>= 4.6.0)
 Standards-Version: 3.9.2
 Homepage: http://code.google.com/p/plasma-wateriv/
 

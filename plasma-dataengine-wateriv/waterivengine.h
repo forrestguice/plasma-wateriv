@@ -33,8 +33,10 @@ class WaterIVEngine : public Plasma::DataEngine
             VERSION_ID gets incremented every time compatibility is broken.
             Plasmoids can get this value with 'engine_version'.
         */
-        static const int VERSION_ID = 1;         // 1 : 0.2.0+
-                                                 // 0 : 0.1.0
+        static const int VERSION_ID = 2;   // 2 : 0.2.1 +
+                                           // 1 : 0.2.0 
+                                           // 0 : 0.1.0
+
         static const QString DEFAULT_SERVER;
         static const QString DEFAULT_SERVER_IV;  // IV is Instantaneous Values
         static const QString DEFAULT_SERVER_DV;  // DV is Daily Values

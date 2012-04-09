@@ -231,17 +231,16 @@ bool WaterIVEngine::updateSourceEvent(const QString &source)
 {
     QString errorMsg;
     QString requestUrl = IVRequest::requestForSource(source, errorMsg);
-    setData(source, "engine_version", WaterIVEngine::VERSION_ID);
-
     if (requestUrl == "-1")
     {
+        //qDebug() << errorMsg;
+        setData(source, I18N_NOOP("engine_version"), WaterIVEngine::VERSION_ID);
         setData(source, I18N_NOOP(PREFIX_NET + "request_isvalid"), false);
         setData(source, I18N_NOOP(PREFIX_NET + "request_error"), errorMsg);
-        //qDebug() << errorMsg;
+        setData(source, I18N_NOOP(PREFIX_TIMESERIES + "count"), 0);
         return true;
     }
 
-    setData(source, I18N_NOOP(PREFIX_NET + "request_isvalid"), true);
     QNetworkReply *reply = manager->get(QNetworkRequest(QUrl(requestUrl)));
     replies->insert(reply, source);
     return false;
@@ -261,8 +260,7 @@ void WaterIVEngine::dataFetchComplete(QNetworkReply *reply)
     QUrl redirectUrl = redirectVariant.toUrl();
     if (!redirectUrl.isEmpty() && redirectUrl != requestUrl)
     {
-        //qDebug() << "Redirecting: " << redirectUrl << "( " << requestUrl << ")";
-        // redirected - create a new QNetworkRequest
+        // qDebug() << "Redirecting: " << redirectUrl << "( " << requestUrl << ")";
         QNetworkReply *reply2 = manager->get(QNetworkRequest(redirectUrl));
         replies->insert(reply2, request);
         reply->deleteLater();
@@ -271,16 +269,19 @@ void WaterIVEngine::dataFetchComplete(QNetworkReply *reply)
 
     // data - request url
     QStringList request_parts = requestUrl.toString().split("?");
+    setData(request, I18N_NOOP("engine_version"), WaterIVEngine::VERSION_ID);
+    setData(request, I18N_NOOP(PREFIX_NET + "request_isvalid"), true);
     setData(request, I18N_NOOP(PREFIX_NET + "url"), QUrl(request_parts.at(0)));
     setData(request, I18N_NOOP(PREFIX_NET + "request"), request_parts.at(1));
 
     // data - check for retrieval errors
     if (reply->error() != QNetworkReply::NoError)
     {
+        // qDebug() << "download failed";
         Plasma::DataContainer *container = containerForSource(request);
         if (container == 0 || not container->data().contains(PREFIX_TIMESERIES + "count"))
         {
-            // set count to 0 only when it does not already exist
+            // qDebug() << "timeseries unset; setting to 0";
             setData(request, I18N_NOOP(PREFIX_TIMESERIES + "count"), 0);
         }
 
@@ -290,10 +291,10 @@ void WaterIVEngine::dataFetchComplete(QNetworkReply *reply)
         return;
     }
 
+    // qDebug() << "download complete";
     setData(request, I18N_NOOP(PREFIX_NET + "isvalid"), true);
     QByteArray bytes = reply->readAll();
     reply->deleteLater();
-
     extractData(request, bytes);
 }
 
@@ -547,11 +548,8 @@ void WaterIVEngine::extractSeriesValues( QString &request, QString &prefix, QDom
     }
 }
 
-//QTemporaryFile temp_file; temp_file.write(reply->readAll());
-
 // the first argument must match X-Plasma-EngineName in the .desktop file
 // the second argument is the class that derives from Plasma::DataEngine
 K_EXPORT_PLASMA_DATAENGINE(wateriv, WaterIVEngine)
  
-// needed since WaterIVEngine is a QObject // todo: whats going on here...
-//#include "waterivengine.moc"
+#include "waterivengine.moc"

@@ -3,8 +3,12 @@ WaterIV Data Engine ChangeLog
  ----------------------------------
  0.2.1 : plasma-dataengine-wateriv
 
- * (issue 7) (fixed) previous timeseries_count now preserved on network errors 
-    during update instead of blindly set to 0.
+ * incremented VERSION_ID = 2; compatibility broken (issue#8 modifies behavior)
+ * (fixed)(issue#8) any data returned is delivered at once and not spread out
+   over asyncronous functions (caused plasmoids to fail to recognize updates).
+ * (fixed)(issue#7) previous timeseries_count preserved on network errors 
+   during update instead of blindly set to 0.
+ * added debian/ files for packing ubuntu debs; 
 
  ----------------------------------
  0.2.0 : plasma-dataengine-wateriv
