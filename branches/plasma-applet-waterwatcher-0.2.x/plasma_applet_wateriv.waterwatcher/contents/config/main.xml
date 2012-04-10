@@ -64,8 +64,8 @@
       </entry>
 
       <entry name="datapolling" type="int">
-         <label>The update interval (in minutes). The minimum interval is 15minutes. Please consider using a larger interval such as an hour. Most data sources take readings every 15 minutes but updates from the web service occur no more than once an hour.</label>
-         <default>15</default>
+         <label>The update interval (in minutes). The minimum interval is 15 minutes. Please consider using a larger interval such as an hour. Most data sources take readings every 15 minutes but updates from the web service occur no more than once an hour.</label>
+         <default>30</default>
        </entry>
    </group>
 

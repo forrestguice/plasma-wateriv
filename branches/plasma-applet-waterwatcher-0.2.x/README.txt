@@ -50,8 +50,33 @@
     || Configuration:                                                       ||
     ==========================================================================
 
-       Provide a valid site code in the settings dialog. Use NSWIS Mapper 
-       (http://wdr.water.usgs.gov/nwisgmap/index.html) to locate sites.
+       1) Single Site, All Available Parameters (simple)
+
+       Provide a valid site code in the settings dialog or configuration tab. 
+       Use NSWIS Mapper (http://wdr.water.usgs.gov/nwisgmap/index.html) to 
+       locate site codes. 
+
+       Example: 09506000
+
+
+       2) Multiple Sites, All Available Parameters (simple)
+
+       Provide a comma separated list of site codes in the settings dialog or
+       configuration tab. 
+
+       Example: 09506000,09508500
+
+
+       3) Single Site / Multiple Sites, Custom Parameters (advanced)
+
+       Provide a partial request url instead of a simple list of sites. Use
+       the tool at http://waterservices.usgs.gov/rest/IV-Test-Tool.html to
+       form valid urls. Copy the part of the url after the ? into the settings
+       dialog or configuration tab.
+
+       Example: sites=01646500&parameterCd=00060,00065 
+       Example: sites=01646500,09508500&parameterCd=00060
+       
 
     ==========================================================================
     || Bugs:                                                                ||
@@ -61,7 +86,7 @@
        http://code.google.com/p/plasma-wateriv/issues/list
 
        Other users can send bug reports to ftg2@users.sourceforge.net. Include
-       "plasma-wateriv" somewhere in the subject line.
+       "plasma-wateriv" and "bug" somewhere in the subject line.
 
     ==========================================================================
     || Legal Stuff:                                                         ||
