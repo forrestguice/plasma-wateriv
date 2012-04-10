@@ -1,5 +1,5 @@
 ==============================================================================
-||  WaterSites DataEngine v0.1 README                                       ||
+||  WaterIV DataEngine v0.2.1 README                                        ||
 ==============================================================================
 
   ==============================
@@ -23,9 +23,11 @@
 
    project url: http://code.google.com/p/plasma-wateriv/
 
-   The WaterSites dataengine retrieves information about available sites that
-   are monitored by the USGS. It can be used to obtain site coes for use with
-   the WaterIV dataengine. See http://waterservices.usgs.gov.
+   The WaterIV dataengine retrieves timeseries data from the USGS Instantaneous 
+   Values (IV) Web Service (see http://waterservices.usgs.gov). The web service 
+   returns the data using a set of XML tags called "WaterML". The data engine 
+   reads the data enncoded by these tags and makes it available to plasmoids 
+   using a simple naming scheme.
 
   ==============================
   II) Documentation
@@ -37,24 +39,29 @@
    ------
    INPUT: the source name for requests to the data engine can be:
 
-   //1) a site code, or comma separated list of site codes (up to 100)
-   //   (see http://wdr.water.usgs.gov/nwisgmap/index.html)
+   1) a site code, or comma separated list of site codes (up to 100)
+      (see http://wdr.water.usgs.gov/nwisgmap/index.html)
 
-   //2//) a request string specifying the data to retrieve (the part after 
-   //   the ? in a complete request url)
-   //   (see http://waterservices.usgs.gov/rest/IV-Test-Tool.html)
+   2) a request string specifying the data to retrieve (the part after 
+      the ? in a complete request url)
+      (see http://waterservices.usgs.gov/rest/IV-Test-Tool.html)
 
-   //3) a complete request url specifying the data to retrieve 
-   //   (see http://waterservices.usgs.gov/rest/IV-Test-Tool.html)
+   3) a complete request url specifying the data to retrieve 
+      (see http://waterservices.usgs.gov/rest/IV-Test-Tool.html)
 
-   //Using (1) is a convenient way to get recent data by site code.
-   //Using (2) allows more control over the data that is requested.
-   //Using (3) allows data to be requested from an alternate url.
+   4) a psuedo request url specifying DV (Daily) or IV (Instantaneous) values
+      Examples: DV?sites=01646500  .. to retrieve from daily values service
+                IV?sites=01646500  .. to retrieve from instantaneous values
+
+   Using (1) is a convenient way to get recent data by site code.
+   Using (2) allows more control over the data that is requested.
+   Using (3) allows data to be requested from an alternate url.
+   Using (4) is experimental for now (needs cache support).
 
    ------
    OUTPUT: a set of key/value pairs organized by simple naming scheme
 
-   Browse the comment blocks at the beginning of watersitesengine.cpp for
+   See http://code.google.com/p/plasma-wateriv/wiki/WaterIVDataEngine for
    a complete listing of available data keys (key naming scheme).
 
 
@@ -62,7 +69,7 @@
   III) Requirements
   ==============================
 
-    * To run this DataEngine requires KDE 4.6+.
+    * To run this data engine requires KDE 4.6+.
 
     * To compile requires kdelibs-dev (kdelibs5-dev).
     * To compile requries some common build tools (build-essential, cmake).
@@ -78,38 +85,61 @@
 
    1) change to the source directory
 
-      $ cd plasma-dataengine-watersites
+      $ cd plasma-dataengine-wateriv-0.2.1
 
    2) compile the source code
 
       $ cmake -DCMAKE_INSTALL_PREFIX=/usr ./
-      $ make clean
       $ make
 
    3) remove the debugging symbols to reduce the binary size
 
-      $ strip ./lib/plasma_engine_watersites.so
+      $ strip ./lib/plasma_engine_wateriv.so
 
 
   =================================
-  V) Installation (on Ubuntu 11.10)
+  V) Installation from Compiled Source (on Ubuntu 11.10)
   =================================
 
    0) succesfully compile the source code (see section IV Compiling)
 
    1) install directly from the compiled source to /usr 
-      (see IV Compiling step 2; cmake)
+      (see IV Compiling step 2; cmake to change this location)
 
       $ sudo make install
 
    2) get KDE to find the newly installed files by rebuilding the config cache
+      (logging-out then logging-in be required when upgrading a previous version)
 
       $ kbuildsycoca4
+
+       Note: when upgrading, logging out and logging back in may be required for
+       the change to be recognized.
 
    3) to uninstall (requires compiled source)
 
       $ sudo make uninstall
 
+
+  =================================
+  V) Packaging (on Ubuntu 11.10)
+  =================================
+
+    ## prepare a source package
+    $ cmake -DCMAKE_INSTALL_PREFIX=/usr ./
+    $ make package_source
+
+    ## prepare to create a deb
+    $ mkdir packaging
+    $ cd packaging/
+    $ mv ../plasma-dataengine-wateriv-0.2.1.tar.gz ./
+    $ tar -zxvf plasma-dataengine-wateriv-0.2.1.tar.gz
+    $ mv plasma-dataengine-wateriv-0.2.1.tar.gz plasma-dataengine-wateriv_0.2.1.orig.tar.gz
+    $ cd plasma-dataengine-wateriv-0.2.1
+
+    ## create a deb (local build (not signed with gpg))
+    $ debuild -uc -us
+    
 
   ==============================
   VI) Bugs
@@ -117,8 +147,8 @@
     Users with a Google account can report bugs to the issue tracker at 
     http://code.google.com/p/plasma-wateriv/issues/list
 
-    Other users can send bug reports to ftg2@users.sourceforge.net. Include 
-    "plasma-wateriv" somewhere in the subject line.
+    Other users can send bug reports to ftg2@users.sourceforge.net.  Include 
+    "plasma-wateriv" and "bug" somewhere in the subject line.
 
 
   ==============================
