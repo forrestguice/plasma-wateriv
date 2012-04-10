@@ -31,6 +31,7 @@ Item
     property int minimumHeight: 25;
 
     property string app_name: "Water Watcher";
+    property string minEngineName: "wateriv >= 0.2.1";
     property int minEngineVersion: 2;
     property variant currentDialog: -1;
 
@@ -38,7 +39,7 @@ Item
     property bool dataRequestIsValid: true;
     property bool dataRequestIsEmpty: (dataRequest == "-1" || dataRequest == "" || dataRequest == " ");
 
-    property int pollingInterval: 15;   // interval in minutes
+    property int pollingInterval: 30;   // interval in minutes
     onPollingIntervalChanged: { if (pollingInterval < 15) pollingInterval = 15; }
 
     Component.onCompleted: { plasmoid.busy = true; }
@@ -131,7 +132,6 @@ Item
     NetErrorPanel
     {
         id: netdialog;
-        //width: 100; height: 200;
     }
 
     PlasmaCore.SvgItem
@@ -306,19 +306,19 @@ Item
         var engineVersion = results["engine_version"];
         if (typeof engineVersion === "undefined" || engineVersion < minEngineVersion)
         {
-            console.log(i18n("Water Watcher: requires version_id 1, found version_id ") + engineVersion);
-            errorMessage(i18n("Insufficient data engine:<br/>wateriv >= 0.2.0 required"));
+            console.log(i18n("Water Watcher: requires version_id 2, found version_id ") + engineVersion);
+            errorMessage(i18n("Insufficient data engine:<br/>") + minEngineName + i18n(" required"));
             return false;             // error: insufficient data engine version
         }
 
         dataRequestIsValid = results["net_request_isvalid"];
         if (!dataRequestIsValid)
         {
+            //console.log("error: invalid data source.");
             errorMessage(i18n("Invalid data source."));
             infodialog.panelConfig.field.state = "ERROR";
             infodialog.panelConfig.error.input.text = results["net_request_error"];
             infodialog.panelConfig.state = "ERROR";
-            //console.log("error: invalid data source.");
             return false;
         }
 
@@ -333,7 +333,7 @@ Item
         var numSeries = results["timeseries_count"];
         if (typeof numSeries === "undefined") 
         {
-            console.log("error: no timeseries_count key");
+            //console.log("error: no timeseries_count key");
             mainWidget.displaySeries = 0;
             mainWidget.displaySubSeries = 0;
             return false;             // error: no timeseries to display
@@ -426,7 +426,6 @@ Item
         infodialog.navText = main.determineNavText();
 
         plasmoid.busy = false;
-        plasmoid.paused = true;
     }
 
     /** 
@@ -452,13 +451,13 @@ Item
     {
         if (!dataengine.valid)      // is the engine available?
         {
-            errorMessage(i18n("Missing data engine:<br/>wateriv >= 0.2.0 required"));
+            errorMessage(i18n("Missing data engine:<br/>") + minEngineName + i18n(" required"));
             return false;           // missing engine; abort engine update
         }
 
         if (!dataRequestIsEmpty) 
         {
-            console.log("disconnecting source: " + dataRequest);
+            //console.log("disconnecting source: " + dataRequest);
             dataengine.disconnectSource(dataRequest);
         }
 
