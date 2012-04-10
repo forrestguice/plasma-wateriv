@@ -1,8 +1,0 @@
-Users with a Google account can report bugs to the issue tracker at 
-http://code.google.com/p/plasma-wateriv/issues/list
-
-Other users can send bug reports to ftg2@users.sourceforge.net.  Include 
-"plasma-wateriv" somewhere in the subject line.
-
-------------------------------------------------------------------------------
-

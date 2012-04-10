@@ -9,3 +9,4 @@ Other users can send bug reports to ftg2@users.sourceforge.net.  Include
 TODO:
 
 * Missing an icon (used in tooltip and widgets panel)
+* debian packages?

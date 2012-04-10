@@ -1,7 +1,7 @@
 project(plasma-applet-waterwatcher)
 set (waterwatcher_VERSION_MAJOR 0)
-set (waterwatcher_VERSION_MINOR 3)
-set (waterwatcher_VERSION_PATCH 0)
+set (waterwatcher_VERSION_MINOR 2)
+set (waterwatcher_VERSION_PATCH 1)
  
 find_package(KDE4 REQUIRED)
  
@@ -31,7 +31,7 @@ set (CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
 
 set (CPACK_SOURCE_GENERATOR "TGZ")
 set (CPACK_SOURCE_PACKAGE_FILE_NAME "plasma-applet-waterwatcher-${waterwatcher_VERSION_MAJOR}.${waterwatcher_VERSION_MINOR}.${waterwatcher_VERSION_PATCH}")
-set (CPACK_SOURCE_IGNORE_FILES "Makefile;lib/;test/;CMakeFiles/;CMakeTmp/;_CPack_Packages/;CMakeCache.txt;./*.cmake;./*automoc*;./moc_*;./*.tar.gz;./.svn/;./*.save;./*.tmp;install_manifest.txt")
+set (CPACK_SOURCE_IGNORE_FILES "Makefile;lib/;test/;CMakeFiles/;CMakeTmp/;_CPack_Packages/;CMakeCache.txt;./*.cmake;./*automoc*;./moc_*;./*.tar.gz;./.svn/;./*.save;./*.tmp;./install_manifest.txt")
 
 set (CPACK_RESOURCE_FILE_README "README.txt")
 set (CPACK_RESOURCE_FILE_LICENSE "COPYING.txt")
