@@ -1,7 +1,7 @@
 project(plasma-applet-waterwatcher)
 set (waterwatcher_VERSION_MAJOR 0)
 set (waterwatcher_VERSION_MINOR 2)
-set (waterwatcher_VERSION_PATCH 1)
+set (waterwatcher_VERSION_PATCH 2)
  
 find_package(KDE4 REQUIRED)
  

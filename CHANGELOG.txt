@@ -1,6 +1,11 @@
 Water Watcher Plasmoid ChangeLog
 
  ----------------------------------
+ 0.2.2 : plasma-applet-waterwatcher
+ * BugFix: issue 9; plasmoid keyboard shortcut toggles visibility of the dialog.
+
+
+ ----------------------------------
  0.2.1 : plasma-applet-waterwatcher
 
  * Add UI: the configuration tab remembers recent sources (last ten) and allows
