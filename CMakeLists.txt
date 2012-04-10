@@ -47,7 +47,7 @@ set (CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
 
 set (CPACK_SOURCE_GENERATOR "TGZ")
 set (CPACK_SOURCE_PACKAGE_FILE_NAME "plasma-dataengine-wateriv-${wateriv_engine_VERSION_MAJOR}.${wateriv_engine_VERSION_MINOR}.${wateriv_engine_VERSION_PATCH}")
-set (CPACK_SOURCE_IGNORE_FILES "Makefile;lib/;test/;CMakeFiles/;CMakeTmp/;_CPack_Packages/;CMakeCache.txt;./*.cmake;./*automoc*;./moc_*;./*.tar.gz;./.svn/;./*.save;./*.tmp")
+set (CPACK_SOURCE_IGNORE_FILES "Makefile;lib/;test/;CMakeFiles/;CMakeTmp/;_CPack_Packages/;CMakeCache.txt;./*.cmake;./*automoc*;./moc_*;./*.tar.gz;./.svn/;./*.save;./*.tmp;./install_manifest;./*.moc")
 
 set (CPACK_STRIP_FILES "lib/plasma_dataengine_wateriv.so")
 

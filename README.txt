@@ -25,7 +25,7 @@
 
    The WaterIV dataengine retrieves timeseries data from the USGS Instantaneous 
    Values (IV) Web Service (see http://waterservices.usgs.gov). The web service 
-   returns the data using a set of XML tags called "WaterML". The dataengine 
+   returns the data using a set of XML tags called "WaterML". The data engine 
    reads the data enncoded by these tags and makes it available to plasmoids 
    using a simple naming scheme.
 
@@ -56,6 +56,7 @@
    Using (1) is a convenient way to get recent data by site code.
    Using (2) allows more control over the data that is requested.
    Using (3) allows data to be requested from an alternate url.
+   Using (4) is experimental for now (needs cache support).
 
    ------
    OUTPUT: a set of key/value pairs organized by simple naming scheme
@@ -112,6 +113,9 @@
 
       $ kbuildsycoca4
 
+       Note: when upgrading, logging out and logging back in may be required for
+       the change to be recognized.
+
    3) to uninstall (requires compiled source)
 
       $ sudo make uninstall
@@ -144,7 +148,7 @@
     http://code.google.com/p/plasma-wateriv/issues/list
 
     Other users can send bug reports to ftg2@users.sourceforge.net.  Include 
-    "plasma-wateriv" somewhere in the subject line.
+    "plasma-wateriv" and "bug" somewhere in the subject line.
 
 
   ==============================
