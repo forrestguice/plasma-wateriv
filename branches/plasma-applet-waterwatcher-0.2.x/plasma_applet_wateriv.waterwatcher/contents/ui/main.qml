@@ -70,6 +70,7 @@ Item
         id: loadtimer; interval: 1000; running: false; repeat: false;
         onTriggered: 
         {
+            plasmoid.addEventListener("Activate", main.activate);
             plasmoid.addEventListener("ConfigChanged", main.configChanged);
             main.configChanged();
         }
@@ -87,15 +88,10 @@ Item
         onPressAndHold: 
         {
             if ((dataRequestIsEmpty || !dataRequestIsValid) && dataengine.valid)
-            { main.toggleDialogState(dialog_info, mainWidget, "CONFIGURE"); }
+            { main.activate(); }
             else { main.showNextSeries() }; 
         }
-        onClicked: 
-        {
-            if ((dataRequestIsEmpty || !dataRequestIsValid) && dataengine.valid) 
-            { main.toggleDialogState(dialog_info, mainWidget, "CONFIGURE"); }
-            else { main.toggleDialog(dialog_info, mainWidget); }
-        }
+        onClicked: { main.activate(); }
     }
 
     PlasmaCore.Theme { id: theme; }
@@ -153,6 +149,17 @@ Item
     //////////////////////////////////////
     // functions
     //////////////////////////////////////
+
+    /**
+        activate() : function
+        Called when the plasmoid is clicked or activated with the keyboard shortcut.
+    */
+    function activate()
+    {
+        if ((dataRequestIsEmpty || !dataRequestIsValid) && dataengine.valid) 
+        { main.toggleDialogState(dialog_info, mainWidget, "CONFIGURE"); }
+        else { main.toggleDialog(dialog_info, mainWidget); }
+    }
 
     /**
         toggleDialog( dialog, popupTarget) : function   
