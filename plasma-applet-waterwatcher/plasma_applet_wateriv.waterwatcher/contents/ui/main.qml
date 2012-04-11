@@ -38,7 +38,7 @@ Item
     property bool dataRequestIsValid: true;
     property bool dataRequestIsEmpty: (dataRequest == "-1" || dataRequest == "" || dataRequest == " ");
 
-    property int pollingInterval: 15;   // interval in minutes
+    property int pollingInterval: 30;   // interval in minutes
     onPollingIntervalChanged: { if (pollingInterval < 15) pollingInterval = 15; }
 
     Component.onCompleted: { plasmoid.busy = true; }
