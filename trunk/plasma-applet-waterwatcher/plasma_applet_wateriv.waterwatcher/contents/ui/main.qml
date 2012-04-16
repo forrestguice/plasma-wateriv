@@ -31,8 +31,8 @@ Item
     property int minimumHeight: 25;
 
     property string app_name: "Water Watcher";
-    property string minEngineName: "wateriv >= 0.2.1";
-    property int minEngineVersion: 2;
+    property string minEngineName: "wateriv >= 0.3.0";
+    property int minEngineVersion: 3;
     property variant currentDialog: -1;
 
     property string dataRequest: "-1";
@@ -172,7 +172,7 @@ Item
     }
     function toggleDialogState( dialog, popupTarget, dialogState)
     {
-        if (dialog.visible) hideDialog(dialog, popupTarget);
+        if (dialog.visible) hideDialog(dialog);
         else showDialog(dialog, popupTarget, dialogState);
     }
 
@@ -215,21 +215,11 @@ Item
     {
         var results = dataengine.data[dataRequest];
         if (typeof results === "undefined") return;
-
-        var numSeries = results["timeseries_count"];
+        var numSeries = results["toc_count"];
         if (typeof numSeries === "undefined") return;
 
-        var numSubSeries = results["timeseries_" + mainWidget.displaySeries + "_values_count"];
-        if (typeof numSubSeries === "undefined") return;
-
-        mainWidget.displaySubSeries += 1;
-        if (mainWidget.displaySubSeries >= numSubSeries) 
-        {
-            mainWidget.displaySubSeries = 0;
-            mainWidget.displaySeries += 1;
-            if (mainWidget.displaySeries >= numSeries) mainWidget.displaySeries = 0;
-        }
-
+        mainWidget.displaySeries += 1;
+        if (mainWidget.displaySeries >= numSeries) mainWidget.displaySeries = 0;
         main.refreshDisplay();
     }
 
@@ -241,22 +231,11 @@ Item
     {
         var results = dataengine.data[dataRequest];
         if (typeof results === "undefined") return;
-        var numSeries = results["timeseries_count"];
+        var numSeries = results["toc_count"];
         if (typeof numSeries === "undefined") return;
 
-        var numSubSeries = results["timeseries_" + mainWidget.displaySeries + "_values_count"];
-        if (typeof numSubSeries === "undefined") return;
-
-        mainWidget.displaySubSeries -= 1;
-        if (mainWidget.displaySubSeries < 0) 
-        {
-            mainWidget.displaySeries -= 1;
-            if (mainWidget.displaySeries < 0) mainWidget.displaySeries = numSeries - 1;
-
-            numSubSeries = results["timeseries_" + mainWidget.displaySeries + "_values_count"];
-            mainWidget.displaySubSeries = numSubSeries-1;
-        }
-
+        mainWidget.displaySeries -= 1;
+        if (mainWidget.displaySeries < 0) mainWidget.displaySeries = numSeries - 1;
         main.refreshDisplay();
     }
 
@@ -264,23 +243,20 @@ Item
     {
         var results = dataengine.data[dataRequest];
         if (typeof results === "undefined") return;
-        var numSeries = results["timeseries_count"];
+        var numSeries = results["toc_count"];
         if (typeof numSeries === "undefined") return;
 
-        var current = 0; var total = 0;
+        var current = 0;
         for (i=0; i<numSeries; i++)
         {
-            var numSubSeries = results["timeseries_" + i + "_values_count"];
-            if (typeof numSubSeries === "undefined") return;
-
             if (i == mainWidget.displaySeries)
             {
-                current = total + mainWidget.displaySubSeries + 1;
+                current = i + 1;
+                break;
             }
-            total += numSubSeries;
         }
 
-        return "" + current + " / " + total;
+        return "" + current + " / " + numSeries;
     }
 
     function errorMessage(errorMsg)
@@ -337,12 +313,11 @@ Item
             return false;
         }
 
-        var numSeries = results["timeseries_count"];
+        var numSeries = results["toc_count"];
         if (typeof numSeries === "undefined") 
         {
-            //console.log("error: no timeseries_count key");
+            console.log("error: no toc_count key");
             mainWidget.displaySeries = 0;
-            mainWidget.displaySubSeries = 0;
             return false;             // error: no timeseries to display
         }
  
@@ -367,11 +342,17 @@ Item
             return false;                      // error: xml errors
         }
 
-        if (mainWidget.displaySeries >= numSeries )
+        if (numSeries <= 0)
         {
-            //console.log("warning: current series larger than numSeries, adjusting");
+            console.log("warning: no series to display");
+            errorMessage(i18n("No data for this site."));
+            return false;                     // error: no series to display
+        }
+
+        if (mainWidget.displaySeries >= numSeries || mainWidget.displaySeries < 0)
+        {
+            console.log("warning: current series out of bounds, adjusting");
             mainWidget.displaySeries = 0;     // error: series out of bounds
-            mainWidget.displaySubSeries = 0;  // corrent and ignore error
         }
 
         return true;   // end reached - no major errors occured
@@ -387,36 +368,52 @@ Item
         if ((plasmoid.busy = errorChecking()) == false) return;
         else mainWidget.state = "NORMAL";
 
+        //
+        // Gather Data
+        //
         var results = dataengine.data[dataRequest];
-        var prefix = "timeseries_" + mainWidget.displaySeries + "_";
+        var toc = results["toc_" + mainWidget.displaySeries];
 
-        var numSubSeries = results[prefix+"values_count"];
-        if (mainWidget.displaySubSeries >= numSubSeries)
+        if (typeof toc === "undefined") 
         {
-            mainWidget.displaySubSeries = 0;
+            console.log("missing toc! " + mainWidget.displaySeries);
+            plasmoid.busy = false;
+            return;
         }
-    
-        var site_name = results[prefix + "sourceinfo_sitename"];
-        var site_code = results[prefix + "sourceinfo_sitecode"];
 
-        var var_code = results[prefix + "variable_code"];
-        var var_name = results[prefix + "variable_name"];
-        var var_desc = results[prefix + "variable_description"];
-        var var_units = results[prefix + "variable_unitcode"];
-        var var_date = Qt.formatDateTime(results[prefix + "values_"+mainWidget.displaySubSeries+"_recent_date"]);
-        var var_value = results[prefix + "values_"+mainWidget.displaySubSeries+"_recent"];
-        var var_method_id = results[prefix + "values_"+mainWidget.displaySubSeries+"_method_id"];
-        var var_method_desc = results[prefix + "values_"+mainWidget.displaySubSeries+"_method_description"];
+        var prefix_site = "series_" + toc["site"] + "_";
+        var site_name = results[prefix_site + "name"];
+        var site_code = results[prefix_site + "code"];
 
-        var qualifiers = results[prefix + "values_"+mainWidget.displaySubSeries+"_qualifiers"];
-        var qualifier_code = results[prefix + "values_"+mainWidget.displaySubSeries+"_recent_qualifier"];
+        var prefix_var = prefix_site + toc["variable"] + "_";
+        var var_code = results[prefix_var + "code"];
+        var var_name = results[prefix_var + "name"];
+        var var_desc = results[prefix_var + "description"];
+        var var_units = results[prefix_var + "unitcode"];
+
+        var prefix_stat = prefix_var + toc["statistic"] + "_";
+        var var_statName = results[prefix_stat + "name"];
+        var var_statCode = results[prefix_stat + "code"];
+
+        var prefix_method = prefix_stat + toc["method"] + "_";
+        var var_date = Qt.formatDateTime(results[prefix_method + "recent_date"]);
+        var var_value = results[prefix_method + "recent_value"];
+        var var_method_id = results[prefix_method + "id"];
+        var var_method_desc = results[prefix_method + "description"];
+
+        var qualifiers = results[prefix_method + "qualifiers"];
+        console.log(prefix_method + "qualifiers");
+        var qualifier_code = results[prefix_method + "recent_qualifier"];
         var qualifier_desc = qualifiers[qualifier_code][2];
 
-        // refresh tooltip content
+        //
+        // Display Data
+        //
+
         main_tooltip.mainText = "" + site_name + " (" + site_code + ")";
         main_tooltip.subText = "" + var_name + " (" + var_code + ")<br/><br/><b>" + var_value + " " 
                                + var_units + "</b><br/>" + var_date + "<br/><br/>"
-                               + qualifier_desc;
+                               + qualifier_desc;      // refresh tooltip content
 
         // refresh main widget
         mainWidget.displayValue = "" + var_value;

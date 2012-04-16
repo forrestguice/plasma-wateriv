@@ -26,6 +26,7 @@ Rectangle
     width: 100; height: (txt.desiredHeight > 25) ? txt.desiredHeight : 25;
 
     signal action;
+    signal cancel;
 
     property variant input: txt;
     property string textInitial: "";
@@ -38,6 +39,8 @@ Rectangle
     property color backgroundModifiedColor: theme.buttonHoverColor;
     property color backgroundErrorColor: theme.buttonFocusColor;
     property color backgroundReadonlyColor: theme.buttonBackgroundColor;
+
+    property bool readOnly: false;
 
     state: "NORMAL";
     states: [
@@ -53,7 +56,7 @@ Rectangle
         State
         {
             name: "MODIFIED";
-            when: textInitial != txt.text;
+            when: textInitial != txt.text && !field.readOnly;
             PropertyChanges { target: field; color: backgroundModifiedColor; }
             PropertyChanges { target: txt; color: textNormalColor; }
             PropertyChanges { target: btnAccept; visible: true; }
@@ -119,6 +122,7 @@ Rectangle
     function rejectChanges()
     {
         txt.text = textInitial;
+        field.cancel();
     }
 
 }
