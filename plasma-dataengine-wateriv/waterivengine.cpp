@@ -190,7 +190,8 @@ bool WaterIVEngine::sourceRequestEvent(const QString &source)
 bool WaterIVEngine::updateSourceEvent(const QString &source)
 {
     QString errorMsg;
-    QString requestUrl = IVRequest::requestForSource(source, errorMsg);
+    bool dataIsRemote = true;
+    QString requestUrl = IVRequest::requestForSource(source, errorMsg, dataIsRemote);
     if (requestUrl == "-1")
     {
         //qDebug() << errorMsg;
@@ -254,11 +255,11 @@ void WaterIVEngine::dataFetchComplete(QNetworkReply *reply)
     // qDebug() << "download complete";
     setData(request, I18N_NOOP(PREFIX_NET + "isvalid"), true);
     QByteArray bytes = reply->readAll();
+    reply->deleteLater();
 
-    WaterIVData *reader = new WaterIVDataWaterML();  // todo: move to ivrequest
+    WaterIVData *reader = IVRequest::formatForSource(request, request_parts.at(1));
     reader->extractData(this, request, bytes);
     delete reader;
-    reply->deleteLater();
 }
 
 void WaterIVEngine::setEngineData( QString source, QString key, QVariant value )

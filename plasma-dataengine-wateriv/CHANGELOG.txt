@@ -3,6 +3,7 @@ WaterIV Data Engine ChangeLog
  ----------------------------------
  0.3.0 : plasma-dataengine-wateriv
  
+ * Created WaterIVData interface; added implementation WaterIVDataWaterML
  * (fixed)(issue#8) an empty data container MUST be set in sourceAddedEvent
  * Added keys: toc_count and toc_# | 0 <= # < toc_count (table of contents)
  * Added Keys: series_<siteCode>_<paramCode>_<statCode>_name and code
