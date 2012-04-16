@@ -88,7 +88,7 @@ void WaterSitesDataMapper::extractSites( WaterSitesEngine *engine, const QString
             siteHash["longitude"] = site.attribute("lng", "-1");
             siteHash["type"] = site.attribute("cat", "");
 
-            engine->setEngineData(request, WaterSitesEngine::PREFIX_SITE + QString::number(siteCount) + "_" + siteHash["code"].toString(), siteHash);
+            engine->setEngineData(request, WaterSitesEngine::PREFIX_SITE + siteHash["code"].toString(), siteHash);
             siteCount += 1;
         }
     }
@@ -111,9 +111,9 @@ void WaterSitesDataMapper::extractSites( WaterSitesEngine *engine, const QString
             siteHash["agency"] = site.attribute("agc", "");
             siteHash["latitude"] = site.attribute("lat", "-1");
             siteHash["longitude"] = site.attribute("lng", "-1");
-            siteHash["cat"] = site.attribute("cat", "");
+            siteHash["type"] = site.attribute("cat", "");
 
-            engine->setEngineData(request, WaterSitesEngine::PREFIX_SITE + QString::number(siteCount) + "_" + siteHash["code"].toString(), siteHash);
+            engine->setEngineData(request, WaterSitesEngine::PREFIX_SITE + siteHash["code"].toString(), siteHash);
             siteCount += 1;
         }
     }
