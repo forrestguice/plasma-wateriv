@@ -83,7 +83,7 @@ QString SitesRequest::requestForSource(const QString &source, QString &errorMsg,
 
        if (host == "statecodes")
        {
-           qDebug() << "special request: statecodes";
+           //qDebug() << "special request: statecodes";
            QString path = KStandardDirs::locate("data", "plasma-dataengine-watersites/statecodes.xml");
            if (path == "") 
            {
@@ -94,7 +94,7 @@ QString SitesRequest::requestForSource(const QString &source, QString &errorMsg,
            return path;
 
        } else if  (host == "countycodes") {
-           qDebug() << "special request: countycodes";
+           //qDebug() << "special request: countycodes";
            QString path = KStandardDirs::locate("data", "plasma-dataengine-watersites/countycodes.xml");
            if (path == "")
            {
@@ -105,7 +105,7 @@ QString SitesRequest::requestForSource(const QString &source, QString &errorMsg,
            return path;
 
        } else if  (host == "agencycodes") {
-           qDebug() << "special request: agencycodes";
+           //qDebug() << "special request: agencycodes";
            QString path = KStandardDirs::locate("data", "plasma-dataengine-watersites/agencycodes.xml");
            if (path == "")
            {
@@ -116,7 +116,7 @@ QString SitesRequest::requestForSource(const QString &source, QString &errorMsg,
            return path;
 
        } else if  (host == "sitetypecodes") {
-           qDebug() << "special request: sitetypecodes";
+           //qDebug() << "special request: sitetypecodes";
            QString path = KStandardDirs::locate("data", "plasma-dataengine-watersites/sitetypecodes.xml");
            if (path == "")
            {
