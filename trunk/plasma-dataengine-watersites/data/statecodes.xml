@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<statecodes>
+
+    <!-- Fifty States -->
+    <code name="Alabama" numeric="01" alpha="AL" />
+    <code name="Alaska" numeric="02" alpha="AK" />
+    <code name="Arizona" numeric="04" alpha="AZ" />
+    <code name="Arkansas" numeric="05" alpha="AR" />
+    <code name="California" numeric="06" alpha="CA" />
+    <code name="Colorado" numeric="08" alpha="CO" />
+    <code name="Connecticut" numeric="09" alpha="CT" />
+    <code name="Delaware" numeric="10" alpha="DE" />
+    <code name="District of Columbia" numeric= "11" alpha="DC" />
+    <code name="Florida" numeric="12" alpha="FL" />
+    <code name="Georgia" numeric="13" alpha="GA" />
+    <code name="Hawaii" numeric="15" alpha="HI" />
+    <code name="Idaho" numeric="16" alpha="ID" />
+    <code name="Illinois" numeric="17" alpha="IL" />
+    <code name="Indiana" numeric="18" alpha="IN" />
+    <code name="Iowa" numeric="19" alpha="IA" />
+    <code name="Kansas" numeric="20" alpha="KS" />
+    <code name="Kentucky" numeric="21" alpha="KY" />
+    <code name="Louisiana" numeric="22" alpha="LA" />
+    <code name="Maine" numeric="23" alpha="ME" />
+    <code name="Maryland" numeric="24" alpha="MD" />
+    <code name="Massachusetts" numeric="25" alpha="MA" />
+    <code name="Michigan" numeric="26" alpha="MI" />
+    <code name="Minnesota" numeric="27" alpha="MN" />
+    <code name="Mississippi" numeric="28" alpha="MS" />
+    <code name="Missouri" numeric="29" alpha="MO" />
+    <code name="Montana" numeric="30" alpha="MT" />
+    <code name="Nebraska" numeric="31" alpha="NE" />
+    <code name="Nevada" numeric="32" alpha="NV" />
+    <code name="New Hampshire" numeric="33" alpha="NH" />
+    <code name="New Jersey" numeric="34" alpha="NJ" />
+    <code name="New Mexico" numeric="35" alpha="NM" />
+    <code name="New York" numeric="36" alpha="NY" />
+    <code name="North Carolina" numeric="37" alpha="NC" />
+    <code name="North Dakota" numeric="38" alpha="ND" />
+    <code name="Ohio" numeric="39" alpha="OH" />
+    <code name="Oklahoma" numeric="40" alpha="OK" />
+    <code name="Oregon" numeric="41" alpha="OR" />
+    <code name="Pennsylvania" numeric="42" alpha="PA" />
+    <code name="Rhode Island" numeric="44" alpha="RI" />
+    <code name="South Carolina" numeric="45" alpha="SC" />
+    <code name="South Dakota" numeric="46" alpha="SD" />
+    <code name="Tennessee" numeric="47" alpha="TN" />
+    <code name="Texas" numeric="48" alpha="TX" />
+    <code name="Utah" numeric="49" alpha="UT" />
+    <code name="Vermont" numeric="50" alpha="VT" />
+    <code name="Virginia" numeric="51" alpha="VA" />
+    <code name="Washington" numeric="53" alpha="WA" />
+    <code name="West Virginia" numeric="54" alpha="WV" />
+    <code name="Wisconsin" numeric="55" alpha="WI" />
+    <code name="Wyoming" numeric="56" alpha="WY" />
+    
+    <!-- Others -->
+    <code name="American Samoa" numeric="60" alpha="AS" />
+    <code name="Federated States of Micronesia" numeric="64" alpha="FM" />
+    <code name="Guam" numeric="66" alpha="GU" />
+    <code name="Marshall Islands" numeric="68" alpha="MH" />
+    <code name="Northern Mariana Islands" numeric="69" alpha="MP" />
+    <code name="Palau" numeric="70" alpha="PW" />
+    <code name="Puerto Rico" numeric="72" alpha="PR" />
+    <code name="U.S. Minor Outlying Islands" numeric="74" alpha="UM" />
+    <code name="Virgin Islands of the U.S." numeric="78" alpha="VI" />
+    
+</statecodes>
