@@ -19,14 +19,19 @@
 #ifndef IVREQUEST_H
 #define IVREQUEST_H
 
+#include "waterivdata.h"
+
 class QString;
  
 class IVRequest
 {
     public:
+
         IVRequest();
 
-        static QString requestForSource(const QString &source, QString &errorMsg );
+        static WaterIVData* formatForSource( const QString &source, const QString &request );
+        static QString requestForSource(const QString &source, QString &errorMsg, bool &dataIsRemote );
+
         static bool hasValidFilters( const QString &request, bool &hasFormatFilter, QString &errorMsg );
 
         static bool isSiteCode( const QString &value, QString &errorMsg );

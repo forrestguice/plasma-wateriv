@@ -26,6 +26,7 @@
 
 #include "ivrequest.h"
 #include "waterivengine.h"
+#include "waterivdata_waterml.h"
 
 /** 
     Takes a source name and returns a corresponding fully formed request url.
@@ -33,8 +34,26 @@
     error message is placed into errorMsg;
 */
 
-QString IVRequest::requestForSource(const QString &source, QString &errorMsg)
+/**
+    @return a reference to a WaterIVData on the heap; delete it when done
+*/
+WaterIVData* IVRequest::formatForSource( const QString &source, const QString &request )
 {
+    QString h = source.split("?").at(0);
+    if (request.contains("?"))
+    {
+        QString r = request.split("?").at(1);
+        // todo: examine r and h to determine format to return
+    }
+
+    WaterIVDataWaterML *watermlFormat = new WaterIVDataWaterML();
+    return watermlFormat;
+}
+
+QString IVRequest::requestForSource(const QString &source, QString &errorMsg, bool &dataIsRemote )
+{
+    dataIsRemote = true;
+
     QString request;
     bool hasFormatFilter = false;
 
