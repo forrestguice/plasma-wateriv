@@ -12,7 +12,13 @@ include_directories(
    ${CMAKE_BINARY_DIR}
    ${KDE4_INCLUDES})
  
-set(watersites_engine_SRCS watersitesengine.cpp sitesrequest.cpp)
+set(watersites_engine_SRCS watersitesengine.cpp 
+                           sitesrequest.cpp 
+                           watersitesdata_mapper.cpp 
+                           watersitesdata_statecodes.cpp
+                           watersitesdata_countycodes.cpp
+                           watersitesdata_sitetypes.cpp
+                           watersitesdata_agencycodes.cpp)
  
 kde4_add_plugin(plasma_engine_watersites ${watersites_engine_SRCS})
 target_link_libraries(plasma_engine_watersites
@@ -26,6 +32,15 @@ install(TARGETS plasma_engine_watersites
  
 install(FILES plasma-dataengine-watersites.desktop
         DESTINATION ${SERVICES_INSTALL_DIR})
+
+install(FILES data/statecodes.xml
+        DESTINATION ${DATA_INSTALL_DIR}/plasma-dataengine-watersites)
+install(FILES data/agencycodes.xml
+        DESTINATION ${DATA_INSTALL_DIR}/plasma-dataengine-watersites)
+install(FILES data/countycodes.xml
+        DESTINATION ${DATA_INSTALL_DIR}/plasma-dataengine-watersites)
+install(FILES data/sitetypecodes.xml
+        DESTINATION ${DATA_INSTALL_DIR}/plasma-dataengine-watersites)
 
 # CPack driven installer package
 include (InstallRequiredSystemLibraries)

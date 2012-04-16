@@ -6,3 +6,8 @@ Other users can send bug reports to ftg2@users.sourceforge.net.  Include
 
 ------------------------------------------------------------------------------
 
+Known:
+
+* setStorageEnabled results in a crash when the source is removed (triggers
+  storage event which triggers crash)
+

@@ -19,6 +19,8 @@
 #ifndef SITESREQUEST_H
 #define SITESREQUEST_H
 
+#include "watersitesdata.h"
+
 class QString;
  
 class SitesRequest
@@ -26,7 +28,9 @@ class SitesRequest
     public:
         SitesRequest();
 
-        static QString requestForSource(const QString &source, QString &errorMsg );
+        static WaterSitesData* formatForSource( const QString &source );
+        static QString requestForSource(const QString &source, QString &errorMsg, bool &dataIsRemote );
+
         static bool hasValidFilters( const QString &request, bool &hasFormatFilter, QString &errorMsg );
 
         static bool isSiteCode( const QString &value, QString &errorMsg );

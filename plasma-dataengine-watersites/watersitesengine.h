@@ -20,6 +20,8 @@
 #define WATERSITESENGINE_H
  
 #include <Plasma/DataEngine>
+#include <Plasma/DataContainer>
+#include <QFile>
 #include <QNetworkReply>
 #include <QNetworkAccessManager>
 #include <QDomElement>
@@ -37,16 +39,22 @@ class WaterSitesEngine : public Plasma::DataEngine
 
         static const QString DEFAULT_SERVER;
         static const QString DEFAULT_FORMAT;
-        static const int DEFAULT_MIN_POLLING = 15;
+        static const int DEFAULT_MIN_POLLING = 100;  // units: ms
 
         static const QString PREFIX_NET;  // key naming scheme
         static const QString PREFIX_XML;
+        static const QString PREFIX_TOC;
         static const QString PREFIX_SITE;
+        static const QString PREFIX_STATECODE;
+        static const QString PREFIX_COUNTYCODE;
+        static const QString PREFIX_AGENCYCODE;
+        static const QString PREFIX_SITETYPE;
 
         WaterSitesEngine(QObject* parent, const QVariantList& args);
+        void setEngineData( QString source, QString key, QVariant value );
 
     public slots:
-        void dataFetchComplete(QNetworkReply *reply);
+        void remoteDataFetchComplete(QNetworkReply *reply);
  
     protected:
         bool sourceRequestEvent(const QString& name);
@@ -56,8 +64,10 @@ class WaterSitesEngine : public Plasma::DataEngine
         QNetworkAccessManager *manager;
         QMap<QNetworkReply*, QString> *replies;
 
-        void extractData( QString &request, QByteArray &bytes );
-        void extractSites( QString &request, QDomElement *element );
+        void invalidRequest( const QString &source, const QString &request, QString &errorMsg );
+        void requestLocalData( const QString &source, const QString &request );
+        void requestRemoteData( const QString &source, const QString &request );
+        void extractData( const QString &source, QByteArray &bytes );
 
 };
  

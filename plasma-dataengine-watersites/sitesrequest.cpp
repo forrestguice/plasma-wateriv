@@ -26,6 +26,45 @@
 
 #include "sitesrequest.h"
 #include "watersitesengine.h"
+#include "watersitesdata_mapper.h"
+#include "watersitesdata_statecodes.h"
+#include "watersitesdata_countycodes.h"
+#include "watersitesdata_agencycodes.h"
+#include "watersitesdata_sitetypes.h"
+#include <kstandarddirs.h>
+
+/**
+*/
+WaterSitesData* SitesRequest::formatForSource( const QString &source )
+{
+    QString lSource = source.toLower();
+    if (source.contains("?"))
+    {
+        // check host value for special types
+        QString host = lSource.split("?").at(0);
+        if (host == "statecodes")
+        {
+            WaterSitesDataStateCodes *statecodesFormat = new WaterSitesDataStateCodes();
+            return statecodesFormat;
+
+        } else if (host == "countycodes") {
+            WaterSitesDataCountyCodes *countycodesFormat = new WaterSitesDataCountyCodes();
+            return countycodesFormat;
+
+        } else if (host == "agencycodes") {
+            WaterSitesDataAgencyCodes *agencycodesFormat = new WaterSitesDataAgencyCodes();
+            return agencycodesFormat;
+
+        } else if (host == "sitetypecodes") {
+            WaterSitesDataSiteTypes *sitetypecodesFormat = new WaterSitesDataSiteTypes();
+            return sitetypecodesFormat;
+        }
+    }
+
+    // assume requests are for mapper data from sites service
+    WaterSitesDataMapper *mapperFormat = new WaterSitesDataMapper();
+    return mapperFormat;
+}
 
 /** 
     Takes a source name and returns a corresponding fully formed request url.
@@ -33,16 +72,64 @@
     error message is placed into errorMsg;
 */
 
-QString SitesRequest::requestForSource(const QString &source, QString &errorMsg)
+QString SitesRequest::requestForSource(const QString &source, QString &errorMsg, bool &dataIsRemote)
 {
     QString request;
     bool hasFormatFilter = false;
 
     if (source.contains("?"))    // full url:
     {
+       QString host = source.split("?").at(0);
+
+       if (host == "statecodes")
+       {
+           qDebug() << "special request: statecodes";
+           QString path = KStandardDirs::locate("data", "plasma-dataengine-watersites/statecodes.xml");
+           if (path == "") 
+           {
+               errorMsg.prepend("missing data file: statecodes.xml");
+               path = "-1";
+           }
+           dataIsRemote = false;
+           return path;
+
+       } else if  (host == "countycodes") {
+           qDebug() << "special request: countycodes";
+           QString path = KStandardDirs::locate("data", "plasma-dataengine-watersites/countycodes.xml");
+           if (path == "")
+           {
+               errorMsg.prepend("missing data file: countycodes.xml");
+               path = "-1";
+           }
+           dataIsRemote = false;
+           return path;
+
+       } else if  (host == "agencycodes") {
+           qDebug() << "special request: agencycodes";
+           QString path = KStandardDirs::locate("data", "plasma-dataengine-watersites/agencycodes.xml");
+           if (path == "")
+           {
+               errorMsg.prepend("missing data file: agencycodes.xml");
+               path = "-1";
+           }
+           dataIsRemote = false;
+           return path;
+
+       } else if  (host == "sitetypecodes") {
+           qDebug() << "special request: sitetypecodes";
+           QString path = KStandardDirs::locate("data", "plasma-dataengine-watersites/sitetypecodes.xml");
+           if (path == "")
+           {
+               errorMsg.prepend("missing data file: sitetypecodes.xml");
+               path = "-1";
+           }
+           dataIsRemote = false;
+           return path;
+       }
+
        if (not hasValidFilters(source, hasFormatFilter, errorMsg))
        {
-           errorMsg.prepend("watersites (url): " + source);
+           //errorMsg.prepend("watersites (url): " + source);
            return "-1";
        }
        request = QString(source); 
@@ -51,7 +138,7 @@ QString SitesRequest::requestForSource(const QString &source, QString &errorMsg)
        if (!hasFormatFilter) request.append("&format=" + WaterSitesEngine::DEFAULT_FORMAT);
 
        // special case: missing host
-       bool missingUrl = (source.split("?").at(0) == "");
+       bool missingUrl = (host == "");
        if (missingUrl) request.prepend(WaterSitesEngine::DEFAULT_SERVER);
 
     } else {  // no url supplied: form the request
@@ -60,7 +147,7 @@ QString SitesRequest::requestForSource(const QString &source, QString &errorMsg)
         {
             if (not hasValidFilters(source, hasFormatFilter, errorMsg))
             {
-                errorMsg.prepend("watersites (args): " + source);
+                //errorMsg.prepend("watersites (args): " + source);
                 return "-1";
             }
             if (hasFormatFilter) request.append("?");
@@ -72,7 +159,7 @@ QString SitesRequest::requestForSource(const QString &source, QString &errorMsg)
             {
                 if (not hasValidFilters(source, hasFormatFilter, errorMsg))
                 {
-                    errorMsg.prepend("watersites (arg): " + source);
+                    //errorMsg.prepend("watersites (arg): " + source);
                     return "-1";
                 }
                 request.append("?format=" + WaterSitesEngine::DEFAULT_FORMAT + "&" + source);
@@ -80,13 +167,14 @@ QString SitesRequest::requestForSource(const QString &source, QString &errorMsg)
             } else {                      // no args: source is list of sites
                 if (not isSiteCode(source, errorMsg))
                 {
-                    errorMsg.prepend("watersites (site): " + source);
+                    //errorMsg.prepend("watersites (site): " + source);
                     return "-1";
                 }
                 request.append("?format=" + WaterSitesEngine::DEFAULT_FORMAT + "&sites=" + source);
             }
         }
     }
+    dataIsRemote = true;
     return request;
 }
 
@@ -116,7 +204,7 @@ bool SitesRequest::hasValidFilters( const QString &source, bool &hasFormatFilter
         if (args.at(i) == "") continue;    // special case: started with &
         if (not args.at(i).contains("="))  // invalid case: not a key=value pair
         {
-            errorMsg.prepend(": syntax error: argument without an equal sign (=) :: " + args.at(i));
+            errorMsg.prepend("syntax error: argument without an equal sign (=) :: " + args.at(i));
             return false;
         }
 
@@ -192,7 +280,7 @@ bool SitesRequest::hasValidFilters( const QString &source, bool &hasFormatFilter
                          key == "welldepthmaxva" || key == "holedepthmin" || 
                          key == "holedepthmax" || key == "holedepthminva" || 
                          key == "holedepthmaxva" );
-            if (!retValue) errorMsg.append(": filter error: unrecognized filter: " + key);
+            if (!retValue) errorMsg.append("unrecognized filter: " + key);
         }
 
         if (retValue == false) break;
@@ -200,8 +288,8 @@ bool SitesRequest::hasValidFilters( const QString &source, bool &hasFormatFilter
 
     if (c != 1)
     {
-        if (c == 0) errorMsg.prepend(": filter error: no major filters");
-        else errorMsg.prepend(": filter error: too many major filters: " + QString::number(c));
+        if (c == 0) errorMsg.prepend("no major filters");
+        else errorMsg.prepend("too many major filters: " + QString::number(c));
         return false;
     }
 
@@ -228,7 +316,7 @@ bool SitesRequest::isFormatString( const QString &value, QString &errorMsg )
     }
    
     bool isSupported = (format == "mapper");
-    if (not isSupported) errorMsg.append(": filter error: unsupported format: " + format + "(supported: " + WaterSitesEngine::DEFAULT_FORMAT + ")");
+    if (not isSupported) errorMsg.append("unsupported format: " + format + "(supported: " + WaterSitesEngine::DEFAULT_FORMAT + ")");
     return isSupported;
 }
 
@@ -245,7 +333,7 @@ bool SitesRequest::isDataType( const QString &value, QString &errorMsg )
         int num_types = valueParts.length();
         for (int i=0; i<num_types; i++)
         {
-            QString type = valueParts.at(i);
+            QString type = valueParts.at(i).toLower();
             if (type == "dv" || type == "pk" || type == "sv" || type == "gw" || 
                 type == "qw" || type == "id" || type == "aw" || type == "ad"  )
             {
@@ -256,12 +344,12 @@ bool SitesRequest::isDataType( const QString &value, QString &errorMsg )
                 retvalue = true;
 
             } else {
-                errorMsg.append(": filter error: unsupported type: " + type);
+                errorMsg.append("unsupported type: " + type);
                 return false; // invalid type
             }
-            if (c >= 1) 
+            if (c > 1)
             {
-                errorMsg.append(": filter error: more than one of type iv, uv, or rt.");
+                errorMsg.append("no more than one of type iv, uv, or rt allowed.");
                 return false;
             }
         }
@@ -277,7 +365,7 @@ bool SitesRequest::isDataType( const QString &value, QString &errorMsg )
 bool SitesRequest::isStateCode( const QString &request, QString &errorMsg )
 {
     bool retValue = (request.length() == 2);
-    if (not retValue) errorMsg.append(": filter error: invalid state code: " + request);
+    if (not retValue) errorMsg.append("invalid state code: " + request);
     return retValue;
 }
 
@@ -295,7 +383,7 @@ bool SitesRequest::isBBoxCode( const QString &request, QString &errorMsg )
     int num_components = components.length();
     if (num_components != 4)
     {
-        errorMsg.append(": filter error: bBox requires 4 arguments but was given "
+        errorMsg.append("bBox requires 4 arguments but was given "
                         + QString::number(num_components) +  ": " + request);
         return false;
     }
@@ -307,7 +395,7 @@ bool SitesRequest::isBBoxCode( const QString &request, QString &errorMsg )
         bool a_double = false;
         if (!component.toDouble(&a_double))
         {
-            errorMsg.append(": filter error: invalid bBox component: " + component +  ": " + request);
+            errorMsg.append("invalid bBox component: " + component +  ": " + request);
             return false;
         }
         // todo: check product of lat range and long range against 25 degrees
@@ -329,8 +417,8 @@ bool SitesRequest::isHucCode( const QString &request, QString &errorMsg )
     int num_codes = codes.length();
     if (c > 10 || c < 1 || major_huc > 1) 
     {
-        if (major_huc > 1) errorMsg.append(": filter error: too many HUC codes (major) (limit 1): " + QString::number(major_huc));
-        else errorMsg.append(": filter error: too many HUC codes (all) (limit 10): " + QString::number(num_codes));
+        if (major_huc > 1) errorMsg.append("too many HUC codes (major) (limit 1): " + QString::number(major_huc));
+        else errorMsg.append("too many HUC codes (all) (limit 10): " + QString::number(num_codes));
         return false;
     }
 
@@ -341,7 +429,7 @@ bool SitesRequest::isHucCode( const QString &request, QString &errorMsg )
         bool an_int = false;
         if (!code.toInt(&an_int))
         {
-            errorMsg.append(": filter error: invalid HUC code: " + code);
+            errorMsg.append("invalid HUC code: " + code);
             return false;
         }
 
@@ -354,7 +442,7 @@ bool SitesRequest::isHucCode( const QString &request, QString &errorMsg )
             c++;
 
         } else {                           // invalid length
-            errorMsg.append(": filter error: invalid HUC code: " + code);
+            errorMsg.append("invalid HUC code: " + code);
             return false;
         }
     }
@@ -372,7 +460,7 @@ bool SitesRequest::isCountyCode( const QString &request, QString &errorMsg )
     int num_codes = codes.length();
     if (num_codes > 20 || num_codes < 1) 
     {
-        errorMsg.append(": filter error: too many county codes (limit 20): " + QString::number(num_codes));
+        errorMsg.append("too many county codes (limit 20): " + QString::number(num_codes));
         return false;
     }
 
@@ -383,7 +471,7 @@ bool SitesRequest::isCountyCode( const QString &request, QString &errorMsg )
        bool an_int = false;
        if (!code.toInt(&an_int) || code.length() != 5)
        {
-           errorMsg.append(": filter error: invalid county code: " + code);
+           errorMsg.append("invalid county code: " + code);
            return false;
        }
     }
@@ -402,7 +490,7 @@ bool SitesRequest::isSiteCode( const QString &request, QString &errorMsg )
     int num_codes = codes.length();
     if (num_codes > 100 || num_codes < 1) 
     {
-        errorMsg.append(": filter error: too many site codes (limit 100): " + QString::number(num_codes));
+        errorMsg.append("too many site codes (limit 100): " + QString::number(num_codes));
         return false;
     }
 
@@ -420,10 +508,10 @@ bool SitesRequest::isSiteCode( const QString &request, QString &errorMsg )
             code = site;
         }
 
-        bool an_int = false;
-        if (!code.toInt(&an_int))
+        bool a_double = false;
+        if (!code.toDouble(&a_double))
         {
-            errorMsg.append(": filter error: invalid site code: " + code);
+            errorMsg.append("invalid site code: " + code);
             return false;
         }
     }
@@ -439,21 +527,21 @@ bool SitesRequest::isSiteType( const QString &value, QString &errorMsg )
     int num_types = types.length();
     if (num_types < 1)
     {
-        errorMsg.append(": filter error: invalid site type: " + value);
+        errorMsg.append("invalid site type: " + value);
         return false;
     }
 
     for (int i=0; i<num_types; i++)
     {
         QString type = types.at(i);
-        QString major = type.split("-").at(0);
+        QString major = type.mid(0,2).toUpper();
 
-        if (major != "GL" || major != "WE" || major != "LA" || major != "AT" || 
-            major != "ES" || major != "OC" || major != "LK" || major != "ST" ||
-            major != "SP" || major != "GW" || major != "SB" || major != "FA" ||
-            major != "AG" || major != "AS" || major != "AW")
+        if (major != "GL" && major != "WE" && major != "LA" && major != "AT" && 
+            major != "ES" && major != "OC" && major != "LK" && major != "ST" &&
+            major != "SP" && major != "GW" && major != "SB" && major != "FA" &&
+            major != "AG" && major != "AS" && major != "AW")
         {
-            errorMsg.append(": filter error: invalid site type: " + value);
+            errorMsg.append("invalid site type: " + value);
             return false;
         }
     }
@@ -469,7 +557,7 @@ bool SitesRequest::isAquiferCode( const QString &value, QString &errorMsg )
     int num_codes = codes.length();
     if (num_codes > 1000 || num_codes < 1)
     {
-        errorMsg.append(": filter error: too many aquifer codes (limit 1000): " + QString::number(num_codes));
+        errorMsg.append("too many aquifer codes (limit 1000): " + QString::number(num_codes));
         return false;
     }
 
@@ -478,7 +566,7 @@ bool SitesRequest::isAquiferCode( const QString &value, QString &errorMsg )
         QString code = codes.at(i);
         if (code.length() != 10)
         {
-            errorMsg.append(": filter error: invalid aquifer code: " + code);
+            errorMsg.append("invalid aquifer code: " + code);
             return false;
         }
     }
@@ -494,7 +582,7 @@ bool SitesRequest::isLocalAquiferCode( const QString &value, QString &errorMsg )
     int num_codes = codes.length();
     if (num_codes > 1000 || num_codes < 1)
     {
-        errorMsg.append(": filter error: too many local aquifer codes (limit 1000): " + QString::number(num_codes));
+        errorMsg.append("too many local aquifer codes (limit 1000): " + QString::number(num_codes));
         return false;
     }
 
@@ -506,7 +594,7 @@ bool SitesRequest::isLocalAquiferCode( const QString &value, QString &errorMsg )
 
         if (state.length() != 2 || code.length() != 7)
         {
-            errorMsg.append(": filter error: invalid local aquifer code: " + code);
+            errorMsg.append("invalid local aquifer code: " + code);
             return false;
         }
     }
@@ -519,7 +607,7 @@ bool SitesRequest::isLocalAquiferCode( const QString &value, QString &errorMsg )
 bool SitesRequest::isSiteStatus( const QString &value, QString &errorMsg )
 {
     bool isvalid = (value == "all" || value == "active" || value == "inactive");
-    if (!isvalid) errorMsg.append(": filter error: invalid site status: " + value);
+    if (!isvalid) errorMsg.append("invalid site status: " + value);
     return isvalid;
 }
 
