@@ -49,6 +49,9 @@ const QString WaterSitesEngine::PREFIX_SITETYPE = "sitetypecode_";
 
    See http://waterservices.usgs.gov/rest/Site-Test-Tool.html for help forming
    valid requests.
+
+   Special request types include: statecodes? agencycodes? countycodes? and
+   sitetypecodes? These requests return data stored in local data files.
 */
 
 /**
@@ -69,14 +72,36 @@ const QString WaterSitesEngine::PREFIX_SITETYPE = "sitetypecode_";
       xml_error_line      : int
       xml_error_column    : int
 
+      statecode_count     : int
+      statecode_<code>    : QHash<QString, QVariant>
+                            keys: name      : QString
+                                  alpha     : QString
+                                  numeric   : QString
+
+      countycode_count    : int
+      countycode<code>    : QHash<QString, QVariant>
+                            keys: name       : QString
+                                  statecode  : QString
+                                  countycode : QString
+
+      agencycode_count    : int
+      agencycode_<code>   : QHash<QString, QVariant>
+                            keys: name       : QString
+                                  code       : QString
+
+      sitetypecode_count  : int
+      sitetypecode_<code> : QHash<QString, QVariant>
+                            keys: name       : QString  
+                                  code       : QString  
+
       site_count          : int
-      site_#_<code>       :  QHash<QString, QVariant>
-                             keys: code      : QString
-                                   name      : QString
-                                   agency    : QString
-                                   latitude  : QString
-                                   longitude : QString
-                                   cat       : QString
+      site_#_<code>       : QHash<QString, QVariant>
+                            keys: code      : QString
+                                  name      : QString
+                                  agency    : QString
+                                  latitude  : QString
+                                  longitude : QString
+                                  cat       : QString
 */
  
 WaterSitesEngine::WaterSitesEngine(QObject* parent, const QVariantList& args)
@@ -114,7 +139,7 @@ bool WaterSitesEngine::updateSourceEvent(const QString &source)
         container->data()["net_isvalid"].toBool() == true)
     {
         QDateTime requestDate = container->data()["net_date"].toDateTime();
-        qDebug() << "watersites: exiting updateSourceEvent early: successfully downloaded data for this source exists: " << requestDate;
+        //qDebug() << "watersites: exiting updateSourceEvent early: successfully downloaded data for this source exists: " << requestDate;
         return true;
     }
 
@@ -175,11 +200,11 @@ void WaterSitesEngine::requestLocalData( const QString &source, const QString &r
     QFile file(requestUrl);
     if (not file.open(QFile::ReadOnly))
     {
-        qDebug() << "watersites: local open failed:" << requestUrl;
+        //qDebug() << "watersites: local open failed:" << requestUrl;
         return;
     }
 
-    qDebug() << "watersites: local open complete";
+    //qDebug() << "watersites: local open complete";
     QByteArray bytes = file.readAll();
     extractData(source, bytes);
 }
@@ -214,12 +239,12 @@ void WaterSitesEngine::remoteDataFetchComplete(QNetworkReply *reply)
 
     if (noNetErrors)
     {
-        qDebug() << "watersites: download complete";
+        //qDebug() << "watersites: download complete";
         QByteArray bytes = reply->readAll();
         extractData(source, bytes);
 
     } else {
-        qDebug() << "watersites: download failed";
+        //qDebug() << "watersites: download failed";
         setData(source, I18N_NOOP(PREFIX_NET + "error"), reply->error());
     }
     reply->deleteLater();
