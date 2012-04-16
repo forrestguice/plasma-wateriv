@@ -38,7 +38,7 @@ Column
     property bool showCustomShadow: false;
 
     property int displaySeries: 0;
-    property int displaySubSeries: 0;
+    //property int displaySubSeries: 0;
     property string displayDate: "";
     property string displayValue: "";
     property string displayUnits: "";

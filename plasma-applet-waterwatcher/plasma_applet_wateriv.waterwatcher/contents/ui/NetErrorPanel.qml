@@ -39,7 +39,7 @@ Item
             name: "HostNotFound";
             when: (error == 3);
             PropertyChanges { target: panel; title: i18n("Host Not Found"); }
-            PropertyChanges { target: panel; content: i18n("Service host name was not found.&nbsp;&nbsp;<hr/>The network connection is probably unavailable.&nbsp;&nbsp;"); }
+            PropertyChanges { target: panel; content: i18n("Service host name was not found.&nbsp;&nbsp;<hr/>The network connection is unavailable.&nbsp;&nbsp;"); }
         },
         State
         {

@@ -60,7 +60,7 @@ Column
         TextField
         {
             id: inputDataSource;
-            width: 250; textInitial: dataRequest;
+            width: 315; textInitial: dataRequest;
             anchors.verticalCenter: parent.verticalCenter;
             onAction: { setDataSource(); }
             Keys.onDownPressed: { nextRecentSource(); }
@@ -73,13 +73,14 @@ Column
         id: errorField;
         anchors.leftMargin: label.width + 5;
         anchors.left: parent.left;
-        width: 250;
+        width: 315;
     }
 
-    //SitesSearch
-    //{
-    //    id: siteSearch;
-    //}
+    SiteSearchMainPanel
+    {
+        id: siteSearch;
+        onSelected: { field.input.text = site; field.input.focus = true; }
+    }
 
     /**
         Set the data source, add to the recent sources, and close the dialog.
