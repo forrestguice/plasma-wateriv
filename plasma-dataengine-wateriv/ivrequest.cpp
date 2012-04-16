@@ -423,8 +423,8 @@ bool IVRequest::isSiteCode( const QString &request, QString &errorMsg )
             code = site;
         }
 
-        bool an_int = false;
-        if (!code.toInt(&an_int))
+        bool a_double = false;
+        if (!code.toDouble(&a_double))
         {
             errorMsg.append("invalid site code: " + code);
             return false;
@@ -449,12 +449,12 @@ bool IVRequest::isSiteType( const QString &value, QString &errorMsg )
     for (int i=0; i<num_types; i++)
     {
         QString type = types.at(i);
-        QString major = type.split("-").at(0);
+        QString major = type.mid(0,2).toUpper();
 
-        if (major != "GL" || major != "WE" || major != "LA" || major != "AT" || 
-            major != "ES" || major != "OC" || major != "LK" || major != "ST" ||
-            major != "SP" || major != "GW" || major != "SB" || major != "FA" ||
-            major != "AG" || major != "AS" || major != "AW")
+        if (major != "GL" && major != "WE" && major != "LA" && major != "AT" && 
+            major != "ES" && major != "OC" && major != "LK" && major != "ST" &&
+            major != "SP" && major != "GW" && major != "SB" && major != "FA" &&
+            major != "AG" && major != "AS" && major != "AW")
         {
             errorMsg.append("invalid site type: " + value);
             return false;

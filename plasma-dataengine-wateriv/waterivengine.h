@@ -33,7 +33,8 @@ class WaterIVEngine : public Plasma::DataEngine
             VERSION_ID gets incremented every time compatibility is broken.
             Plasmoids can get this value with 'engine_version'.
         */
-        static const int VERSION_ID = 2;   // 2 : 0.2.1 +
+        static const int VERSION_ID = 3;   // 3 : 0.3.0 +
+                                           // 2 : 0.2.1
                                            // 1 : 0.2.0 
                                            // 0 : 0.1.0
 
@@ -46,10 +47,8 @@ class WaterIVEngine : public Plasma::DataEngine
         static const QString PREFIX_NET;  // key naming scheme
         static const QString PREFIX_XML;
         static const QString PREFIX_QUERYINFO; 
-        static const QString PREFIX_TIMESERIES;
-        static const QString PREFIX_SOURCEINFO;
-        static const QString PREFIX_VARIABLE;
-        static const QString PREFIX_VALUES;
+        static const QString PREFIX_SERIES;
+        static const QString PREFIX_TOC;
 
         WaterIVEngine(QObject* parent, const QVariantList& args);
 
@@ -67,9 +66,9 @@ class WaterIVEngine : public Plasma::DataEngine
         void extractData( QString &request, QByteArray &bytes );
         void extractQueryInfo( QString &request, QDomElement *element );
         void extractTimeSeries( QString &request, QDomElement *element );
-        void extractSeriesSourceInfo( QString &request, QString &prefix, QDomElement *timeSeries );
-        void extractSeriesVariable( QString &request, QString &prefix, QDomElement *timeSeries );
-        void extractSeriesValues( QString &request, QString &prefix, QDomElement *timeSeries );
+        QString extractSeriesSourceInfo( QString &request, QString &prefix, QDomElement *timeSeries );
+        QString extractSeriesVariable( QString &request, QString &prefix, QDomElement *timeSeries );
+        void extractSeriesValues( QString &request, QString &prefix, int &count, QDomElement *timeSeries );
 };
  
 #endif

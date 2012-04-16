@@ -73,135 +73,92 @@ const QString WaterIVEngine::DEFAULT_SERVER = DEFAULT_SERVER_IV;
 const QString WaterIVEngine::PREFIX_NET = "net_";
 const QString WaterIVEngine::PREFIX_XML = "xml_";
 const QString WaterIVEngine::PREFIX_QUERYINFO = "queryinfo_";
-const QString WaterIVEngine::PREFIX_TIMESERIES = "timeseries_";
-const QString WaterIVEngine::PREFIX_SOURCEINFO = "sourceinfo_";
-const QString WaterIVEngine::PREFIX_VARIABLE = "variable_";
-const QString WaterIVEngine::PREFIX_VALUES = "values_";
+const QString WaterIVEngine::PREFIX_TOC = "toc_";
+const QString WaterIVEngine::PREFIX_SERIES = "series_";
 /**
   ---------------------------------------
-   Naming scheme for available keys:
+   Available data:
   ---------------------------------------
 
-   --> PREFIX_NET + <NET_KEY>
-       The NET keys contain info about the network request for data.
-       When the request_isvalid key is false the data engine has rejected
-       the request; the error message is in request_error. The isvalid key
-       is false when network transmission has failed; the error code is in 
-       error. All other keys are unavailable when isvalid is false.
-       Examples: net_url net_request net_error
+  --> engine_version                                : int
 
-       Available NET_KEYs:
-       --> url              : the base url of the web service
-       --> request          : the request made to the web service
-       --> request_isvalid  : the result of attemping to parse the request
-       --> request_error    : the result of attemping to parse the request
-       --> isvalid          : the result of the network operation (t/f)
-       --> error            : failed to retrieve data (network error)
+  --> net_url                                       : QString
+  --> net_request                                   : QString
+  --> net_request_isvalid                           : bool
+  --> net_request_error                             : QString
+  --> net_isvalid                                   : bool
+  --> net_error                                     : int
 
-  ---------------------------------------
+  --> xml_isvalid                                    : bool
+  --> xml_schema                                     : QString
+  --> xml_error_msg                                  : QString
+  --> xml_error_line                                 : int
+  --> xml_error_column                               : int
 
-   --> PREFIX_XML + <XML_KEY>
-       The XML keys contain info about the raw xml returned by the request.
-       The error_ keys are available when isvalid is false. All other keys are 
-       available when isvalid is true.
-       Examples: xml_isvalid xml_error_msg
+  --> queryinfo_url                                  : QString
+  --> queryinfo_time                                 : QDateTime
+  --> queryinfo_notes                                : QMap<String, QVariant> (by title)
+  --> queryinfo_location                             : QString
+  --> queryinfo_variable                             : QString
 
-       Available XML_KEYs:
-       --> isvalid       : the request returned valid xml (parsed by DOM)
-       --> schema        : the xsi:schemaLocation (should be *WaterML-1.1.xsd)
-       --> error_msg     : the error msg (when !isvalid)
-       --> error_line    : the line the error occured on
-       --> error_column  : the column the error occured on
+  --> toc_#                                          : QMap<QString, QVariant>
+  --> toc_count                                      : int
 
-  ---------------------------------------
+  --> series_<siteCode>_name                         : QString
+  --> series_<siteCode>_code                         : QString
+  --> series_<siteCode>_properties                   : QMap<String, QVariant> (by name)
+  --> series_<siteCode>_latitude                     : float
+  --> series_<siteCode>_longitude                    : float
+  --> series_<siteCode>_timezone_name                : QString
+  --> series_<siteCode>_timezone_offset              : ...
+  --> series_<siteCode>_timezone_daylight            : bool
+  --> series_<siteCode>_timezone_daylight_name       : QString
+  --> series_<siteCode>_timezone_daylight_offset     : ...
 
-   --> PREFIX_QUERYINFO + <QUERYINFO_KEY>
-       The queryInfo contains info about the request made to the web service.
-       Example: queryinfo_url
+  --> series_<siteCode>_<paramCode>_name             : QString
+  --> series_<siteCode>_<paramCode>_code             : QString
+  --> series_<siteCode>_<paramCode>_code_attributes  : QMap<QString, QVariant> (by attrib)
+  --> series_<siteCode>_<paramCode>_description      : QString
+  --> series_<siteCode>_<paramCode>_valuetype        : QString
+  --> series_<siteCode>_<paramCode>_unitcode         : QString
+  --> series_<siteCode>_<paramCode>_nodatavalue      : double
 
-       Available QUERYINFO_KEYs:
-       --> url        : the url of the web service
-       --> time       : the time the query was processed
-       --> notes      : a QMap<String, QVariant> of query notes (by title)
-       --> location   : the requested location (site & other codes)
-       --> variable   : the requested variables (param)
+  --> series_<siteCode>_<paramCode>_<statCode>_name                        : QString
+  --> series_<siteCode>_<paramCode>_<statCode>_code                        : int
+  --> series_<siteCode>_<paramCode>_<statCode>_<methodId>_id               : int
+  --> series_<siteCode>_<paramCode>_<statCode>_<methodId>_description      : QString
+  --> series_<siteCode>_<paramCode>_<statCode>_<methodId>_all              : QMap<QString, QList<QVariant>>
+  --> series_<siteCode>_<paramCode>_<statCode>_<methodId>_qualifiers       : QMap<QString, QList<QVariant>>
+  --> series_<siteCode>_<paramCode>_<statCode>_<methodId>_recent_value     : double
+  --> series_<siteCode>_<paramCode>_<statCode>_<methodId>_recent_date      : QDateTime
+  --> series_<siteCode>_<paramCode>_<statCode>_<methodId>_recent_qualifier : QString
 
-  ---------------------------------------
 
-   --> PREFIX_TIMESERIES_COUNT
-       The number of available timeseries. The info for each individual time
-       series is found under PREFIX_TIMESERIES_<#>
-       Example: timeseries_count
+  Complex Key Contents:
 
-  ---------------------------------------
+  --> toc_#      : QMap<QString, QVariant>
+                    : site       : QString
+                    : variable   : QString
+                    : statistic  : QString
+                    : method     : QString
 
-   --> PREFIX_TIMESERIES + <#>_ + PREFIX_SOURCEINFO + <SOURCEINFO_KEY>
-       The sourceInfo contains info about the data source of a timeseries.
-       Example: timeseries_0_sourceinfo_sitename
-       
-       Available SOURCEINFO_KEYs:
-       --> sitename    : the name of the source (physical site name)
-       --> sitecode    : the agency code of the source (e.g. usgs)
-       --> properties  : a QMap<String, QVariant> of site properties (by name)
-       --> latitude    : the latitude of the source
-       --> longitude   : the longitude of the source
-       --> timezone_name             : the timezone abreviation of the source
-       --> timezone_offset           : the timezone offset
-       --> timezone_daylight         : currently using daylight savings (t/f)
-       --> timezone_daylight_name    : the daylight savings time name (e.g. EDT)
-       --> timezone_daylight_offset  : the daylight savings time offset
+  The components of the toc_# can assembled into keys using 
+  this pattern: series_<site>_<variable>_<statistic>_<methodId>
 
-  ---------------------------------------
+  --> all        : QMap<QString, QList<QVariant>> containing all values.
+                 : the map key is the datetime string of the value.
+                 : each QList contains two values:
+                 : [0] the value (e.g. 200)
+                 : [1] value qualifiers by code (e.g. "P" is provisional)
 
-   --> PREFIX_TIMESERIES + <#>_ + PREFIX_VARIABLE + <VARIABLE_KEY>
-       The variable contains info about the dependent variable in the timeseries.
-       Example: timeseries_0_variable_code
-
-       Available VARIABLE_KEYs:
-       --> code            : the variable code (e.g. 00060)
-       --> code_attributes : a QMap<QString, QVariant> of code attributes (by name)
-       --> name            : the name of the variable
-       --> description     : a description of the variable
-       --> valuetype       : the type of value the variable describes (e.g. Derived)
-       --> unitcode        : the unit code (e.g. ft, cfs, etc)
-       --> options
-       --> nodatavalue     : the value to assign if a value has no data
-
-  ---------------------------------------
-
-   --> PREFIX_TIMESERIES + <#>_ + PREFIX_VALUES_count
-       Example: timeseries_0_values_count is always >= 1
-       Example: timeseries_0_values_recent is same as
-                timeseries_0_values_0_recent
-
-       --> count            : the number of sets of values
-
-   --> PREFIX_TIMESERIES + <#>_ + PREFIX_VALUES + #_ + <VALUES_KEY>
-       The values contains info about individual data points in the timeseries.
-       Example: timeseries_0_values_0_all
-
-       Available VALUES_KEYs:
-       --> #_all        : a QMap<QString, QList<QVariant>> containing all values.
-                      : the map key is the datetime string of the value.
-                      : each QList contains two values:
-                      : [0] the value (e.g. 200)
-                      : [1] value qualifiers by code (e.g. "P" is provisional)
-
-       --> #_recent           : the most recent value (e.g. 200)
-       --> #_recent_date      : the datetime of the recent value
-       --> #_recent_qualifier : the qualifier of the most recent value (e.g. "P")
-
-       --> #_method_id    : the id of the method used to collect the values
-       --> #_method_description  : a description of the method used to collect the values
-
-       --> #_qualifiers  : a QMap<QString, QList<QVariant>> of qualifiers (by code)
-                       : the map key is the qualifier code (e.g. "P")
-                       : each QList contains 5 values:
-                          : [0] qualifier id (e.g. 0 : an integer id)
-                          : [1] qualifier code (e.g. "P" same as map key)
-                          : [2] qualifier description (e.g. "Provisional)
-                          : [3] qualifier network (?)
-                          : [4] qualifier vocabulary (?)
+  --> qualifiers  : a QMap<QString, QList<QVariant>> of qualifiers (by code)
+                  : the map key is the qualifier code (e.g. "P")
+                  : each QList contains 5 values:
+                     : [0] qualifier id (e.g. 0 : an integer id)
+                     : [1] qualifier code (e.g. "P" same as map key)
+                     : [2] qualifier description (e.g. "Provisional)
+                     : [3] qualifier network (?)
+                     : [4] qualifier vocabulary (?)
 */
 
 WaterIVEngine::WaterIVEngine(QObject* parent, const QVariantList& args)
@@ -220,7 +177,9 @@ WaterIVEngine::WaterIVEngine(QObject* parent, const QVariantList& args)
 */
 bool WaterIVEngine::sourceRequestEvent(const QString &source)
 {
-    return updateSourceEvent(source);
+    setData(source, DataEngine::Data());
+    updateSourceEvent(source);
+    return true;
 }
  
 /**
@@ -237,7 +196,7 @@ bool WaterIVEngine::updateSourceEvent(const QString &source)
         setData(source, I18N_NOOP("engine_version"), WaterIVEngine::VERSION_ID);
         setData(source, I18N_NOOP(PREFIX_NET + "request_isvalid"), false);
         setData(source, I18N_NOOP(PREFIX_NET + "request_error"), errorMsg);
-        setData(source, I18N_NOOP(PREFIX_TIMESERIES + "count"), 0);
+        setData(source, I18N_NOOP(PREFIX_TOC + "count"), 0);
         return true;
     }
 
@@ -279,10 +238,10 @@ void WaterIVEngine::dataFetchComplete(QNetworkReply *reply)
     {
         // qDebug() << "download failed";
         Plasma::DataContainer *container = containerForSource(request);
-        if (container == 0 || not container->data().contains(PREFIX_TIMESERIES + "count"))
+        if (container == 0 || not container->data().contains(PREFIX_TOC + "count"))
         {
             // qDebug() << "timeseries unset; setting to 0";
-            setData(request, I18N_NOOP(PREFIX_TIMESERIES + "count"), 0);
+            setData(request, I18N_NOOP(PREFIX_TOC + "count"), 0);
         }
 
         setData(request, I18N_NOOP(PREFIX_NET + "isvalid"), false);
@@ -324,7 +283,7 @@ void WaterIVEngine::extractData( QString &request, QByteArray &bytes )
             setData(request, I18N_NOOP(PREFIX_XML + "error_msg"), "XML Error: not WaterML (parent element is not timeSeriesResponse).");
             setData(request, I18N_NOOP(PREFIX_XML + "error_line"), -1);
             setData(request, I18N_NOOP(PREFIX_XML + "error_column"), -1);
-            setData(request, I18N_NOOP(PREFIX_TIMESERIES + "count"), 0);
+            setData(request, I18N_NOOP(PREFIX_TOC + "count"), 0);
         }
 
     } else {
@@ -333,7 +292,7 @@ void WaterIVEngine::extractData( QString &request, QByteArray &bytes )
         setData(request, I18N_NOOP(PREFIX_XML + "error_msg"), errorMsg);
         setData(request, I18N_NOOP(PREFIX_XML + "error_line"), errorLine);
         setData(request, I18N_NOOP(PREFIX_XML + "error_column"), errorColumn);
-        setData(request, I18N_NOOP(PREFIX_TIMESERIES + "count"), 0);
+        setData(request, I18N_NOOP(PREFIX_TOC + "count"), 0);
     }
 }
 
@@ -374,27 +333,27 @@ void WaterIVEngine::extractQueryInfo( QString &request, QDomElement *document )
 */
 void WaterIVEngine::extractTimeSeries( QString &request, QDomElement *document )
 {
-    // gather time series
+    int count = 0;        // gather time series
     QDomNodeList timeSeriesList = document->elementsByTagName("ns1:timeSeries");
     int num_series = timeSeriesList.length();
-    setData(request, I18N_NOOP(PREFIX_TIMESERIES + "count"), num_series);
-
     for (int i=0; i<num_series; i++)
     {
         QDomElement timeSeries = timeSeriesList.at(i).toElement();
         QString timeSeries_name = timeSeries.attribute("name", "-1");
 
-        QString prefix = PREFIX_TIMESERIES + QString::number(i) + "_";
-        extractSeriesSourceInfo(request, prefix, &timeSeries);
-        extractSeriesVariable(request, prefix, &timeSeries);
-        extractSeriesValues(request, prefix, &timeSeries);
+        QString prefix = PREFIX_SERIES;
+        prefix = extractSeriesSourceInfo(request, prefix, &timeSeries);
+        prefix = extractSeriesVariable(request, prefix, &timeSeries);
+        extractSeriesValues(request, prefix, count, &timeSeries);
     }
+
+    setData(request, I18N_NOOP(PREFIX_TOC + "count"), count);
 }
 
 /**
    Extract the sourceInfo from the supplied QDomElement (ns1:timeSeries)
 */
-void WaterIVEngine::extractSeriesSourceInfo( QString &request, QString &prefix, QDomElement *timeSeries )
+QString WaterIVEngine::extractSeriesSourceInfo( QString &request, QString &prefix, QDomElement *timeSeries )
 {
     QDomElement sourceInfo = timeSeries->elementsByTagName("ns1:sourceInfo").at(0).toElement();
     QDomElement sourceInfo_siteName = sourceInfo.elementsByTagName("ns1:siteName").at(0).toElement();
@@ -420,22 +379,24 @@ void WaterIVEngine::extractSeriesSourceInfo( QString &request, QString &prefix, 
     }
 
     // set site properties
-    setData(request, I18N_NOOP(prefix + PREFIX_SOURCEINFO + "sitename"), sourceInfo_siteName.text());
-    setData(request, I18N_NOOP(prefix + PREFIX_SOURCEINFO + "sitecode"), sourceInfo_siteCode.text());
-    setData(request, I18N_NOOP(prefix + PREFIX_SOURCEINFO + "properties"), sourceInfo_properties);
-    setData(request, I18N_NOOP(prefix + PREFIX_SOURCEINFO + "latitude"), sourceInfo_geoLocation_lat.text().toDouble());
-    setData(request, I18N_NOOP(prefix + PREFIX_SOURCEINFO + "longitude"), sourceInfo_geoLocation_lat.text().toDouble());
-    setData(request, I18N_NOOP(prefix + PREFIX_SOURCEINFO + "timezone_name"), timeZone_default.attribute("zoneAbbreviation", "-1"));
-    setData(request, I18N_NOOP(prefix + PREFIX_SOURCEINFO + "timezone_offset"), timeZone_default.attribute("zoneOffset", "00:00"));
-    setData(request, I18N_NOOP(prefix + PREFIX_SOURCEINFO + "timezone_daylight"), (sourceInfo_timeZone.attribute("siteUsesDaylightSavingsTime", "false") == "false" ? false : true));
-    setData(request, I18N_NOOP(prefix + PREFIX_SOURCEINFO + "timezone_daylight_name"), timeZone_daylight.attribute("zoneAbbreviation", "-1"));
-    setData(request, I18N_NOOP(prefix + PREFIX_SOURCEINFO + "timezone_daylight_offset"), timeZone_daylight.attribute("zoneOffset", "00:00"));
+    QString p = prefix + sourceInfo_siteCode.text() + "_";
+    setData(request, I18N_NOOP(p + "name"), sourceInfo_siteName.text());
+    setData(request, I18N_NOOP(p + "code"), sourceInfo_siteCode.text());
+    setData(request, I18N_NOOP(p + "properties"), sourceInfo_properties);
+    setData(request, I18N_NOOP(p + "latitude"), sourceInfo_geoLocation_lat.text().toFloat());
+    setData(request, I18N_NOOP(p + "longitude"), sourceInfo_geoLocation_lon.text().toFloat());
+    setData(request, I18N_NOOP(p + "timezone_name"), timeZone_default.attribute("zoneAbbreviation", "-1"));
+    setData(request, I18N_NOOP(p + "timezone_offset"), timeZone_default.attribute("zoneOffset", "00:00"));
+    setData(request, I18N_NOOP(p + "timezone_daylight"), (sourceInfo_timeZone.attribute("siteUsesDaylightSavingsTime", "false") == "false" ? false : true));
+    setData(request, I18N_NOOP(p + "timezone_daylight_name"), timeZone_daylight.attribute("zoneAbbreviation", "-1"));
+    setData(request, I18N_NOOP(p + "timezone_daylight_offset"), timeZone_daylight.attribute("zoneOffset", "00:00"));
+    return p;
 }
 
 /**
    Extract the variable info from the supplied QDomElement (ns1:timeSeries)
 */
-void WaterIVEngine::extractSeriesVariable( QString &request, QString &prefix, QDomElement *timeSeries )
+QString WaterIVEngine::extractSeriesVariable( QString &request, QString &prefix, QDomElement *timeSeries )
 {
     QDomElement variable = timeSeries->elementsByTagName("ns1:variable").at(0).toElement();
     QDomElement variable_code = variable.elementsByTagName("ns1:variableCode").at(0).toElement();
@@ -456,39 +417,47 @@ void WaterIVEngine::extractSeriesVariable( QString &request, QString &prefix, QD
         variable_code_attribs[attribute.name()] = attribute.value();
     }
 
-    QMap<QString, QVariant> variable_option;
+    QString statName = "";
+    QString statCode = "-1";
     QDomNodeList variable_optionList = variable_options.elementsByTagName("ns1:option");
     int num_options = variable_optionList.length();
     for (int j=0; j<num_options; j++)
     {
         QDomElement option = variable_optionList.at(j).toElement();
-        variable_option[option.attribute("name", "-1")] = option.attribute("optionCode", "-1");
+        if (option.attribute("name", "-1") == "Statistic")
+        {
+            statCode = option.attribute("optionCode", "-1");
+            statName = option.text();
+            break;
+        }
     }
 
-    setData(request, I18N_NOOP(prefix + PREFIX_VARIABLE + "code"), variable_code.text());
-    setData(request, I18N_NOOP(prefix + PREFIX_VARIABLE + "code_attributes"), variable_code_attribs);
-    setData(request, I18N_NOOP(prefix + PREFIX_VARIABLE + "name"), variable_name.text());
-    setData(request, I18N_NOOP(prefix + PREFIX_VARIABLE + "description"), variable_desc.text());
-    setData(request, I18N_NOOP(prefix + PREFIX_VARIABLE + "valuetype"), variable_type.text());
-    setData(request, I18N_NOOP(prefix + PREFIX_VARIABLE + "unitcode"), variable_unit_code.text());
-    setData(request, I18N_NOOP(prefix + PREFIX_VARIABLE + "options"), variable_option);
-    setData(request, I18N_NOOP(prefix + PREFIX_VARIABLE + "nodatavalue"), variable_nodata.text().toDouble());
+    QString p = prefix + variable_code.text() + "_";
+    setData(request, I18N_NOOP(p + "name"), variable_name.text());
+    setData(request, I18N_NOOP(p + "code"), variable_code.text());
+    setData(request, I18N_NOOP(p + "code_attributes"), variable_code_attribs);
+    setData(request, I18N_NOOP(p + "description"), variable_desc.text());
+    setData(request, I18N_NOOP(p + "valuetype"), variable_type.text());
+    setData(request, I18N_NOOP(p + "unitcode"), variable_unit_code.text());
+    setData(request, I18N_NOOP(p + "nodatavalue"), variable_nodata.text().toDouble());
+
+    p.append(statCode + "_");
+    setData(request, I18N_NOOP(p + "name"), statName);
+    setData(request, I18N_NOOP(p + "code"), statCode);
+    return p;
 }
 
 /**
    Extract the values from the supplied QDomElement (ns1:timeSeries)
 */
-void WaterIVEngine::extractSeriesValues( QString &request, QString &prefix, QDomElement *timeSeries )
+void WaterIVEngine::extractSeriesValues( QString &request, QString &prefix, int &count, QDomElement *timeSeries )
 {
-
     QDomNodeList valuesets = timeSeries->elementsByTagName("ns1:values");
     int num_sets = valuesets.length();
-    setData(request, I18N_NOOP(prefix + PREFIX_VALUES + "count"), num_sets);
 
     for (int j=0; j<num_sets; j++)
     {
         QDomElement values = valuesets.at(j).toElement();
-        QString prefix2 = PREFIX_VALUES + QString::number(j) + "_";
 
         QMap<QString, QVariant> qualifiersMap;  // get qualifiers
         QDomNodeList qualifiers = values.elementsByTagName("ns1:qualifier");
@@ -527,6 +496,12 @@ void WaterIVEngine::extractSeriesValues( QString &request, QString &prefix, QDom
                 valuesMap[dateTime] = list;
             }
         }
+       
+        QString p = prefix + method.attribute("methodID", "-1") + "_";
+        setData(request, I18N_NOOP(p + "id"), method.attribute("methodID", "-1").toInt());
+        setData(request, I18N_NOOP(p + "description"), method_desc.text());
+        setData(request, I18N_NOOP(p + "all"), valuesMap);
+        setData(request, I18N_NOOP(p + "qualifiers"), qualifiersMap);
 
         QMapIterator<QString, QVariant> i(valuesMap);
         while (i.hasNext())   // get the most recent value
@@ -535,16 +510,20 @@ void WaterIVEngine::extractSeriesValues( QString &request, QString &prefix, QDom
             QVariant date = QDateTime::fromString(i.key(), Qt::ISODate);
             QList<QVariant> recentValue = i.value().toList();
 
-            setData(request, I18N_NOOP(prefix + prefix2 + "recent"), recentValue.at(0).toDouble());
-            setData(request, I18N_NOOP(prefix + prefix2 + "recent_date"), date);
-            setData(request, I18N_NOOP(prefix + prefix2 + "recent_qualifier"), recentValue.at(1));
+            setData(request, I18N_NOOP(p + "recent_value"), recentValue.at(0).toDouble());
+            setData(request, I18N_NOOP(p + "recent_date"), date);
+            setData(request, I18N_NOOP(p + "recent_qualifier"), recentValue.at(1));
             break;   // we only want the first item
         }
 
-        setData(request, I18N_NOOP(prefix + prefix2 + "all"), valuesMap);
-        setData(request, I18N_NOOP(prefix + prefix2 + "qualifiers"), qualifiersMap);
-        setData(request, I18N_NOOP(prefix + prefix2 + "method_id"), method.attribute("methodID", "-1").toInt());
-        setData(request, I18N_NOOP(prefix + prefix2 + "method_description"), method_desc.text());
+        QStringList components = prefix.split("_");  // table of contents
+        QMap<QString, QVariant> tocEntry = QMap<QString, QVariant>();
+        tocEntry.insert("site", components.at(1));
+        tocEntry.insert("variable", components.at(2));
+        tocEntry.insert("statistic", components.at(3));
+        tocEntry.insert("method", method.attribute("methodID", "-1"));
+	setData(request, I18N_NOOP(PREFIX_TOC + QString::number(count)), tocEntry);
+        count++;
     }
 }
 
