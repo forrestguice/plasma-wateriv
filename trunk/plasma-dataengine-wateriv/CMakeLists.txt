@@ -12,7 +12,9 @@ include_directories(
    ${CMAKE_BINARY_DIR}
    ${KDE4_INCLUDES})
  
-set(wateriv_engine_SRCS waterivengine.cpp ivrequest.cpp)
+set(wateriv_engine_SRCS waterivengine.cpp 
+                        waterivdata_waterml.cpp
+                        ivrequest.cpp)
  
 kde4_add_plugin(plasma_engine_wateriv ${wateriv_engine_SRCS})
 target_link_libraries(plasma_engine_wateriv

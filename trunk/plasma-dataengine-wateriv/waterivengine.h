@@ -51,6 +51,7 @@ class WaterIVEngine : public Plasma::DataEngine
         static const QString PREFIX_TOC;
 
         WaterIVEngine(QObject* parent, const QVariantList& args);
+        void setEngineData( QString source, QString key, QVariant value );
 
     public slots:
        void dataFetchComplete(QNetworkReply *reply);
@@ -62,13 +63,6 @@ class WaterIVEngine : public Plasma::DataEngine
     private:
         QNetworkAccessManager *manager;
         QMap<QNetworkReply*, QString> *replies;
-
-        void extractData( QString &request, QByteArray &bytes );
-        void extractQueryInfo( QString &request, QDomElement *element );
-        void extractTimeSeries( QString &request, QDomElement *element );
-        QString extractSeriesSourceInfo( QString &request, QString &prefix, QDomElement *timeSeries );
-        QString extractSeriesVariable( QString &request, QString &prefix, QDomElement *timeSeries );
-        void extractSeriesValues( QString &request, QString &prefix, int &count, QDomElement *timeSeries );
 };
  
 #endif
