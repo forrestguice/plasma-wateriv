@@ -1,0 +1,84 @@
+#summary One-sentence summary of this page.
+
+= Introduction =
+
+Add your content here.
+
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
+
+
+
+/**
+   The WaterSites data engine accesses data using the USGS Sites Web Service
+   http://waterservices.usgs.gov/nwis/site. The web service accepts a request
+   url (almost identical to the requests accepted by the IV/DV web services)
+   and returns a resulting list of sites in the Mapper format (simple XML).
+   The WaterSites data engine parses the resulting list of sites and makes it
+   available to plasmoids through the site_<code> keys which can be
+   displayed using a ListView.
+
+   Request Examples: stateCd=AZ     .. returns info on all sites within AZ
+                     sites=09506000 .. returns info on single site 09506000 
+                     09506000       .. returns info on single site 09506000 
+
+   See http://waterservices.usgs.gov/rest/Site-Test-Tool.html for help forming
+   valid requests.
+
+   Special request types include: statecodes? agencycodes? countycodes? and
+   sitetypecodes? These requests return data stored in local data files.
+*/
+
+/**
+    Data Keys:
+
+      engine_version      : int
+
+      net_date            : QDateTime
+      net_url             : QString
+      net_request         : QString
+      net_request_isvalid : bool
+      net_request_error   : QString
+      net_isvalid         : bool
+      net_error           : QString
+
+      xml_isvalid         : bool
+      xml_error_msg       : QString
+      xml_error_line      : int
+      xml_error_column    : int
+
+      statecode_count     : int
+      statecode_<code>    : QHash<QString, QVariant>
+                            keys: name      : QString
+                                  alpha     : QString
+                                  numeric   : QString
+
+      countycode_count    : int
+      countycode<code>    : QHash<QString, QVariant>
+                            keys: name       : QString
+                                  statecode  : QString
+                                  countycode : QString
+
+      agencycode_count    : int
+      agencycode_<code>   : QHash<QString, QVariant>
+                            keys: name       : QString
+                                  code       : QString
+
+      sitetypecode_count  : int
+      sitetypecode_<code> : QHash<QString, QVariant>
+                            keys: name       : QString  
+                                  code       : QString  
+
+      site_count          : int
+      site_#_<code>       : QHash<QString, QVariant>
+                            keys: code      : QString
+                                  name      : QString
+                                  agency    : QString
+                                  latitude  : QString
+                                  longitude : QString
+                                  cat       : QString
