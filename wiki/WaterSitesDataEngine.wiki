@@ -1,4 +1,5 @@
 #summary The input and output of the WaterSites data engine (current version 0.1.0).
+#labels Featured,Phase-Support
 
 || *status* || *Engine Name* || *Version* || *engine_version* ||
 ||current||watersites||0.1.0||0||
