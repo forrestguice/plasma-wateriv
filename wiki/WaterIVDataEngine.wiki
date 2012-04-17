@@ -1,8 +1,8 @@
-#summary A description of the input and output of the WaterIV data engine (latest version 0.2.0).
+#summary A description of the input and output of the WaterIV data engine (latest version 0.3.0).
 #labels Phase-Support,Featured
 
 || *status* || *Engine Name* || *Version* || *engine_version* ||
-||current||wateriv||0.2.0, 0.2.1||1, 2||
+||current||wateriv||0.3.0|3||
 
 = Introduction =
 
@@ -29,7 +29,7 @@ Using (4) is a convenient way to get historic daily values instead of instantane
 
 = Available Data =
 
-Data is returned by the data engine using a key naming scheme. The engine_version key returns a unique engine version id and can be used by plasmoids to verify compatibility. The _net_ and _xml_ keys contain meta data describing downloading and parsing the data. The _queryinfo_ keys contain information about the request as it was understood by the web service. The _timeseries_ keys contain the actual dataset.
+Data is returned by the data engine using a key naming scheme. The engine_version key returns a unique engine version id and can be used by plasmoids to verify compatibility. The _net_ and _xml_ keys contain meta data describing downloading and parsing the data. The _queryinfo_ keys contain information about the request as it was understood by the web service. The _series_ keys contain the actual dataset.
 
 || *Key* || *Type* || *Description* ||
 ||engine`_`version||int||A unique version id.||
