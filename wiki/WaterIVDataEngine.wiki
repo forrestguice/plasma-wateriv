@@ -2,7 +2,7 @@
 #labels Phase-Support,Featured
 
 || *status* || *Engine Name* || *Version* || *engine_version* ||
-||current||wateriv||0.3.0|3||
+||current||wateriv||0.3.0||3||
 
 = Introduction =
 
@@ -67,57 +67,52 @@ Keys starting with _queryinfo`_`_ contain info about the data request as it was 
 ||queryinfo_location||QString||The requested location (site/other codes).||
 ||queryinfo_variable||QString||The requested variables (parameter codes).||
 
-  ---------------------------------------
-
-The _timeseries`_`count_ key returns the number of available data sets. The data for each individual time series can be found under _timeseries`_`i_ (where 0 <= i < _timeseries`_`count_). This key will return 0 when _net`_`isvalid_ or _xml`_`isvalid_ is false.
+  --------------------------------------
 
 || *Key* || *Type* || *Description* ||
-||timeseries_count||int||The number of available timeseries.||
-
-  ---------------------------------------
-
-Keys starting with _timeseries`_`i`_`_ contain info about an individual timeseries. Each timeseries is composed of three segments; sourceinfo, variable, and values.
-
-The _sourceinfo_ keys contain info about the source of a timeseries.
+||toc_count||int||table of contents count||
+||toc_#||QMap<QString, QVariant>||table of contents entry||
 
 || *Key* || *Type* || *Description* ||
-||timeseries_i_sourceinfo_sitename||QString||The name of the source (physical site name).||
-||timeseries_i_sourceinfo_sitecode||QString||The agency code of the source (e.g. usgs)||
-||timeseries_i_sourceinfo_properties||QMap<String,QVariant>||A QMap of site properties by name.||
-||timeseries_i_sourceinfo_latitude||QString||The latitude of the source.||
-||timeseries_i_sourceinfo_longitude||QString||The longitude of the source.||
-||timeseries_i_sourceinfo_timezone_name||QString||The timezone abreviation of the source.||
-||timeseries_i_sourceinfo_timezone_offset||QString||The timezone offset.||
-||timeseries_i_sourceinfo_timezone_daylight||bool||Site currently using daylight savings.||
-||timeseries_i_sourceinfo_timezone_daylight_name||QString||The daylight savings time name (e.g. EDT).||
-||timeseries_i_sourceinfo_timezone_daylight_offset||QString||The daylight savings time offset.||
+||series_<siteCode>_name||QString||
+||series_<siteCode>_code||QString||
+||series_<siteCode>_properties||QMap<String, QVariant> (by name)||
+||series_<siteCode>_latitude||float||
+||series_<siteCode>_longitude||float||
+||series_<siteCode>_timezone_name||QString||
+||series_<siteCode>_timezone_offset||...||
+||series_<siteCode>_timezone_daylight||bool||
+||series_<siteCode>_timezone_daylight_name||QString||
+||series_<siteCode>_timezone_daylight_offset||...||
+
+||series_<siteCode>_<paramCode>_name||QString||
+||series_<siteCode>_<paramCode>_code||QString||
+||series_<siteCode>_<paramCode>_code_attributes||QMap<QString, QVariant> (by attrib)||
+||series_<siteCode>_<paramCode>_description||QString||
+||series_<siteCode>_<paramCode>_valuetype||QString||
+||series_<siteCode>_<paramCode>_unitcode||QString||
+||series_<siteCode>_<paramCode>_nodatavalue||double||
+
+||series_<siteCode>_<paramCode>_<statCode>_name||Qstring||
+||series_<siteCode>_<paramCode>_<statCode>_code||int||
+||series_<siteCode>_<paramCode>_<statCode>_<methodId>_id||int||
+||series_<siteCode>_<paramCode>_<statCode>_<methodId>_description||QString||
+||series_<siteCode>_<paramCode>_<statCode>_<methodId>_all||QMap<QString, QList<QVariant>>||
+||series_<siteCode>_<paramCode>_<statCode>_<methodId>_qualifiers||QMap<QString, QList<QVariant>>||
+||series_<siteCode>_<paramCode>_<statCode>_<methodId>_recent_value||double||
+||series_<siteCode>_<paramCode>_<statCode>_<methodId>_recent_date||QDateTime||
+||series_<siteCode>_<paramCode>_<statCode>_<methodId>_recent_qualifier||QString||
 
 
-The _variable_ keys contain info about the dependent variable in the timeseries.
-
+Each value in toc_# consists of a QMap of index information.
 || *Key* || *Type* || *Description* ||
-||timeseries_i_variable_code||QString||The variable code (e.g. 00060).||
-||timeseries_i_variable_code_attributes||QMap<QString,QVariant>||A QMap of code attributes by name.||
-||timeseries_i_variable_name||QString||The name of the variable.||
-||timeseries_i_variable_description||QString||A description of the variable.||
-||timeseries_i_variable_valuetype||QString||The type of value the variable describes (e.g. Derived).||
-||timeseries_i_variable_unitcode||QString||The unit code (e.g. ft, cfs, etc).||
-||timeseries_i_variable_options||QMap<QString,QVariant>||A QMap of options by name.||
-||timeseries_i_variable_nodatavalue||double||The value to assign if a value has no data.||
+||site||QString||site code||
+||variable||QString||parameter code||
+||statistic||QString||statistic code||
+||method||QString||methodid code||
 
+The components of the toc_# can assembled into keys using this pattern: series_<site>_<variable>_<statistic>_<methodId>
 
-The _values_ keys contain info about individual data points in the timeseries. The _timeseries`_`i`_`values`_`count_ key returns the number of value sets in the time series. The data for each set can be found under _timeseries`_`i`_`values`_`j_ (where 0 <= j < _timeseries`_`i`_`values`_`count_).
-
-|| *Key* || *Type* || *Description* ||
-||timeseries_i_values_count||int||The number of available value sets.||
-
-|| *Key* || *Type* || *Description* ||
-||timeseries_i_values_j_recent||double||The most recent value (e.g. 200).||
-||timeseries_i_values_j_recent_date||QDateTime||The datetime of the recent value.||
-||timeseries_i_values_j_recent_qualifier||QString||The qualifier of the most recent value (e.g. "P").||
-||timeseries_i_values_j_all||QMap`<`QString,QList`<`QVariant`>``>`||A QMap of all values by QDateTime.||
-||timeseries_i_values_j_qualifiers||QMap`<`QString,QList`<`QVariant`>``>`||A QMap of qualifiers by code.||
- 
 
 Each value in _all_ consists of a tuple.
 || *Index* || *Type* || *Description* ||
