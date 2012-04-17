@@ -13,6 +13,10 @@ See http://waterservices.usgs.gov/rest/Site-Test-Tool.html for help forming vali
 
 Special request types include: statecodes`?` agencycodes`?` countycodes`?` and sitetypecodes`?` These requests return data stored in local data files.
 
+Some special requests take simple filters.
+||agencycodes`?``<`stateAlphaCode`>`||filter agencies by state||
+||countycodes`?``<`stateNumericCode`>`||filter counties by state||
+||sitetypecodes`?``<`majorTypeCode`>`||filter subtypes by major type||
 
 = Available Data=
 
