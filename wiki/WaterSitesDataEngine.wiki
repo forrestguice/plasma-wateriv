@@ -5,86 +5,86 @@
 The WaterSites data engine accesses data using the USGS Sites Web Service http://waterservices.usgs.gov/nwis/site. The web service accepts a request url (almost identical to the requests accepted by the IV/DV web services) and returns a resulting list of sites in the Mapper format (simple XML). The WaterSites data engine parses the resulting list of sites and makes it available to plasmoids through the site`_``<`code`>` keys.
 
 Examples:
-stateCd=AZ     .. returns info on all sites within AZ
-sites=09506000 .. returns info on single site 09506000 
-09506000       .. returns info on single site 09506000 
+||stateCd=AZ||returns info on all sites within AZ||
+||sites=09506000||returns info on single site 09506000||
+||09506000||returns info on single site 09506000||
 
 See http://waterservices.usgs.gov/rest/Site-Test-Tool.html for help forming valid requests.
 
-Special request types include: statecodes? agencycodes? countycodes? and sitetypecodes? These requests return data stored in local data files.
+Special request types include: statecodes`?` agencycodes`?` countycodes`?` and sitetypecodes`?` These requests return data stored in local data files.
 
 
 = Available Data=
 
 || *Key* || *Type* || *Description* ||
-engine_version||int||||
+engine_version||int||unique engine id||
 
 || *Key* || *Type* || *Description* ||
-||net_date||QDateTime||||
-||net_url||QString||||
-||net_request||QString||||
-||net_request_isvalid||bool||||
-||net_request_error||QString||||
-||net_isvalid||bool||||
-||net_error||QString||||
+||net_date||QDateTime||date of net request||
+||net_url||QString||net host||
+||net_request||QString||net request||
+||net_request_isvalid||bool||request is valid||
+||net_request_error||QString||request error||
+||net_isvalid||bool||net transaction is valid||
+||net_error||QString||net error||
 
 || *Key* || *Type* || *Description* ||
-||xml_isvalid||bool||||
-||xml_error_msg||QString||||
-||xml_error_line||int||||
-||xml_error_column||int||||
+||xml_isvalid||bool||xml is valid||
+||xml_error_msg||QString||xml errors||
+||xml_error_line||int||xml error line||
+||xml_error_column||int||xml error column||
 
 || *Key* || *Type* || *Description* ||
-||statecode_count||int||||
-||statecode_<code>||QHash<QString, QVariant>||||
+||statecode_count||int||# of statecodes||
+||statecode_<code>||QHash<QString, QVariant>||statecode entry||
 
 || *Key* || *Type* || *Description* ||
-||countycode_count||int||||
-||countycode<code>||QHash<QString, QVariant>||||
+||countycode_count||int||# of countycodes||
+||countycode<code>||QHash<QString, QVariant>||countycode entry||
 
 || *Key* || *Type* || *Description* ||
-||agencycode_count||int||||
-||agencycode_<code>||QHash<QString, QVariant>||||
+||agencycode_count||int||# of agencycodes||
+||agencycode_<code>||QHash<QString, QVariant>||agencycode entry||
 
 || *Key* || *Type* || *Description* ||
-||sitetypecode_count||int||||
-||sitetypecode_<code>||QHash<QString, QVariant>||||
+||sitetypecode_count||int||# of sitetype codes||
+||sitetypecode_<code>||QHash<QString, QVariant>||sitetype entry||
  
 || *Key* || *Type* || *Description* ||
-||site_count||int||||
-||site_#_<code>||QHash<QString, QVariant>||||
+||site_count||int||# of site codes||
+||site_#_<code>||QHash<QString, QVariant>||site entry||
 
 Each statecode entry consists of:
 || *Key* || *Type* || *Description* ||
-||name||QString||||
-||alpha||QString||||
-||numeric||QString||||
+||name||QString||state name||
+||alpha||QString||state alpha code||
+||numeric||QString||state numeric code||
 
 Each countycode entry consists of:
 
 || *Key* || *Type* || *Description* ||
-||name||QString||||
-||statecode||QString||||
-||countycode||QString||||
+||name||QString||county name||
+||statecode||QString||county state code (numeric)||
+||countycode||QString||county code (numeric)||
 
 Each agencycode entry consists of:
 
 || *Key* || *Type* || *Description* ||
-||name||QString||||
-||code||QString||||
+||name||QString||agency name||
+||code||QString||agency code||
 
 Each sitetype entry consists of:
 
 || *Key* || *Type* || *Description* ||
-||name||QString||||  
-||code||QString||||
+||name||QString||type name||  
+||code||QString||type code||
 
 Each site entry consists of:
 
 || *Key* || *Type* || *Description* ||
-||code||QString||||
-||name||QString||||
-||agency||QString||||
-||latitude||QString||||
-||longitude||QString||||
-||type||QString||||
+||code||QString||site code||
+||name||QString||site name||
+||agency||QString||site agency||
+||latitude||QString||site latitude||
+||longitude||QString||site longitude||
+||type||QString||site type||
