@@ -1,4 +1,7 @@
-#summary The input and output of the WaterSites data engine.
+#summary The input and output of the WaterSites data engine (current version 0.1.0).
+
+|| *status* || *Engine Name* || *Version* || *engine_version* ||
+||current||watersites||0.1.0||0||
 
 = Available Sources =
 
