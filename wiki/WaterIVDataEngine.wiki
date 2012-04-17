@@ -70,38 +70,38 @@ Keys starting with _queryinfo`_`_ contain info about the data request as it was 
   --------------------------------------
 
 || *Key* || *Type* || *Description* ||
-||toc_count||int||table of contents count||
-||toc_#||QMap<QString, QVariant>||table of contents entry||
+||toc`_`count||int||table of contents count||
+||toc`_`#||QMap<QString, QVariant>||table of contents entry||
 
 || *Key* || *Type* || *Description* ||
-||series_<siteCode>_name||QString||
-||series_<siteCode>_code||QString||
-||series_<siteCode>_properties||QMap<String, QVariant> (by name)||
-||series_<siteCode>_latitude||float||
-||series_<siteCode>_longitude||float||
-||series_<siteCode>_timezone_name||QString||
-||series_<siteCode>_timezone_offset||...||
-||series_<siteCode>_timezone_daylight||bool||
-||series_<siteCode>_timezone_daylight_name||QString||
-||series_<siteCode>_timezone_daylight_offset||...||
+||series`_`<siteCode>`_`name||QString||
+||series`_`<siteCode>`_`code||QString||
+||series`_`<siteCode>`_`properties||QMap<String, QVariant> (by name)||
+||series`_`<siteCode>`_`latitude||float||
+||series`_`<siteCode>`_`longitude||float||
+||series`_`<siteCode>`_`timezone`_`name||QString||
+||series`_`<siteCode>`_`timezone`_`offset||...||
+||series`_`<siteCode>`_`timezone`_`daylight||bool||
+||series`_`<siteCode>`_`timezone`_`daylight_name||QString||
+||series`_`<siteCode>`_`timezone`_`daylight_offset||...||
 
-||series_<siteCode>_<paramCode>_name||QString||
-||series_<siteCode>_<paramCode>_code||QString||
-||series_<siteCode>_<paramCode>_code_attributes||QMap<QString, QVariant> (by attrib)||
-||series_<siteCode>_<paramCode>_description||QString||
-||series_<siteCode>_<paramCode>_valuetype||QString||
-||series_<siteCode>_<paramCode>_unitcode||QString||
-||series_<siteCode>_<paramCode>_nodatavalue||double||
+||series`_`<siteCode>`_`<paramCode>`_`name||QString||
+||series`_`<siteCode>`_`<paramCode>`_`code||QString||
+||series`_`<siteCode>`_`<paramCode>`_`code`_`attributes||QMap<QString, QVariant> (by attrib)||
+||series`_`<siteCode>`_`<paramCode>`_`description||QString||
+||series`_`<siteCode>`_`<paramCode>`_`valuetype||QString||
+||series`_`<siteCode>`_`<paramCode>`_`unitcode||QString||
+||series`_`<siteCode>`_`<paramCode>`_`nodatavalue||double||
 
-||series_<siteCode>_<paramCode>_<statCode>_name||Qstring||
-||series_<siteCode>_<paramCode>_<statCode>_code||int||
-||series_<siteCode>_<paramCode>_<statCode>_<methodId>_id||int||
-||series_<siteCode>_<paramCode>_<statCode>_<methodId>_description||QString||
-||series_<siteCode>_<paramCode>_<statCode>_<methodId>_all||QMap<QString, QList<QVariant>>||
-||series_<siteCode>_<paramCode>_<statCode>_<methodId>_qualifiers||QMap<QString, QList<QVariant>>||
-||series_<siteCode>_<paramCode>_<statCode>_<methodId>_recent_value||double||
-||series_<siteCode>_<paramCode>_<statCode>_<methodId>_recent_date||QDateTime||
-||series_<siteCode>_<paramCode>_<statCode>_<methodId>_recent_qualifier||QString||
+||series`_`<siteCode>`_`<paramCode>`_`<statCode>`_`name||Qstring||
+||series`_`<siteCode>`_`<paramCode>`_`<statCode>`_`code||int||
+||series`_`<siteCode>`_`<paramCode>`_`<statCode>`_`<methodId>`_`id||int||
+||series`_`<siteCode>`_`<paramCode>`_`<statCode>`_`<methodId>`_`description||QString||
+||series`_`<siteCode>`_`<paramCode>_<statCode>_<methodId>_all||QMap<QString, QList<QVariant>>||
+||series`_`<siteCode>`_`<paramCode>`_`<statCode>`_`<methodId>`_`qualifiers||QMap<QString, QList<QVariant>>||
+||series`_`<siteCode>`_`<paramCode>`_`<statCode>`_`<methodId>`_`recent`_`value||double||
+||series`_`<siteCode>`_`<paramCode>`_`<statCode>`_`<methodId>`_`recent_date||QDateTime||
+||series`_`<siteCode>`_`<paramCode>`_`<statCode>`_`<methodId>`_`recent`_`qualifier||QString||
 
 
 Each value in toc_# consists of a QMap of index information.
@@ -111,7 +111,7 @@ Each value in toc_# consists of a QMap of index information.
 ||statistic||QString||statistic code||
 ||method||QString||methodid code||
 
-The components of the toc_# can assembled into keys using this pattern: series_<site>_<variable>_<statistic>_<methodId>
+The components of the toc`_`# can assembled into keys using this pattern: series`_`<site>`_`<variable>`_`<statistic>`_`<methodId>
 
 
 Each value in _all_ consists of a tuple.
