@@ -1,13 +1,8 @@
 #summary One-sentence summary of this page.
 
-= Introduction =
-
-Add your content here.
-
-
 = Available Sources =
 
-The WaterSites data engine accesses data using the USGS Sites Web Service http://waterservices.usgs.gov/nwis/site. The web service accepts a request url (almost identical to the requests accepted by the IV/DV web services) and returns a resulting list of sites in the Mapper format (simple XML). The WaterSites data engine parses the resulting list of sites and makes it available to plasmoids through the site_<code> keys.
+The WaterSites data engine accesses data using the USGS Sites Web Service http://waterservices.usgs.gov/nwis/site. The web service accepts a request url (almost identical to the requests accepted by the IV/DV web services) and returns a resulting list of sites in the Mapper format (simple XML). The WaterSites data engine parses the resulting list of sites and makes it available to plasmoids through the site`_``<`code`>` keys.
 
 Examples:
 stateCd=AZ     .. returns info on all sites within AZ
@@ -21,40 +16,43 @@ Special request types include: statecodes? agencycodes? countycodes? and sitetyp
 
 = Available Data=
 
-      engine_version      : int
+|| *Key* || *Type* || *Description* ||
+engine_version||int||||
 
-      net_date            : QDateTime
-      net_url             : QString
-      net_request         : QString
-      net_request_isvalid : bool
-      net_request_error   : QString
-      net_isvalid         : bool
-      net_error           : QString
+|| *Key* || *Type* || *Description* ||
+||net_date||QDateTime||||
+||net_url||QString||||
+||net_request||QString||||
+||net_request_isvalid||bool||||
+||net_request_error||QString||||
+||net_isvalid||bool||||
+||net_error||QString||||
 
-      xml_isvalid         : bool
-      xml_error_msg       : QString
-      xml_error_line      : int
-      xml_error_column    : int
+|| *Key* || *Type* || *Description* ||
+||xml_isvalid||bool||||
+||xml_error_msg||QString||||
+||xml_error_line||int||||
+||xml_error_column||int||||
 
-      statecode_count     : int
-      statecode_<code>    : QHash<QString, QVariant>
+|| *Key* || *Type* || *Description* ||
+||statecode_count||int||||
+||statecode_<code>||QHash<QString, QVariant>||||
 
+|| *Key* || *Type* || *Description* ||
+||countycode_count||int||||
+||countycode<code>||QHash<QString, QVariant>||||
 
-      countycode_count    : int
-      countycode<code>    : QHash<QString, QVariant>
+|| *Key* || *Type* || *Description* ||
+||agencycode_count||int||||
+||agencycode_<code>||QHash<QString, QVariant>||||
 
-
-      agencycode_count    : int
-      agencycode_<code>   : QHash<QString, QVariant>
-
-
-      sitetypecode_count  : int
-      sitetypecode_<code> : QHash<QString, QVariant>
+|| *Key* || *Type* || *Description* ||
+||sitetypecode_count||int||||
+||sitetypecode_<code>||QHash<QString, QVariant>||||
  
-
-      site_count          : int
-      site_#_<code>       : QHash<QString, QVariant>
-
+|| *Key* || *Type* || *Description* ||
+||site_count||int||||
+||site_#_<code>||QHash<QString, QVariant>||||
 
 Each statecode entry consists of:
 || *Key* || *Type* || *Description* ||
