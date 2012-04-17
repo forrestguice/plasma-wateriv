@@ -1,5 +1,5 @@
 #summary A description of the input and output of the WaterIV data engine (deprecated version 0.1.0).
-#labels Phase-Support
+#labels Phase-Support,Deprecated
 
 || *Engine Name* || *Version* || *engine_version* || *status* ||
 ||wateriv||0.1.0||undefined|| _deprecated_ ||
