@@ -17,42 +17,42 @@ Special request types include: statecodes`?` agencycodes`?` countycodes`?` and s
 = Available Data=
 
 || *Key* || *Type* || *Description* ||
-engine_version||int||unique engine id||
+||engine`_`version||int||unique engine id||
 
 || *Key* || *Type* || *Description* ||
-||net_date||QDateTime||date of net request||
-||net_url||QString||net host||
-||net_request||QString||net request||
-||net_request_isvalid||bool||request is valid||
-||net_request_error||QString||request error||
-||net_isvalid||bool||net transaction is valid||
-||net_error||QString||net error||
+||net`_`date||QDateTime||date of net request||
+||net`_`url||QString||net host||
+||net`_`request||QString||net request||
+||net`_`request_isvalid||bool||request is valid||
+||net`_`request_error||QString||request error||
+||net`_`isvalid||bool||net transaction is valid||
+||net`_`error||QString||net error||
 
 || *Key* || *Type* || *Description* ||
-||xml_isvalid||bool||xml is valid||
-||xml_error_msg||QString||xml errors||
-||xml_error_line||int||xml error line||
-||xml_error_column||int||xml error column||
+||xml`_`isvalid||bool||xml is valid||
+||xml`_`error`_`msg||QString||xml errors||
+||xml`_`error`_`line||int||xml error line||
+||xml`_`error`_`column||int||xml error column||
 
 || *Key* || *Type* || *Description* ||
-||statecode_count||int||# of statecodes||
-||statecode_<code>||QHash<QString, QVariant>||statecode entry||
+||statecode`_`count||int||# of statecodes||
+||statecode`_``<`code`>`||QHash`<`QString, QVariant`>`||statecode entry||
 
 || *Key* || *Type* || *Description* ||
-||countycode_count||int||# of countycodes||
-||countycode<code>||QHash<QString, QVariant>||countycode entry||
+||countycode`_`count||int||# of countycodes||
+||countycode`_``<`code`>`||QHash`<`QString, QVariant`>`||countycode entry||
 
 || *Key* || *Type* || *Description* ||
-||agencycode_count||int||# of agencycodes||
-||agencycode_<code>||QHash<QString, QVariant>||agencycode entry||
+||agencycode`_`count||int||# of agencycodes||
+||agencycode`_``<`code`>`||QHash`<`QString, QVariant`>`||agencycode entry||
 
 || *Key* || *Type* || *Description* ||
-||sitetypecode_count||int||# of sitetype codes||
-||sitetypecode_<code>||QHash<QString, QVariant>||sitetype entry||
+||sitetypecode`_`count||int||# of sitetype codes||
+||sitetypecode`_``<`code`>`||QHash`<`QString, QVariant`>`||sitetype entry||
  
 || *Key* || *Type* || *Description* ||
 ||site_count||int||# of site codes||
-||site_#_<code>||QHash<QString, QVariant>||site entry||
+||site`_``<`code`>`||QHash`<`QString, QVariant`>`||site entry||
 
 Each statecode entry consists of:
 || *Key* || *Type* || *Description* ||
