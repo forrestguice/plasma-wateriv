@@ -37,25 +37,30 @@
    ------
    INPUT: the source name for requests to the data engine can be:
 
-   //1) a site code, or comma separated list of site codes (up to 100)
-   //   (see http://wdr.water.usgs.gov/nwisgmap/index.html)
+   1) a site code, or comma separated list of site codes (up to 100)
+      (see http://wdr.water.usgs.gov/nwisgmap/index.html)
 
-   //2//) a request string specifying the data to retrieve (the part after 
-   //   the ? in a complete request url)
-   //   (see http://waterservices.usgs.gov/rest/IV-Test-Tool.html)
+   2) a request string specifying the data to retrieve (the part after 
+      the ? in a complete request url)
+      (see http://waterservices.usgs.gov/rest/Site-Test-Tool.html)
 
-   //3) a complete request url specifying the data to retrieve 
-   //   (see http://waterservices.usgs.gov/rest/IV-Test-Tool.html)
+   3) a complete request url specifying the data to retrieve 
+      (see http://waterservices.usgs.gov/rest/Site-Test-Tool.html)
 
-   //Using (1) is a convenient way to get recent data by site code.
-   //Using (2) allows more control over the data that is requested.
-   //Using (3) allows data to be requested from an alternate url.
+   4) a special request that returns locally stored data: 
+
+        stateCodes?               : returns state alpha and numeric codes
+        agencyCodes?[<filter>]    : returns agency codes (filter: state alpha)
+        countyCodes?[<filter>]    : returns county codes (filter: state num)
+        siteTypeCodes?[<filter>]  : returns sitetype codes (filter: majorType)
+
+        All codes will be returned when the optional filter is not provided.
 
    ------
    OUTPUT: a set of key/value pairs organized by simple naming scheme
 
-   Browse the comment blocks at the beginning of watersitesengine.cpp for
-   a complete listing of available data keys (key naming scheme).
+   Documentation is available at: http://code.google.com/p/plasma-wateriv/w/list
+   or by browsing the comment blocks at the beginning of watersitesengine.cpp.
 
 
   ==============================
@@ -78,7 +83,7 @@
 
    1) change to the source directory
 
-      $ cd plasma-dataengine-watersites
+      $ cd plasma-dataengine-watersites-0.1.0
 
    2) compile the source code
 
@@ -86,7 +91,7 @@
       $ make clean
       $ make
 
-   3) remove the debugging symbols to reduce the binary size
+   3) (optional) remove the debugging symbols to reduce the binary size
 
       $ strip ./lib/plasma_engine_watersites.so
 
