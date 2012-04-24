@@ -28,9 +28,7 @@ const QString WaterIVEngine::DEFAULT_SERVER = DEFAULT_SERVER_IV;
 
 /**
    This dataengine retrieves timeseries data from the USGS Instantaneous Values
-   Web Service using REST. The web service returns the data as an XML 
-   document using a set of tags called "WaterML". The dataengine reads these
-   tags (DOM) and makes the data available to plasmoids using a simple
+   Web Service using REST. The data is available to plasmoids using a simple 
    naming scheme for available keys.
 
    ----------------------
@@ -59,16 +57,7 @@ const QString WaterIVEngine::DEFAULT_SERVER = DEFAULT_SERVER_IV;
    Using (2) allows more control over the data that is requested.
    Using (3) allows data to be requested from an alternate url.
 
-   ----------------------------
-   All requests will result in:
-   ----------------------------
-   1) A set of queryinfo describing the request
-   2) one or more timeseries, each containing:
-    --> 3) sourceinfo
-    --> 4) variable info
-    --> 5) a set of datetime:value pairs
-
-   See "Naming scheme for available keys" in the next block of comments.
+   See "Available Data" in the next block of comments.
 */
 
 const QString WaterIVEngine::PREFIX_NET = "net_";
@@ -133,7 +122,7 @@ const QString WaterIVEngine::PREFIX_SERIES = "series_";
   --> series_<siteCode>_<paramCode>_<statCode>_<methodId>_recent_value     : double
   --> series_<siteCode>_<paramCode>_<statCode>_<methodId>_recent_date      : QDateTime
   --> series_<siteCode>_<paramCode>_<statCode>_<methodId>_recent_qualifier : QString
-
+  --> series_<siteCode>_<paramCode>_<statCode>_<methodId>_recent_change    : double
 
   Complex Key Contents:
 
@@ -242,7 +231,7 @@ void WaterIVEngine::dataFetchComplete(QNetworkReply *reply)
         Plasma::DataContainer *container = containerForSource(request);
         if (container == 0 || not container->data().contains(PREFIX_TOC + "count"))
         {
-            // qDebug() << "timeseries unset; setting to 0";
+            // qDebug() << "toc unset; setting to 0";
             setData(request, I18N_NOOP(PREFIX_TOC + "count"), 0);
         }
 
@@ -259,9 +248,13 @@ void WaterIVEngine::dataFetchComplete(QNetworkReply *reply)
 
     WaterIVData *reader = IVRequest::formatForSource(request, request_parts.at(1));
     reader->extractData(this, request, bytes);
-    delete reader;
+    delete reader;   // delete the reader added to the heap in formatForSource
 }
 
+/**
+   exposes setData for implementations of waterivdata... todo: resdesign 
+   waterivdata interface to eliminate (extend DataContainer?).
+*/
 void WaterIVEngine::setEngineData( QString source, QString key, QVariant value )
 {
     setData( source, key, value );
