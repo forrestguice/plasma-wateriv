@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+                          http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+   <kcfgfile/>
+
+   <group name="Appearance">
+      <entry name="fontstyle" type="Font">
+         <label>The font style.</label>
+         <default>Ubuntu</default>
+      </entry>
+
+      <entry name="fontbold" type="bool">
+         <label>Use bold on the display font.</label>
+         <default>true</default>
+      </entry>
+
+      <entry name="fontitalic" type="bool">
+         <label>Use italics on the display font.</label>
+         <default>false</default>
+      </entry>
+
+      <entry name="fontusecolor" type="bool">
+         <label>Use a custom font color.</label>
+         <default>false</default>
+      </entry>
+
+      <entry name="fontcolor" type="Color">
+         <label>Use this custom font color.</label>
+         <default>black</default>
+      </entry>
+
+      <entry name="fontshowshadow" type="bool">
+         <label>Show shadow.</label>
+         <default>true</default>
+      </entry>
+
+      <entry name="fontuseshadow" type="bool">
+         <label>Use a custom shadow color.</label>
+         <default>false</default>
+      </entry>
+
+      <entry name="fontshadow" type="Color">
+         <label>Use this custom shadow color.</label>
+         <default>white</default>
+      </entry>
+
+      <entry name="infoshowdate" type="bool">
+         <label>Show the date of the most recent reading.</label>
+         <default>true</default>
+      </entry>
+
+      <entry name="infoshowunits" type="bool">
+         <label>Show the units of the currently displayed reading.</label>
+         <default>true</default>
+      </entry>
+   </group>
+
+   <group name="General">
+      <entry name="datasource" type="String">
+         <label>The data to request from the web service (a site code, a set of request arguments, or a fully formed request url).</label>
+         <default></default>
+      </entry>
+
+      <entry name="datapolling" type="int">
+         <label>The update interval (in minutes). The minimum interval is 15minutes. Please consider using a larger interval such as an hour. Most data sources take readings every 15 minutes but updates from the web service occur no more than once an hour.</label>
+         <default>30</default>
+       </entry>
+   </group>
+
+   <group name="SearchPanel">
+      <entry name="stateindex" type="int">
+         <label>The index of the last selected state filter.</label>
+         <default>4</default>
+       </entry>
+
+      <entry name="typeindex" type="int">
+         <label>The index of the last selected major type.</label>
+         <default>12</default>
+       </entry>
+
+      <entry name="searchpanel_collapsed" type="bool">
+         <label>The state of the search panel (hidden/collapsed vs shown).</label>
+         <default>true</default>
+       </entry>
+   </group>
+
+   <group name="SitePanel">
+      <entry name="sitepanel_collapsed" type="bool">
+         <label>The state of the site panel (hidden/collapsed vs shown).</label>
+         <default>true</default>
+       </entry>
+   </group>
+
+   <group name="RecentSources">
+      <entry name="recent_source_top" type="int">
+         <default>-1</default>
+      </entry>
+      <entry name="recent_source_0" type="String"><default></default></entry>
+      <entry name="recent_source_1" type="String"><default></default></entry>
+      <entry name="recent_source_2" type="String"><default></default></entry>
+      <entry name="recent_source_3" type="String"><default></default></entry>
+      <entry name="recent_source_4" type="String"><default></default></entry>
+      <entry name="recent_source_5" type="String"><default></default></entry>
+      <entry name="recent_source_6" type="String"><default></default></entry>
+      <entry name="recent_source_7" type="String"><default></default></entry>
+      <entry name="recent_source_8" type="String"><default></default></entry>
+      <entry name="recent_source_9" type="String"><default></default></entry>
+   </group>
+
+</kcfg>

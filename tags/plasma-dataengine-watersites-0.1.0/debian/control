@@ -1,0 +1,13 @@
+Source: plasma-dataengine-watersites
+Section: kde
+Priority: optional
+Maintainer: Forrest Guice <ftg2@users.sourceforge.net>
+Build-Depends: debhelper (>= 8.0.0), cmake
+Standards-Version: 3.9.2
+Homepage: http://code.google.com/p/plasma-wateriv/
+
+Package: plasma-dataengine-watersites
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Plasma data engine that provides access to the USGS Sites Service.
+ A plasma data engine for the KDE 4 Desktop that provides access to site data from the United States Geological Survey.
