@@ -3,15 +3,14 @@ Water Watcher Plasmoid ChangeLog
  ----------------------------------
  0.3.0 : plasma-applet-waterwatcher
 
+ * Add UI: a site info_panel that displays id, lat, lon, and other site codes.
+ * BugFix: issue 14; plasmoid supports multiple qualifiers per value.
+ * BugFix: issue 9; plasmoid keyboard shortcut toggles visibility of the dialog.
  * Add UI: a filter panel that constructs valid site search queries; available
    search filters are state, county, agency, and site type.
  * Add UI: a site search panel that interacts with the USGS Site Web Service.
  * Engine: (optional) "site search" requires plasma-dataengine-watersites-0.1.0.
  * Engine: now requires plasma-dataengine-wateriv-0.3.0 (engine rewrite).
-
- ----------------------------------
- 0.2.2 : plasma-applet-waterwatcher
- * BugFix: issue 9; plasmoid keyboard shortcut toggles visibility of the dialog.
 
  ----------------------------------
  0.2.1 : plasma-applet-waterwatcher
