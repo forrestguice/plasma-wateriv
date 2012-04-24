@@ -21,6 +21,11 @@
        WaterIV DataEngine v0.3.0 (plasma-dataengine-wateriv)
        http://code.google.com/p/plasma-wateriv/
 
+       WaterSites DataEngine v0.1.0 (plasma-dataengine-watersites) (optional)
+       http://code.google.com/p/plasma-wateriv/
+       Required by "Search for Sites" panel.
+
+
     ==========================================================================
     || Installation:                                                        ||
     ==========================================================================
@@ -28,10 +33,18 @@
        1) Install the required data engine (plasma-dataengine-wateriv)
           (http://code.google.com/p/plasma-wateriv/downloads/list)
 
-          If upgrading from a previous version, logging-out and logging-in may
-          be required for KDE to recognize the new engine version.
+          Note: If upgrading from a previous version, logging-out and logging-in
+          may be required for KDE to recognize the new engine version.
 
-       2) Install or upgrade the plasmoid
+
+       2) Install the optional data engine (plasma-dataengine-watersites)
+          (http://code.google.com/p/plasma-wateriv/downloads/list)
+         
+          The "Search for Sites" functionality is only available when this data
+          engine is installed. 
+
+
+       3) Install or upgrade the plasmoid
           
           Using plasmapkg:
              installing:
@@ -46,6 +59,7 @@
              $ sudo make install
              $ sudo make uninstall
 
+
     ==========================================================================
     || Configuration:                                                       ||
     ==========================================================================
@@ -53,8 +67,12 @@
        1) Single Site, All Available Parameters (simple)
 
        Provide a valid site code in the settings dialog or configuration tab. 
-       Use NSWIS Mapper (http://wdr.water.usgs.gov/nwisgmap/index.html) to 
-       locate site codes. 
+
+       Search for sites from the "Configuration" tab (requires 
+       plasma-dataengine-watersites). 
+
+       The NSWIS Mapper (http://wdr.water.usgs.gov/nwisgmap/index.html) can 
+       also be used to locate site codes.
 
        Example: 09506000
 
@@ -62,7 +80,8 @@
        2) Multiple Sites, All Available Parameters (simple)
 
        Provide a comma separated list of site codes in the settings dialog or
-       configuration tab. 
+       configuration tab. When searching for sites from within the plasmoid, 
+       long clicking on an entry will append it to the list of sites.
 
        Example: 09506000,09508500
 

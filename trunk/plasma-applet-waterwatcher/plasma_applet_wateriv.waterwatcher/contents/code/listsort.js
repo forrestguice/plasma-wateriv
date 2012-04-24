@@ -22,7 +22,7 @@
 */
 function findSortedPosition( v, m )
 {
-    if (m.count == 0 ) return 0;
+    if (m.count == 0) return 0;
     var left = 0; var right = m.count-1;
     while (right >= left)
     {
