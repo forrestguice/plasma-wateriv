@@ -384,6 +384,13 @@ Item
         var prefix_site = "series_" + toc["site"] + "_";
         var site_name = results[prefix_site + "name"];
         var site_code = results[prefix_site + "code"];
+        var site_lat = results[prefix_site + "latitude"];
+        var site_lon = results[prefix_site + "longitude"];
+        var site_properties = results[prefix_site + "properties"];
+        var site_hucCd = site_properties["hucCd"];
+        var site_countyCd = site_properties["countyCd"];
+        var site_stateCd = site_properties["stateCd"];
+        var site_typeCd = site_properties["siteTypeCd"];
 
         var prefix_var = prefix_site + toc["variable"] + "_";
         var var_code = results[prefix_var + "code"];
@@ -402,9 +409,13 @@ Item
         var var_method_desc = results[prefix_method + "description"];
 
         var qualifiers = results[prefix_method + "qualifiers"];
-        console.log(prefix_method + "qualifiers");
-        var qualifier_code = results[prefix_method + "recent_qualifier"];
-        var qualifier_desc = qualifiers[qualifier_code][2];
+        var qualifier_codes = results[prefix_method + "recent_qualifier"];
+
+        var qualifier_desc = "";
+        for (qcode in qualifier_codes)
+        {
+            qualifier_desc += "<br/>" + qualifiers[qualifier_codes[qcode]][2];
+        }
 
         //
         // Display Data
@@ -412,7 +423,7 @@ Item
 
         main_tooltip.mainText = "" + site_name + " (" + site_code + ")";
         main_tooltip.subText = "" + var_name + " (" + var_code + ")<br/><br/><b>" + var_value + " " 
-                               + var_units + "</b><br/>" + var_date + "<br/><br/>"
+                               + var_units + "</b><br/>" + var_date + "<br/>"
                                + qualifier_desc;      // refresh tooltip content
 
         // refresh main widget
@@ -421,13 +432,23 @@ Item
         mainWidget.displayDate = "" + var_date;
 
         // refresh info dialog
-        infodialog.panelRecent.title = site_name + " (" + site_code + ")";
+        //infodialog.panelRecent.title = site_name + " (" + site_code + ")";
+        infodialog.panelRecent.title = site_name;
         infodialog.panelRecent.content = "" + var_name + " (" + var_code + ")<br/>"
                                 + var_method_desc + " (method " + var_method_id + ")<br/><br/>" 
                                 + "<b>" + var_value + " " + var_units + "</b><br/>"
-                                + var_date + "<br/><br/>"
-                                + qualifier_desc;
+                                + var_date + "<br/>" + qualifier_desc;
         infodialog.navText = main.determineNavText();
+        infodialog.panelRecent.siteContent = "<table>" + 
+                                             "<tr><td><b>ID:</b>&nbsp;&nbsp;" + site_code + "</td>" +
+                                                 "<td>&nbsp;&nbsp;&nbsp;</td><td><b>Type:</b>&nbsp;&nbsp;" + site_typeCd + "</td></tr>" +
+                                             "<tr><td><b>Latitude:</b>&nbsp;&nbsp;" + site_lat + "</td><td>&nbsp;&nbsp;&nbsp;</td>" + 
+                                                 "<td><b>Longitude:</b>&nbsp;&nbsp;" + site_lon + "</td></tr>" +
+                                             "<tr><td><b>State Code:</b>&nbsp;&nbsp;" + site_stateCd + "</td><td>&nbsp;&nbsp;&nbsp;</td>" + 
+                                                 "<td><b>County Code:</b>&nbsp;&nbsp;" + site_countyCd + "</td></tr>" +
+                                             "<tr><td><b>HUC Code:</b>&nbsp;&nbsp;" + site_hucCd + "</td><td>&nbsp;&nbsp;&nbsp;</td>" + 
+                                                 "<td></td></tr>" +
+                                             "</table>";
 
         plasmoid.busy = false;
     }
@@ -486,6 +507,9 @@ Item
     {
         mainWidget.showUnits = plasmoid.readConfig("infoshowunits");
         mainWidget.showDate = plasmoid.readConfig("infoshowdate");
+
+        infodialog.panelRecent.sitePanelCollapsed = plasmoid.readConfig("sitepanel_collapsed", true);
+        infodialog.panelConfig.searchPanel.collapsed = plasmoid.readConfig("searchpanel_collapsed", true);
     }
 
     /**

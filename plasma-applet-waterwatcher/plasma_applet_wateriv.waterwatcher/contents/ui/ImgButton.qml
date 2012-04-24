@@ -28,16 +28,25 @@ Rectangle
     signal action;
 
     property color normalColor: "transparent";
-    property color hoverColor: theme.viewFocusColor;
     property color pressedColor: theme.viewFocusColor;
+    property color hoverColor: theme.viewFocusColor;
     property variant image: arrowSvg;
     property string element;
+    property bool toggled: false;
+
+    state: toggled ? "TOGGLED" : "NORMAL";
+    onToggledChanged: { btn.state = toggled ? "TOGGLED" : "NORMAL"; }
 
     states: [
         State 
         {
             name: "NORMAL";
             PropertyChanges { target: btn; color: normalColor; }
+        },
+        State
+        {
+            name: "TOGGLED";
+            PropertyChanges { target: btn; color: pressedColor; }
         },
         State 
         {
@@ -56,9 +65,17 @@ Rectangle
         anchors.fill: parent; hoverEnabled: true;
         onClicked: { btn.action(); }
         onEntered: { btn.state = "HOVERED" }
-        onExited: { btn.state = "NORMAL"; }
+        onExited:
+        {
+            if (toggled) btn.state = "TOGGLED";
+            else btn.state = "NORMAL";
+        }
         onPressed: { btn.state = "PRESSED"; }
-        onReleased: { btn.state = "NORMAL"; }
+        onReleased:
+        {
+            if (toggled) btn.state = "TOGGLED";
+            else btn.state = "NORMAL";
+        }
     }
 
     PlasmaCore.SvgItem
