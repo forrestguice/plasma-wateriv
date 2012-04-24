@@ -28,11 +28,6 @@
 #include "waterivengine.h"
 #include "waterivdata_waterml.h"
 
-/** 
-    Takes a source name and returns a corresponding fully formed request url.
-    Returns "-1" if source name cannot be transformed into a request url; the
-    error message is placed into errorMsg;
-*/
 
 /**
     @return a reference to a WaterIVData on the heap; delete it when done
@@ -50,6 +45,11 @@ WaterIVData* IVRequest::formatForSource( const QString &source, const QString &r
     return watermlFormat;
 }
 
+/** 
+    Takes a source name and returns a corresponding fully formed request url.
+    Returns "-1" if source name cannot be transformed into a request url; the
+    error message is placed into errorMsg;
+*/
 QString IVRequest::requestForSource(const QString &source, QString &errorMsg, bool &dataIsRemote )
 {
     dataIsRemote = true;

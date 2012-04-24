@@ -21,6 +21,7 @@
 const QString WaterIVDataWaterML::FORMAT = "waterml,1.0";
 
 /**
+   @return the format string to be passed to the web service
 */
 QString WaterIVDataWaterML::getFormat()
 {
@@ -29,6 +30,9 @@ QString WaterIVDataWaterML::getFormat()
 
 /**
    Parses the passed QByteArray data as xml using QDomDocument.
+   @param *engine pointer to the data engine
+   @param &request name of the source (to set data on the engine)
+   @param &bytes QByteArray of raw data
 */
 void WaterIVDataWaterML::extractData( WaterIVEngine *engine, const QString &request, QByteArray &bytes )
 {
@@ -65,7 +69,11 @@ void WaterIVDataWaterML::extractData( WaterIVEngine *engine, const QString &requ
         engine->setEngineData(request, I18N_NOOP(WaterIVEngine::PREFIX_TOC + "count"), 0);
     }
 }
-
+/**
+   @param *engine pointer to the data engine
+   @param &request name of the source (to set data on the engine)
+   @param *document a pointer to a QDomElement containing a waterml timeSeriesResponse
+*/
 void WaterIVDataWaterML::extractQueryInfo( WaterIVEngine *engine, const QString &request, QDomElement *document )
 {
     QDomElement queryInfo = document->elementsByTagName("ns1:queryInfo").at(0).toElement();
@@ -98,8 +106,10 @@ void WaterIVDataWaterML::extractQueryInfo( WaterIVEngine *engine, const QString 
 }
 
 /**
-   Extract the timeseries (ns1:timeSeries) from the supplied QDomElement 
-   (ns1:timeSeriesResponse).
+   Extract the timeseries (ns1:timeSeries) from the supplied QDomElement.
+   @param *engine pointer to the data engine
+   @param &request name of the source (to set data on the engine)
+   @param *document a pointer to a QDomElement containing a waterml timeSeriesResponse
 */
 void WaterIVDataWaterML::extractTimeSeries( WaterIVEngine *engine, const QString &request, QDomElement *document )
 {
@@ -122,6 +132,10 @@ void WaterIVDataWaterML::extractTimeSeries( WaterIVEngine *engine, const QString
 
 /**
    Extract the sourceInfo from the supplied QDomElement (ns1:timeSeries)
+   @param *engine pointer to the data engine
+   @param &request name of the source (to set data on the engine)
+   @param &prefix the key prefix to prepend to any data set
+   @param *timeSeries a pointer to a QDomElement containing a waterml timeseries
 */
 QString WaterIVDataWaterML::extractSeriesSourceInfo( WaterIVEngine *engine, const QString &request, QString &prefix, QDomElement *timeSeries )
 {
@@ -153,8 +167,8 @@ QString WaterIVDataWaterML::extractSeriesSourceInfo( WaterIVEngine *engine, cons
     engine->setEngineData(request, I18N_NOOP(p + "name"), sourceInfo_siteName.text());
     engine->setEngineData(request, I18N_NOOP(p + "code"), sourceInfo_siteCode.text());
     engine->setEngineData(request, I18N_NOOP(p + "properties"), sourceInfo_properties);
-    engine->setEngineData(request, I18N_NOOP(p + "latitude"), sourceInfo_geoLocation_lat.text().toFloat());
-    engine->setEngineData(request, I18N_NOOP(p + "longitude"), sourceInfo_geoLocation_lon.text().toFloat());
+    engine->setEngineData(request, I18N_NOOP(p + "latitude"), sourceInfo_geoLocation_lat.text());
+    engine->setEngineData(request, I18N_NOOP(p + "longitude"), sourceInfo_geoLocation_lon.text());
     engine->setEngineData(request, I18N_NOOP(p + "timezone_name"), timeZone_default.attribute("zoneAbbreviation", "-1"));
     engine->setEngineData(request, I18N_NOOP(p + "timezone_offset"), timeZone_default.attribute("zoneOffset", "00:00"));
     engine->setEngineData(request, I18N_NOOP(p + "timezone_daylight"), (sourceInfo_timeZone.attribute("siteUsesDaylightSavingsTime", "false") == "false" ? false : true));
@@ -165,6 +179,10 @@ QString WaterIVDataWaterML::extractSeriesSourceInfo( WaterIVEngine *engine, cons
 
 /**
    Extract the variable info from the supplied QDomElement (ns1:timeSeries)
+   @param *engine pointer to the data engine
+   @param &request name of the source (to set data on the engine)
+   @param &prefix the key prefix to prepend to any data set
+   @param *timeSeries a pointer to a QDomElement containing a waterml timeseries
 */
 QString WaterIVDataWaterML::extractSeriesVariable( WaterIVEngine *engine, const QString &request, QString &prefix, QDomElement *timeSeries )
 {
@@ -219,6 +237,11 @@ QString WaterIVDataWaterML::extractSeriesVariable( WaterIVEngine *engine, const 
 
 /**
    Extract the values from the supplied QDomElement (ns1:timeSeries)
+   @param *engine pointer to the data engine
+   @param &request name of the source (to set data on the engine)
+   @param &prefix the key prefix to prepend to any data set
+   @param &count a counter variable incremented each call (creates toc)
+   @param *timeSeries a pointer to a QDomElement containing a waterml timeseries
 */
 void WaterIVDataWaterML::extractSeriesValues( WaterIVEngine *engine, const QString &request, QString &prefix, int &count, QDomElement *timeSeries )
 {
@@ -273,20 +296,40 @@ void WaterIVDataWaterML::extractSeriesValues( WaterIVEngine *engine, const QStri
         engine->setEngineData(request, I18N_NOOP(p + "all"), valuesMap);
         engine->setEngineData(request, I18N_NOOP(p + "qualifiers"), qualifiersMap);
 
+        int c = 0;                  // gather recent values and dates
+        double recentValues[2];
         QMapIterator<QString, QVariant> i(valuesMap);
-        while (i.hasNext())   // get the most recent value
+        while (i.hasNext() && c < 2)
         {
             i.next();
+
             QVariant date = QDateTime::fromString(i.key(), Qt::ISODate);
             QList<QVariant> recentValue = i.value().toList();
+            recentValues[c] = recentValue.at(0).toDouble();
 
-            engine->setEngineData(request, I18N_NOOP(p + "recent_value"), recentValue.at(0).toDouble());
-            engine->setEngineData(request, I18N_NOOP(p + "recent_date"), date);
-            engine->setEngineData(request, I18N_NOOP(p + "recent_qualifier"), recentValue.at(1));
-            break;   // we only want the first item
+            if (c == 0)             // set most recent value
+            {
+                engine->setEngineData(request, I18N_NOOP(p + "recent_value"), recentValues[0]);
+                engine->setEngineData(request, I18N_NOOP(p + "recent_date"), date);
+
+                QList<QVariant> recentQualifiers;
+                QStringList rQualifiers = recentValue.at(1).toString().split(" ");
+                foreach( QString q, rQualifiers )
+                {
+                    recentQualifiers << q;
+                }
+                engine->setEngineData(request, I18N_NOOP(p + "recent_qualifier"), recentQualifiers);
+            }
+            c++;
         }
 
-        QStringList components = prefix.split("_");  // table of contents
+        double vi = (c > 0) ? recentValues[c-1] : 1;
+        double vf = (c > 0) ? recentValues[0] : 1;
+        double recentChange = 100 * (vf - vi) / vi;
+        engine->setEngineData(request, I18N_NOOP(p + "recent_change"), recentChange);
+
+        // write table of contents entry
+        QStringList components = prefix.split("_");
         QMap<QString, QVariant> tocEntry = QMap<QString, QVariant>();
         tocEntry.insert("site", components.at(1));
         tocEntry.insert("variable", components.at(2));
