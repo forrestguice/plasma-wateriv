@@ -67,10 +67,29 @@
          <label>The update interval (in minutes). The minimum interval is 15minutes. Please consider using a larger interval such as an hour. Most data sources take readings every 15 minutes but updates from the web service occur no more than once an hour.</label>
          <default>30</default>
        </entry>
+   </group>
 
+   <group name="SearchPanel">
       <entry name="stateindex" type="int">
-         <label></label>
+         <label>The index of the last selected state filter.</label>
          <default>4</default>
+       </entry>
+
+      <entry name="typeindex" type="int">
+         <label>The index of the last selected major type.</label>
+         <default>12</default>
+       </entry>
+
+      <entry name="searchpanel_collapsed" type="bool">
+         <label>The state of the search panel (hidden/collapsed vs shown).</label>
+         <default>true</default>
+       </entry>
+   </group>
+
+   <group name="SitePanel">
+      <entry name="sitepanel_collapsed" type="bool">
+         <label>The state of the site panel (hidden/collapsed vs shown).</label>
+         <default>true</default>
        </entry>
    </group>
 
