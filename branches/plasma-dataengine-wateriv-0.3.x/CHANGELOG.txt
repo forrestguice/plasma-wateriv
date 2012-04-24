@@ -1,0 +1,46 @@
+WaterIV Data Engine ChangeLog
+
+ ----------------------------------
+ 0.3.0 : plasma-dataengine-wateriv
+ 
+ * fixed (issue#14): recent_qualifiers now QList<QVariant>
+ * Added key: series_<siteCode>_<paramCode>_<stateCode>_recent_change; percent 
+   increase over previous value.
+ * Created WaterIVData interface; added implementation WaterIVDataWaterML
+ * Added keys: toc_count and toc_# | 0 <= # < toc_count (table of contents)
+ * Added Keys: series_<siteCode>_<paramCode>_<statCode>_name and code
+ * Moved keys: timeseries_#_values_#_ to series_<siteCode>_<paramCode>_
+   <statCode>_<methodId>_
+ * Moved keys: timeseries_#_variable_ to series_<siteCode>_<paramCode>_
+ * Moved keys: timeseries_#_sourceInfo_ to series_<siteCode>_
+ * Removed Key: timeseries_#_variable_options
+ * incremented VERSION_ID = 3; compatibility broken due to major changes in keys.
+ * fixed (issue#8): an empty data container MUST be set in sourceAddedEvent
+
+ ----------------------------------
+ 0.2.1 : plasma-dataengine-wateriv
+
+ * incremented VERSION_ID = 2; compatibility broken (issue#8 modifies behavior)
+ * fixed (issue#8): any data returned is delivered at once and not spread out
+   over asyncronous functions (caused plasmoids to fail to recognize updates).
+ * fixed (issue#7): previous timeseries_count preserved on network errors 
+   during update instead of blindly set to 0.
+ * added debian/ files for packing ubuntu debs; 
+
+ ----------------------------------
+ 0.2.0 : plasma-dataengine-wateriv
+
+ * Added support for Daily Values (DV) service; engine now accepts psuedo urls 
+   that specify which service (DV/IV) to use (defaults to IV).
+ * Added keys: timeseries_#_values_count, values_#_method_id, values_#_method_description
+ * Moved keys: timeseries_#_values to timeseries_#_values_#; bugfix 5; engine now
+   supports multiple sets of values (of differing methods) within a timeseries;
+   change breaks compatibility with plasmoids using older versions.
+ * Added constant: VERSION_ID = 1; a unique version id that is incremented when
+   compatibility with older plasmoids is broken due to major changes.
+ * Added keys: engine_version, net_request_isvalid, net_request_error
+   
+ ----------------------------------
+ 0.1.0 : plasma-dataengine-wateriv
+
+ * Initial release. 

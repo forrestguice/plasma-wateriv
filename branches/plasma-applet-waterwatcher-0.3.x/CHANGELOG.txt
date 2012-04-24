@@ -1,0 +1,45 @@
+Water Watcher Plasmoid ChangeLog
+
+ ----------------------------------
+ 0.3.0 : plasma-applet-waterwatcher
+
+ * Add UI: a site info_panel that displays id, lat, lon, and other site codes.
+ * BugFix: issue 14; plasmoid supports multiple qualifiers per value.
+ * BugFix: issue 9; plasmoid keyboard shortcut toggles visibility of the dialog.
+ * Add UI: a filter panel that constructs valid site search queries; available
+   search filters are state, county, agency, and site type.
+ * Add UI: a site search panel that interacts with the USGS Site Web Service.
+ * Engine: (optional) "site search" requires plasma-dataengine-watersites-0.1.0.
+ * Engine: now requires plasma-dataengine-wateriv-0.3.0 (engine rewrite).
+
+ ----------------------------------
+ 0.2.1 : plasma-applet-waterwatcher
+
+ * Add UI: the configuration tab remembers recent sources (last ten) and allows
+           switching between them with the up / down keys.
+ * Add UI: a net_error indicator that is displayed next to values that are from 
+           cache; a net_error dialog that shows a more detailed error message.
+ * BugFix: display / retain cached values when update results in network error.
+ * BugFix: polling interval reads correctly from config (units are mins not ms).
+ * BugFix: engine updates are recognized immediately and not after next update.
+ * Engine: now requires plasma-dataengine-wateriv-0.2.1 (engine update bugfix).
+
+ ----------------------------------
+ 0.2.0 : plasma-applet-waterwatcher
+
+ * Add UI: a "configuration" tab that allows changing the data source and
+           viewing errors when the engine rejects a data source.
+ * Add UI: a "recent value" tab that displays additional information and
+           allows switching between data series with the mouse or arrow keys.
+ * Add UI: a tabbed dialog that is toggled on single click on the plasmoid.
+ * Mod UI: switching between data series now done with long click on plasmoid. 
+ * Mod UI: improved error reporting; major refactoring of UI into components.
+ * BugFix: displays all values in a series instead of only first set.
+ * Engine: now requires plasma-dataengine-wateriv-0.2.0 (engine data bugfix).
+   
+ ----------------------------------
+ 0.1.0 : plasma-applet-waterwatcher
+
+ * Basic configuration provided by plasmoid settings dialog.
+ * UI allows switching between returned values with single click.
+ * Initial release: a basic plasmoid that displays the most recent value.
