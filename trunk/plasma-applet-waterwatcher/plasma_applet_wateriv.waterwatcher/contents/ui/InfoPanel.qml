@@ -22,23 +22,42 @@ Column
 {
     id: panel; 
     spacing: 5; anchors.bottomMargin: 5;
-
+    
     property string title: i18n(main.app_name);
     property string content: i18n("<br/><br/>");
 
-    TextEdit
+    Row
     {
-        id: txtTitle; text: title; 
-        font.bold: true; color: theme.viewTextColor;
-        readOnly: true; selectByMouse: true;
-        anchors.left: parent.left; anchors.leftMargin: 5; anchors.rightMargin: 10;
+        id: headerRow; spacing: 0; anchors.left: parent.left;
+
+        Rectangle { width: 5; height: 5; color: "transparent"; }
+
+        TextEdit
+        {
+            id: txtTitle; text: title; 
+            font.bold: true; color: theme.viewTextColor;
+            readOnly: true; selectByMouse: true;
+            anchors.verticalCenter: parent.verticalCenter;
+        }
+
+        Rectangle { width: 5; height: 5; color: "transparent"; }
     }
 
-    TextEdit
+    Row
     {
-        id: txtContent; text: content; 
-        font.bold: false; color: theme.textColor;
-        readOnly: true; selectByMouse: true;
-        anchors.left: parent.left; anchors.leftMargin: 5; anchors.rightMargin: 10;
+        id: contentRow; spacing: 0; anchors.left: parent.left;
+
+        Rectangle { width: 5; height: 5; color: "transparent"; }
+
+        TextEdit
+        {
+            id: txtContent; text: content; 
+            font.bold: false; color: theme.textColor;
+            readOnly: true; selectByMouse: true;
+            anchors.verticalCenter: parent.verticalCenter;
+        }
+
+        Rectangle { width: 5; height: 5; color: "transparent"; }
+
     }
 }

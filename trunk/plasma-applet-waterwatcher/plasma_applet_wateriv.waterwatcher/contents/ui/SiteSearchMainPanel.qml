@@ -23,39 +23,29 @@ import "plasmapackage:/code/listsort.js" as ListSort
 Column
 {
     id: searchpanel; spacing: 5;
+    anchors.verticalCenter: parent.center;
+    height: welcomeLabel.paintedHeight + anchors.bottomMargin + 
+            querypanel.paintedHeight + s1.paintedHeight + s2.paintedHeight + 
+            resultspanel.paintedHeight + filterpanel.paintedHeight + 32;
 
     property bool hasSiteEngine: false;
+    property bool collapsed: true;
+    property variant filterPanel: filterpanel;
 
     signal selected(string site);
-
-    anchors.verticalCenter: parent.center;
-    height: welcomeLabel.paintedHeight + anchors.bottomMargin + querypanel.paintedHeight + s1.paintedHeight + s2.paintedHeight + resultspanel.paintedHeight + filterpanel.paintedHeight + 32;
-
-    Keys.onDownPressed: { resultspanel.list.currentIndex += (resultspanel.list.currentIndex >= resultspanel.list.count-1) ? 0 : 1; }
-    Keys.onUpPressed: { resultspanel.list.currentIndex -= (resultspanel.list.currentIndex <= 0) ? 0 : 1; }
-    Keys.onReturnPressed: { searchpanel.selected(resultspanel.model.get(resultspanel.list.currentIndex).code); }
+    signal selectedAnd(string site);
 
     states: [
         State
         {
-            name: "AVAILABLE";
-            when: searchpanel.hasSiteEngine;
+            name: "AVAILABLE"; when: searchpanel.hasSiteEngine;
             PropertyChanges { target: welcomeLabel; text: i18n("<b>Search for Sites</b>"); }
-            PropertyChanges { target: querypanel; visible: true; }
-            PropertyChanges { target: filterpanel; visible: true; }
-            PropertyChanges { target: s2; visible: true; }
-            PropertyChanges { target: resultspanel; visible: true; }
         },
         State
         {
-            name: "UNAVAILABLE";
-            when: !searchpanel.hasSiteEngine;
+            name: "UNAVAILABLE"; when: !searchpanel.hasSiteEngine;
             PropertyChanges { target: welcomeLabel; text: i18n("<b>Search for Sites</b> <i>(unavailable)</i><br/>Searching for sites requires <i>plasma-dataengine-watersites</i>."); }
-            PropertyChanges { target: querypanel; visible: false; }
-            PropertyChanges { target: filterpanel; visible: false; }
-            PropertyChanges { target: s2; visible: false; }
-            PropertyChanges { target: resultspanel; visible: false; }
-            PropertyChanges { target: resultspanel; visible: false; }
+            PropertyChanges { target: searchpanel; collapsed: true; }
         }
     ]
 
@@ -65,6 +55,10 @@ Column
         onDataChanged: { searchpanel.displayResults(); }
         Component.onCompleted: { searchpanel.hasSiteEngine = siteengine.valid; }
     }
+   
+    Keys.onDownPressed: { resultspanel.list.currentIndex += (resultspanel.list.currentIndex >= resultspanel.list.count-1) ? 0 : 1; }
+    Keys.onUpPressed: { resultspanel.list.currentIndex -= (resultspanel.list.currentIndex <= 0) ? 0 : 1; }
+    Keys.onReturnPressed: { searchpanel.selected(resultspanel.model.get(resultspanel.list.currentIndex).code); }
 
     Rectangle { id: s1; width: parent.width; height: 2; color: "transparent"; }
 
@@ -75,14 +69,14 @@ Column
         {
             image: configSvg; element: "add"; width: 16; height: 16;
             anchors.verticalCenter: parent.center;
-            visible: !querypanel.visible;
+            visible: collapsed;
             onAction: { toggleSearchUI(); }
         }
         ImgButton
         {
             image: configSvg; element: "remove"; width: 16; height: 16;
             anchors.verticalCenter: parent.center;
-            visible: querypanel.visible;
+            visible: !collapsed;
             onAction: { toggleSearchUI(); }
         }
         Text
@@ -96,21 +90,29 @@ Column
     {
         id: filterpanel;
         onFiltersChanged: { querypanel.setQuery(filterpanel.filters); }
+        visible: !collapsed && hasSiteEngine;
     }
 
-    Rectangle { id: s2; width: parent.width; height: 2; color: "transparent"; }
+    Rectangle 
+    { 
+        id: s2; width: parent.width; height: 2; color: "transparent"; 
+        visible: !collapsed && hasSiteEngine;
+    }
 
     SiteSearchQueryPanel
     {
         id: querypanel;
         onPerformSearch: { searchpanel.performSearch(); }
+        visible: !collapsed && hasSiteEngine;
     }
 
     SiteSearchResultsPanel
     {
         id: resultspanel;
-        onSelected: { searchpanel.selected(code); }
+        onDoubleClicked: { searchpanel.selected(code); }
+        onPressAndHold: { searchpanel.selectedAnd(code); }
         onClicked: { searchpanel.focus = true; }
+        visible: !collapsed && hasSiteEngine;
     }
 
     //
@@ -178,14 +180,10 @@ Column
         resultspanel.list.currentIndex = 0;
     }
 
-    /**
-    */
     function toggleSearchUI()
     {
-        s2.visible  = s2.visible;
-        querypanel.visible = !querypanel.visible;
-        filterpanel.visible = !filterpanel.visible;
-        resultspanel.visible = !resultspanel.visible;
+        searchpanel.collapsed = !searchpanel.collapsed;
+        plasmoid.writeConfig("searchpanel_collapsed", searchpanel.collapsed);
     }
 
 }

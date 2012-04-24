@@ -27,8 +27,8 @@ Column
     property variant list: siteList;
 
     signal clicked();
-    signal doubleClicked;
-    signal selected(string code);
+    signal doubleClicked(string code);
+    signal pressAndHold(string code);
 
     Rectangle
     {
@@ -103,7 +103,8 @@ Column
                 { 
                     anchors.fill: parent; 
                     onClicked: { siteList.currentIndex = index; resultspanel.clicked(); }
-                    onDoubleClicked: { resultspanel.selected(txtCode.text); resultspanel.doubleClicked(); } 
+                    onDoubleClicked: { siteList.currentIndex = index; resultspanel.doubleClicked(txtCode.text); } 
+                    onPressAndHold: { siteList.currentIndex = index; resultspanel.pressAndHold(txtCode.text); }
                 }
             }
         }

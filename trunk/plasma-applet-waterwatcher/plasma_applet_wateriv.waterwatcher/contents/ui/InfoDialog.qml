@@ -62,6 +62,7 @@ Column
         panelConfig.visible = false;
         panelRecent.visible = false;
         panelCurrent.visible = true;
+        infodialog.focus = true;
     }
 
     state: "RECENT";
@@ -139,7 +140,7 @@ Column
         width: infodialog.width; height: 3;
     }
 
-    SitesPanel
+    ConfigPanel
     {
         id: configpanel;
         visible: false;
@@ -151,7 +152,7 @@ Column
         }
     }
 
-    InfoPanel
+    RecentPanel
     {
         id: recentpanel;
         visible: false;

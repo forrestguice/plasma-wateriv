@@ -31,6 +31,25 @@ Column
     property variant currentDialog: -1;
     property variant currentTarget: -1;
 
+    Timer
+    {
+        id: stateListTimer; interval: 500; running: false; repeat: false;
+        onTriggered:
+        {
+            stateSelector.list.currentIndex = plasmoid.readConfig("stateindex", 0);
+            stateSelector.selectedIndex = stateSelector.list.currentIndex;
+        }
+    }
+    Timer
+    {
+        id: typeListTimer; interval: 500; running: false; repeat: false;
+        onTriggered:
+        {
+            majorTypeSelector.list.currentIndex = plasmoid.readConfig("typeindex", 0);
+            majorTypeSelector.selectedIndex = majorTypeSelector.list.currentIndex;
+        }
+    }
+
     Row
     {
         id: filterRow1;
@@ -111,15 +130,6 @@ Column
         property string selectedNumeric: "";
         property string selectedAlpha: "";
         property string selectedLabel: "";
-    }
-    Timer
-    {
-        id: stateListTimer; interval: 500; running: false; repeat: false;
-        onTriggered:
-        {
-            stateSelector.list.currentIndex = plasmoid.readConfig("stateindex", -1);
-            stateSelector.selectedIndex = stateSelector.list.currentIndex;
-        }
     }
     Item 
     {
@@ -260,6 +270,7 @@ Column
                     majorTypeSource.selectedCode = obj.code;
                     minorTypeSource.filter =  (obj.code == "All") ? "none" : obj.code;
                     minorTypeSource.connectedSources = ["sitetypecodes?" + minorTypeSource.filter];
+                    plasmoid.writeConfig("typeindex", majorTypeSelector.selectedIndex);
                 } else { majorTypeSelector.list.currentIndex = 0; }
             }
             onAction: { majorTypeSelector.selectedIndex = majorTypeSelector.list.currentIndex; filterpanel.hideDialog(dialogSelectMajorType, majorTypeFilter); }
@@ -374,7 +385,6 @@ Column
 
     function updateAgencyDisplay()
     {
-        console.log("agency display called");
         agencySelector.model.clear();
         var results = agencySource.data["agencycodes?" + agencySource.filter];
         if (typeof results === "undefined") return;
@@ -429,8 +439,7 @@ Column
             }
         }
         majorTypeSelector.model.insert(0, {"name":"All Major Site Types", "code":"All"});
-        majorTypeSelector.list.currentIndex = 0;
-        majorTypeSelector.selectedIndex = 0;
+        typeListTimer.start();
     }
 
     function updateMinorTypeDisplay()

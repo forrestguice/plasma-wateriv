@@ -23,6 +23,7 @@ Column
     id: panel; 
     spacing: 5; anchors.bottomMargin: 5;
 
+    property variant searchPanel: siteSearch;  // search panel
     property variant field: inputDataSource;   // input field
     property variant error: errorField;        // error field
     property int recent_sources_top: -1;       // recent sources top
@@ -47,16 +48,15 @@ Column
 
     Row
     {
-        spacing: 5; 
-        anchors.left: parent.left;
+        spacing: 0; anchors.left: parent.left;
+        Rectangle { width: 5; height: 5; color: "transparent"; }
         Text
         {
-            id: label;
-            text: "Data Source:";
+            id: label; text: "Data Source:";
             anchors.leftMargin: 5;
             anchors.verticalCenter: parent.verticalCenter;
         }
-
+        Rectangle { width: 5; height: 5; color: "transparent"; }
         TextField
         {
             id: inputDataSource;
@@ -66,6 +66,7 @@ Column
             Keys.onDownPressed: { nextRecentSource(); }
             Keys.onUpPressed: { prevRecentSource(); }
         }
+        Rectangle { width: 5; height: 5; color: "transparent"; }
     }
 
     TextField
@@ -76,10 +77,16 @@ Column
         width: 315;
     }
 
-    SiteSearchMainPanel
+    Row
     {
-        id: siteSearch;
-        onSelected: { field.input.text = site; field.input.focus = true; }
+        Rectangle { width: 5; height: 5; color: "transparent"; }
+        SiteSearchMainPanel
+        {
+            id: siteSearch;
+            onSelected: { field.input.text = site; field.input.focus = true; }
+            onSelectedAnd: { field.input.text = (field.input.text + "," + site).replace(" ",""); field.input.focus = true; }
+        }
+        Rectangle { width: 5; height: 5; color: "transparent"; }
     }
 
     /**
@@ -88,8 +95,9 @@ Column
     */
     function setDataSource()
     {
-        addToRecentSources(field.input.text);
-        plasmoid.writeConfig("datasource", field.input.text); 
+        var src = field.input.text.replace(" ","");
+        addToRecentSources(src);
+        plasmoid.writeConfig("datasource", src); 
         panel.state = "NORMAL";
         panel.dataSourceChanged();
     }
