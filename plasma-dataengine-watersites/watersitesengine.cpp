@@ -95,7 +95,7 @@ const QString WaterSitesEngine::PREFIX_SITETYPE = "sitetypecode_";
                                   code       : QString  
 
       site_count          : int
-      site_#_<code>       : QHash<QString, QVariant>
+      site_<code>         : QHash<QString, QVariant>
                             keys: code      : QString
                                   name      : QString
                                   agency    : QString
