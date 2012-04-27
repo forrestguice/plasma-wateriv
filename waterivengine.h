@@ -50,6 +50,8 @@ class WaterIVEngine : public Plasma::DataEngine
         static const QString PREFIX_SERIES;
         static const QString PREFIX_TOC;
 
+        static const int MAX_VALUES = 3;  // max accumulated values (1wk@15min)
+
         WaterIVEngine(QObject* parent, const QVariantList& args);
         void setEngineData( QString source, QString key, QVariant value );
 

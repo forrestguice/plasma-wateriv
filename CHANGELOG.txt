@@ -1,6 +1,14 @@
 WaterIV Data Engine ChangeLog
 
  ----------------------------------
+ 0.3.1 : plasma-dataengine-wateriv
+
+ //* fixed (issue#15): recent_date and recent_value are actually most recent!
+ * Added behavior: when updating previous values are preserved and new values 
+   accumulated up to MAX_VALUES; requests larger than MAX_VALUES are honored.
+ * Added constant: MAX_VALUES = 672 (1 week of values at 15min).
+
+ ----------------------------------
  0.3.0 : plasma-dataengine-wateriv
  
  * fixed (issue#14): recent_qualifiers now QList<QVariant>
