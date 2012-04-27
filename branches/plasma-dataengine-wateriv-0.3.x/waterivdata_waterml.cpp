@@ -17,6 +17,7 @@
 */
 
 #include "waterivdata_waterml.h"
+#include <Plasma/DataContainer>
 
 const QString WaterIVDataWaterML::FORMAT = "waterml,1.0";
 
@@ -245,15 +246,32 @@ QString WaterIVDataWaterML::extractSeriesVariable( WaterIVEngine *engine, const 
 */
 void WaterIVDataWaterML::extractSeriesValues( WaterIVEngine *engine, const QString &request, QString &prefix, int &count, QDomElement *timeSeries )
 {
+    Plasma::DataContainer *container = engine->containerForSource(request);
+
     QDomNodeList valuesets = timeSeries->elementsByTagName("ns1:values");
     int num_sets = valuesets.length();
-
     for (int j=0; j<num_sets; j++)
     {
         QDomElement values = valuesets.at(j).toElement();
-
-        QMap<QString, QVariant> qualifiersMap;  // get qualifiers
         QDomNodeList qualifiers = values.elementsByTagName("ns1:qualifier");
+        QDomNodeList valueList = values.elementsByTagName("ns1:value");
+        QDomElement method = values.elementsByTagName("ns1:method").at(0).toElement();
+        QDomElement method_desc = method.elementsByTagName("ns1:methodDescription").at(0).toElement();
+
+        // set key naming prefix p
+        QString p = prefix + method.attribute("methodID", "-1") + "_";
+
+        // check for pre-existing values
+        QMap<QString, QVariant> valuesMap;    
+        QMap<QString, QVariant> qualifiersMap;  
+        if (container != 0  && container->data().contains(p + "all"))
+        {
+            qDebug() << "preserving pre-existing values";
+            valuesMap = container->data().value(p + "all").toMap();
+            qualifiersMap = container->data().value(p + "qualifiers").toMap();
+        }
+
+        // get qualifiers
         int num_qualifiers = qualifiers.length();
         for (int i=0; i<num_qualifiers; i++)
         {
@@ -266,37 +284,43 @@ void WaterIVDataWaterML::extractSeriesValues( WaterIVEngine *engine, const QStri
             list.append(qualifier_desc.text());
             list.append(qualifier.attribute("ns1:network", "-1"));
             list.append(qualifier.attribute("ns1:vocabulary", "-1"));
-
-            qualifiersMap[qualifier_code.text()] = list;
+            qualifiersMap.insert(qualifier_code.text(), list);
         }
-    
-        // get collection method
-        QDomElement method = values.elementsByTagName("ns1:method").at(0).toElement();
-        QDomElement method_desc = method.elementsByTagName("ns1:methodDescription").at(0).toElement();
 
-        QMap<QString, QVariant> valuesMap;    // get list of values
-        QDomNodeList valueList = values.elementsByTagName("ns1:value");
+        // check current size of list of values
         int num_values = valueList.length();
+        if ((valuesMap.size() > 0) && ((valuesMap.size() + num_values) > WaterIVEngine::MAX_VALUES))
+        {
+            int num_delete = valuesMap.size() + num_values - WaterIVEngine::MAX_VALUES;
+            QList<QString> k = valuesMap.keys();
+            for (int i=0; i<num_delete; i++)
+            {   // max values reached; remove most ancient
+                if (i < k.size())
+                {
+                    qDebug() << "removing item to make room " << k.at(i);
+                    valuesMap.remove(k.at(i));
+                }
+            }
+        }
+
+        // get list of values
         for (int i=0; i<num_values; i++)
         {
             QDomElement value = valueList.at(i).toElement();
-            QList<QVariant> list;
-            list.insert(0, value.text());
-            list.append(value.attribute("qualifiers", ""));
             QString dateTime = value.attribute("dateTime", "-1");
-            if (dateTime != "-1")
-            {
-                valuesMap[dateTime] = list;
-            }
+            QList<QVariant> list;
+            list << value.text();
+            list << value.attribute("qualifiers", "");
+            valuesMap.insert(dateTime, list);
         }
        
-        QString p = prefix + method.attribute("methodID", "-1") + "_";
         engine->setEngineData(request, I18N_NOOP(p + "id"), method.attribute("methodID", "-1").toInt());
         engine->setEngineData(request, I18N_NOOP(p + "description"), method_desc.text());
         engine->setEngineData(request, I18N_NOOP(p + "all"), valuesMap);
         engine->setEngineData(request, I18N_NOOP(p + "qualifiers"), qualifiersMap);
 
-        int c = 0;                  // gather recent values and dates
+        // gather recent values and dates
+        int c = 0;               
         double recentValues[2];
         QMapIterator<QString, QVariant> i(valuesMap);
         while (i.hasNext() && c < 2)
