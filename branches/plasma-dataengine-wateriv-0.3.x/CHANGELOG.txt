@@ -1,12 +1,15 @@
-WaterIV Data Engine ChangeLog
+WaterIV Data Engine CHANGELOG
 
  ----------------------------------
  0.3.1 : plasma-dataengine-wateriv
 
- //* fixed (issue#15): recent_date and recent_value are actually most recent!
+ * Changed behavior: datestrings in _all are now converted to TextDate to avoid
+   javascript problems with ISO8601.
  * Added behavior: when updating previous values are preserved and new values 
    accumulated up to MAX_VALUES; requests larger than MAX_VALUES are honored.
  * Added constant: MAX_VALUES = 672 (1 week of values at 15min).
+ * fixed (issue#15): recent_date and recent_value are actually most recent!
+ * incremented VERSION_ID = 4; previous versions afflicted with issue#15.
 
  ----------------------------------
  0.3.0 : plasma-dataengine-wateriv

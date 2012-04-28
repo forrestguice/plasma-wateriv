@@ -261,7 +261,7 @@ void WaterIVDataWaterML::extractSeriesValues( WaterIVEngine *engine, const QStri
         // set key naming prefix p
         QString p = prefix + method.attribute("methodID", "-1") + "_";
 
-        // check for pre-existing values
+        // check for and preserve pre-existing values
         QMap<QString, QVariant> valuesMap;    
         QMap<QString, QVariant> qualifiersMap;  
         if (container != 0  && container->data().contains(p + "all"))
@@ -287,7 +287,7 @@ void WaterIVDataWaterML::extractSeriesValues( WaterIVEngine *engine, const QStri
             qualifiersMap.insert(qualifier_code.text(), list);
         }
 
-        // check current size of list of values
+        // check current size of values list
         int num_values = valueList.length();
         if ((valuesMap.size() > 0) && ((valuesMap.size() + num_values) > WaterIVEngine::MAX_VALUES))
         {
@@ -308,28 +308,27 @@ void WaterIVDataWaterML::extractSeriesValues( WaterIVEngine *engine, const QStri
         {
             QDomElement value = valueList.at(i).toElement();
             QString dateTime = value.attribute("dateTime", "-1");
+            QDateTime date = QDateTime::fromString(dateTime, Qt::ISODate);
             QList<QVariant> list;
             list << value.text();
             list << value.attribute("qualifiers", "");
-            valuesMap.insert(dateTime, list);
+            valuesMap.insert(date.toString(Qt::TextDate), list);
         }
        
-        engine->setEngineData(request, I18N_NOOP(p + "id"), method.attribute("methodID", "-1").toInt());
-        engine->setEngineData(request, I18N_NOOP(p + "description"), method_desc.text());
-        engine->setEngineData(request, I18N_NOOP(p + "all"), valuesMap);
-        engine->setEngineData(request, I18N_NOOP(p + "qualifiers"), qualifiersMap);
-
-        // gather recent values and dates
-        int c = 0;               
-        double recentValues[2];
-        QMapIterator<QString, QVariant> i(valuesMap);
-        while (i.hasNext() && c < 2)
+        // gather recent values
+        int c = 0;
+        int n = 2;
+        double recentValues[n];
+        QList<QString> keys = valuesMap.keys();
+        int num_keys = keys.size();
+        for (int i=num_keys-1; i>=0; i--)
         {
-            i.next();
+            if (c >= n) break;
 
-            QVariant date = QDateTime::fromString(i.key(), Qt::ISODate);
-            QList<QVariant> recentValue = i.value().toList();
-            recentValues[c] = recentValue.at(0).toDouble();
+            QString key = keys.at(i);
+            QVariant date = QDateTime::fromString(key, Qt::ISODate);
+            QList<QVariant> value = valuesMap[key].toList();
+            recentValues[c] = value.at(0).toDouble();
 
             if (c == 0)             // set most recent value
             {
@@ -337,7 +336,7 @@ void WaterIVDataWaterML::extractSeriesValues( WaterIVEngine *engine, const QStri
                 engine->setEngineData(request, I18N_NOOP(p + "recent_date"), date);
 
                 QList<QVariant> recentQualifiers;
-                QStringList rQualifiers = recentValue.at(1).toString().split(" ");
+                QStringList rQualifiers = value.at(1).toString().split(" ");
                 foreach( QString q, rQualifiers )
                 {
                     recentQualifiers << q;
@@ -347,18 +346,25 @@ void WaterIVDataWaterML::extractSeriesValues( WaterIVEngine *engine, const QStri
             c++;
         }
 
+        // calculate recent change
         double vi = (c > 0) ? recentValues[c-1] : 1;
         double vf = (c > 0) ? recentValues[0] : 1;
         double recentChange = 100 * (vf - vi) / vi;
-        engine->setEngineData(request, I18N_NOOP(p + "recent_change"), recentChange);
 
-        // write table of contents entry
+        // create table of contents entry
         QStringList components = prefix.split("_");
         QMap<QString, QVariant> tocEntry = QMap<QString, QVariant>();
         tocEntry.insert("site", components.at(1));
         tocEntry.insert("variable", components.at(2));
         tocEntry.insert("statistic", components.at(3));
         tocEntry.insert("method", method.attribute("methodID", "-1"));
+
+        // set engine data
+        engine->setEngineData(request, I18N_NOOP(p + "id"), method.attribute("methodID", "-1").toInt());
+        engine->setEngineData(request, I18N_NOOP(p + "description"), method_desc.text());
+        engine->setEngineData(request, I18N_NOOP(p + "all"), valuesMap);
+        engine->setEngineData(request, I18N_NOOP(p + "qualifiers"), qualifiersMap);
+        engine->setEngineData(request, I18N_NOOP(p + "recent_change"), recentChange);
 	engine->setEngineData(request, I18N_NOOP(WaterIVEngine::PREFIX_TOC + QString::number(count)), tocEntry);
         count++;
     }
