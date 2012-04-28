@@ -1,5 +1,11 @@
-Water Watcher Plasmoid ChangeLog
+Water Watcher Plasmoid CHANGELOG
 
+ ----------------------------------
+ 0.3.1 : plasma-applet-waterwatcher
+
+ * Add UI: the "recent value" tab now displays up to the last four values.
+ * Engine: now requires plasma-dataengine-wateriv-0.3.1 (engine bugfix).
+ 
  ----------------------------------
  0.3.0 : plasma-applet-waterwatcher
 

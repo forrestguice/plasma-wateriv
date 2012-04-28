@@ -46,6 +46,16 @@
          <default>white</default>
       </entry>
 
+      <entry name="fontscalevalue" type="double">
+         <label>Scale the text displaying the value by this factor.</label>
+         <default>1.0</default>
+      </entry>
+
+      <entry name="fontscaledate" type="double">
+         <label>Scale the text displaying the date by this factor.</label>
+         <default>1.0</default>
+      </entry>
+
       <entry name="infoshowdate" type="bool">
          <label>Show the date of the most recent reading.</label>
          <default>true</default>
