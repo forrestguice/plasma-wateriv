@@ -407,6 +407,7 @@ Item
         var var_value = results[prefix_method + "recent_value"];
         var var_method_id = results[prefix_method + "id"];
         var var_method_desc = results[prefix_method + "description"];
+        var var_all = results[prefix_method + "all"];
 
         var qualifiers = results[prefix_method + "qualifiers"];
         var qualifier_codes = results[prefix_method + "recent_qualifier"];
@@ -432,12 +433,11 @@ Item
         mainWidget.displayDate = "" + var_date;
 
         // refresh info dialog
-        //infodialog.panelRecent.title = site_name + " (" + site_code + ")";
+        var value_table = main.createValueTable(var_all, var_units);
         infodialog.panelRecent.title = site_name;
-        infodialog.panelRecent.content = "" + var_name + " (" + var_code + ")<br/>"
-                                + var_method_desc + " (method " + var_method_id + ")<br/><br/>" 
-                                + "<b>" + var_value + " " + var_units + "</b><br/>"
-                                + var_date + "<br/>" + qualifier_desc;
+        infodialog.panelRecent.content = var_name + " (" + var_code + ")<br/>"
+                                + var_method_desc + " (method " + var_method_id + ")<br/>" 
+                                + value_table + "<br/>" + qualifier_desc;
         infodialog.navText = main.determineNavText();
         infodialog.panelRecent.siteContent = "<table>" + 
                                              "<tr><td><b>ID:</b>&nbsp;&nbsp;" + site_code + "</td>" +
@@ -447,10 +447,36 @@ Item
                                              "<tr><td><b>State Code:</b>&nbsp;&nbsp;" + site_stateCd + "</td><td>&nbsp;&nbsp;&nbsp;</td>" + 
                                                  "<td><b>County Code:</b>&nbsp;&nbsp;" + site_countyCd + "</td></tr>" +
                                              "<tr><td><b>HUC Code:</b>&nbsp;&nbsp;" + site_hucCd + "</td><td>&nbsp;&nbsp;&nbsp;</td>" + 
-                                                 "<td></td></tr>" +
-                                             "</table>";
-
+                                                 "<td></td></tr></table>";
         plasmoid.busy = false;
+    }
+
+    /**
+        createValueTable() : function
+        Create a <table> of values.
+    */
+    function createValueTable( values, var_units )
+    {
+        var keys = [];
+        for (var key in values)
+        {
+            if (values.hasOwnProperty(key)) keys.push(key);
+        }
+        keys.sort();
+
+        var c = 0;
+        var table = "<table>";
+        for (var i = keys.length - 1; i >= 0; i--)
+        {
+            if (c >= 4) break;
+            var k = keys[i];
+            var d = new Date(k);
+            var v = values[k];
+            table += "<tr><td width='50'><b>" + v[0] + " " + var_units + "</b></td><td>" + Qt.formatDateTime(d) + "</td></tr>";
+            c++;
+        }
+        table += "</table>";
+        return table;
     }
 
     /** 
@@ -518,6 +544,9 @@ Item
     */
     function updateFonts()
     {
+        mainWidget.fontScaleValue = plasmoid.readConfig("fontscalevalue");
+        mainWidget.fontScaleDate = plasmoid.readConfig("fontscaledate");
+
         mainWidget.fontStyle = plasmoid.readConfig("fontstyle");    // style
         mainWidget.fontItalic = plasmoid.readConfig("fontitalic");  // italic
         mainWidget.fontBold = plasmoid.readConfig("fontbold");      // bold

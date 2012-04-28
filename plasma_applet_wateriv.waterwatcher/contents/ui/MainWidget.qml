@@ -25,23 +25,24 @@ Column
     anchors.horizontalCenter: parent.horizontalCenter;
     anchors.verticalCenter: parent.verticalCenter;
 
+    property int displaySeries: 0;
+    property string displayDate: "";
+    property string displayValue: "";
+    property string displayUnits: "";
+
     property string fontStyle;
     property bool fontBold: false;
     property bool fontItalic: false;
     property color fontColor: "black";
     property color fontShadow: "white";
+    property double fontScaleValue: 1.0;
+    property double fontScaleDate: 1.0;
 
     property bool showUnits: true;
     property bool showDate: true;
     property bool showShadow: true;
-    property bool showCustomColor: false;
     property bool showCustomShadow: false;
-
-    property int displaySeries: 0;
-    //property int displaySubSeries: 0;
-    property string displayDate: "";
-    property string displayValue: "";
-    property string displayUnits: "";
+    property bool showCustomColor: false;
 
     onShowUnitsChanged: { var tmp = displayValue; displayValue = ""; displayValue = tmp; }
 
@@ -82,11 +83,12 @@ Column
 
     Text
     {
-        id: display_value; //text: ""; 
+        id: display_value;
+        anchors.horizontalCenter: parent.horizontalCenter;
+
         style: Text.Raised; color: fontColor; styleColor: fontShadow;
         font.italic: fontItalic; font.bold: fontBold; font.family: fontStyle;
-        font.pixelSize: (current_size * main.width) / 200; 
-        anchors.horizontalCenter: parent.horizontalCenter;
+        font.pixelSize: (fontScaleValue * current_size * main.width) / 200; 
 
         property int default_size: 38;
         property int current_size: 38;
@@ -124,14 +126,12 @@ Column
 
     Text
     {
-        id: display_date;
-        visible: showDate;
-
-        text: ""; style: Text.Raised;
-        font.bold: false; font.family: fontStyle;
-        font.pixelSize: (current_size * main.width) / 200;
-        color: fontColor; styleColor: fontShadow;
+        id: display_date; visible: showDate;
         anchors.horizontalCenter: parent.horizontalCenter;
+
+        text: ""; style: Text.Raised; font.bold: false; font.family: fontStyle;
+        color: fontColor; styleColor: fontShadow;
+        font.pixelSize: (fontScaleDate * current_size * main.width) / 200;
 
         property int default_size: 24;
         property int current_size: 24;
