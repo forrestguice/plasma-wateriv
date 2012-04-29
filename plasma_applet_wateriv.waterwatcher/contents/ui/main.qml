@@ -25,14 +25,16 @@ import org.kde.qtextracomponents 0.1 as QtExtraComponents
 */
 Item
 {
+    property string app_name: "Water Watcher";
+    property int minEngineVersion: 4;
+    property string minEngineName: "wateriv >= 0.3.1";
+
     id: main; 
+  
     width: 200; height: 100;
     property int minimumWidth: 50; 
     property int minimumHeight: 25;
 
-    property string app_name: "Water Watcher";
-    property string minEngineName: "wateriv >= 0.3.0";
-    property int minEngineVersion: 3;
     property variant currentDialog: -1;
 
     property string dataRequest: "-1";
@@ -50,7 +52,6 @@ Item
         property bool virgin: true;             // hack: has yet to connect flag
         interval: pollingInterval * 60000;
         onDataChanged: { refreshDisplay(); }
-        //onIntervalChanged: { console.log("engine: interval set: " + interval); }
         Component.onCompleted: { loadtimer.start(); }
 
         function makeConnection()
@@ -289,7 +290,7 @@ Item
         var engineVersion = results["engine_version"];
         if (typeof engineVersion === "undefined" || engineVersion < minEngineVersion)
         {
-            console.log(i18n("Water Watcher: requires version_id 2, found version_id ") + engineVersion);
+            console.log(i18n("Water Watcher: requires " + minEngineVersion + ", found ") + engineVersion);
             errorMessage(i18n("Insufficient data engine:<br/>") + minEngineName + i18n(" required"));
             return false;             // error: insufficient data engine version
         }
@@ -453,9 +454,11 @@ Item
 
     /**
         createValueTable() : function
-        Create a <table> of values.
+        @param values a hash<datestring, [value, qualifier]> of values
+        @param units the units string to display
+        @return a "<table>" of values suitable for display with html.
     */
-    function createValueTable( values, var_units )
+    function createValueTable( values, units )
     {
         var keys = [];
         for (var key in values)
@@ -472,7 +475,7 @@ Item
             var k = keys[i];
             var d = new Date(k);
             var v = values[k];
-            table += "<tr><td width='50'><b>" + v[0] + " " + var_units + "</b></td><td>" + Qt.formatDateTime(d) + "</td></tr>";
+            table += "<tr><td width='50'><b>" + v[0] + " " + units + "</b></td><td>" + Qt.formatDateTime(d) + "</td></tr>";
             c++;
         }
         table += "</table>";
