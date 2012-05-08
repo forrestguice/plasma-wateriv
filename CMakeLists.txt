@@ -29,6 +29,9 @@ install(TARGETS plasma_engine_wateriv
 install(FILES plasma-dataengine-wateriv.desktop
         DESTINATION ${SERVICES_INSTALL_DIR})
 
+#install(FILES wateriv.operations
+#        DESTINATION ${DATA_INSTALL_DIR}/plasma/services)
+
 #
 # CPack driven installer package
 #
