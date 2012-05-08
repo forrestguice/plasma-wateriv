@@ -18,7 +18,7 @@
        KDE 4.7+
        http://www.kde.org
 
-       WaterIV DataEngine v0.3.0 (plasma-dataengine-wateriv)
+       WaterIV DataEngine v0.3.1 (plasma-dataengine-wateriv)
        http://code.google.com/p/plasma-wateriv/
 
        WaterSites DataEngine v0.1.0 (plasma-dataengine-watersites) (optional)
