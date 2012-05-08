@@ -46,16 +46,6 @@
          <default>white</default>
       </entry>
 
-      <entry name="fontscalevalue" type="double">
-         <label>Scale the text displaying the value by this factor.</label>
-         <default>1.0</default>
-      </entry>
-
-      <entry name="fontscaledate" type="double">
-         <label>Scale the text displaying the date by this factor.</label>
-         <default>1.0</default>
-      </entry>
-
       <entry name="infoshowdate" type="bool">
          <label>Show the date of the most recent reading.</label>
          <default>true</default>
@@ -74,7 +64,7 @@
       </entry>
 
       <entry name="datapolling" type="int">
-         <label>The update interval (in minutes). The minimum interval is 15minutes. Please consider using a larger interval such as an hour. Most data sources take readings every 15 minutes but updates from the web service occur no more than once an hour.</label>
+         <label>The update interval (in minutes). The minimum interval is 15 minutes. Please consider using a larger interval such as an hour. Most data sources take readings every 15 minutes but updates from the web service occur no more than once an hour.</label>
          <default>30</default>
        </entry>
    </group>

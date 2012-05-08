@@ -18,11 +18,11 @@
 
 import QtQuick 1.0
 import org.kde.plasma.core 0.1 as PlasmaCore
+import org.kde.qtextracomponents 0.1 as QtExtraComponents
 
 Rectangle
 {
-    id: field; 
-    radius: 5; smooth: true;
+    id: field; radius: 5; smooth: true; color: theme.backgroundColor;
     width: 100; height: (txt.desiredHeight > 25) ? txt.desiredHeight : 25;
 
     signal action;
@@ -33,9 +33,11 @@ Rectangle
     property string textPrevious: "";
     onTextInitialChanged: { txt.text = textInitial; }
 
-    property color textNormalColor: theme.textColor;
-    property color textErrorColor: theme.textColor;
-    property color backgroundNormalColor: theme.viewBackgroundColor;
+    property color textNormalColor: theme.buttonTextColor;
+    property color textReadonlyColor: "gray";
+    property color textErrorColor: "red";
+
+    property color backgroundNormalColor: theme.backgroundColor;
     property color backgroundModifiedColor: theme.buttonHoverColor;
     property color backgroundErrorColor: theme.buttonFocusColor;
     property color backgroundReadonlyColor: theme.buttonBackgroundColor;
@@ -48,7 +50,7 @@ Rectangle
         {
             name: "NORMAL";
             PropertyChanges { target: txt; readOnly: false; }
-            PropertyChanges { target: field; color: backgroundNormalColor; }
+            //PropertyChanges { target: field; color: backgroundNormalColor; }
             PropertyChanges { target: txt; color: textNormalColor; }
             PropertyChanges { target: btnAccept; visible: false; }
             PropertyChanges { target: btnCancel; visible: false; }
@@ -57,7 +59,7 @@ Rectangle
         {
             name: "MODIFIED";
             when: textInitial != txt.text && !field.readOnly;
-            PropertyChanges { target: field; color: backgroundModifiedColor; }
+            //PropertyChanges { target: field; color: backgroundModifiedColor; }
             PropertyChanges { target: txt; color: textNormalColor; }
             PropertyChanges { target: btnAccept; visible: true; }
             PropertyChanges { target: btnCancel; visible: true; }
@@ -65,7 +67,7 @@ Rectangle
         State
         {
             name: "ERROR";
-            PropertyChanges { target: field; color: backgroundErrorColor; }
+            //PropertyChanges { target: field; color: backgroundErrorColor; }
             PropertyChanges { target: txt; color: textErrorColor; }
             PropertyChanges { target: btnAccept; visible: false; }
             PropertyChanges { target: btnCancel; visible: false; }
@@ -73,12 +75,24 @@ Rectangle
         State
         {
             name: "READONLY";
-            PropertyChanges { target: field; color: backgroundReadonlyColor; }
+            //PropertyChanges { target: field; color: backgroundReadonlyColor; }
             PropertyChanges { target: txt; readOnly: true; }
+            PropertyChanges { target: txt; color: textReadonlyColor; }
             PropertyChanges { target: btnAccept; visible: false; }
             PropertyChanges { target: btnCancel; visible: false; }
         }
     ]
+
+    PlasmaCore.FrameSvgItem
+    {
+        id: frame; anchors.fill: parent; visible: true;
+        imagePath: "widgets/lineedit"; prefix: "base";
+    }
+    PlasmaCore.FrameSvgItem
+    {
+        id: focusFrame; anchors.fill: parent; visible: txt.focus;
+        imagePath: "widgets/lineedit"; prefix: "focus";
+    }
 
     TextInput
     {
@@ -89,13 +103,13 @@ Rectangle
         anchors.leftMargin: 5; anchors.rightMargin: 5;
         property int desiredHeight: txt.paintedHeight + txt.anchors.topMargin + txt.anchors.bottomMargin;
         property int desiredWidth: txt.paintedWidth + txt.anchors.leftMargin + txt.anchors.rightMargin; 
+
         Keys.onReturnPressed: { if (field.state == "MODIFIED") acceptChanges(); }
     }
 
     ImgButton
     {
-        id: btnAccept;
-        width: 16; height: 16;
+        id: btnAccept; width: 16; height: 16;
         image: configSvg; element: "add";
         anchors.verticalCenter: parent.verticalCenter;
         anchors.right: btnCancel.left; anchors.rightMargin: 4;
@@ -104,8 +118,7 @@ Rectangle
 
     ImgButton
     {
-        id: btnCancel;
-        width: 16; height: 16;
+        id: btnCancel; width: 16; height: 16;
         image: configSvg; element: "delete";
         anchors.verticalCenter: parent.verticalCenter;
         anchors.right: parent.right; anchors.rightMargin: 4;

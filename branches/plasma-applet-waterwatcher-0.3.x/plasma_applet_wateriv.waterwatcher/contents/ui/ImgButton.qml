@@ -60,6 +60,12 @@ Rectangle
         }
     ]
 
+    //PlasmaCore.FrameSvgItem
+    //{
+    //    id: frame; anchors.fill: parent; visible: true;
+    //    imagePath: "widgets/button"; prefix: "normal";
+    //}
+
     MouseArea
     {
         anchors.fill: parent; hoverEnabled: true;

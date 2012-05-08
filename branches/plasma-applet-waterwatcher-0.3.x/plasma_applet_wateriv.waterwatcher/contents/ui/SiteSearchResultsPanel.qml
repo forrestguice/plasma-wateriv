@@ -21,7 +21,7 @@ import org.kde.plasma.core 0.1 as PlasmaCore
 
 Column
 {
-    id: resultspanel; spacing: 5;
+    id: resultspanel; spacing: 4;
 
     property variant model: siteModel;
     property variant list: siteList;
@@ -30,18 +30,30 @@ Column
     signal doubleClicked(string code);
     signal pressAndHold(string code);
 
+    PlasmaCore.SvgItem
+    {
+        id: navSeparator; svg: lineSvg; elementId: "horizontal-line";
+        width: parent.width; height: 3;
+    }
+
     Rectangle
     {
-        id: siteListHeader; radius: 5; smooth: true; color: theme.viewHoverColor;
-        width: parent.width; height: headerCode.height + 8;
-        border { color: theme.buttonBackgroundColor; width: 4;}
+        id: siteListHeader; radius: 5; smooth: true; 
+        color: theme.buttonBackgroundColor;
+        width: parent.width; height: headerCode.height + 10;
+
+        PlasmaCore.FrameSvgItem
+        {
+            id: headerFrame; anchors.fill: parent;
+            imagePath: "widgets/frame"; prefix: "raised";
+        }
 
         Text
         {
             id: headerCode; text: i18n("<b>Code</b>");
-            width: 125; color: theme.buttonTextColor;
+            width: 120; color: theme.buttonTextColor;
             anchors.left: parent.left; anchors.verticalCenter: parent.verticalCenter;
-            anchors.leftMargin: 5; anchors.topMargin: 4; anchors.bottomMargin: 4;
+            anchors.leftMargin: 10;
         }
     
         Text
@@ -49,55 +61,65 @@ Column
             id: headerName; text: i18n("<b>Name</b>");
             anchors.left: headerCode.right; 
             width: 275; color: theme.buttonTextColor;
-            anchors.topMargin: 4; anchors.bottomMargin: 4; anchors.verticalCenter: parent.verticalCenter;
+            anchors.verticalCenter: parent.verticalCenter;
         }
 
         Text
         {
             id: headerCount; 
             text: (siteList.count == 0) ? "" : (siteList.count == 1 ? "1 result" : siteList.count + " results");
-            anchors.right: parent.right; anchors.rightMargin: 5; color: theme.buttonTextColor;
-            anchors.topMargin: 4; anchors.bottomMargin: 4; anchors.verticalCenter: parent.verticalCenter;
+            anchors.right: parent.right; anchors.rightMargin: 10; color: theme.buttonTextColor;
+            anchors.verticalCenter: parent.verticalCenter;
         }
     }
 
     Item
     {
-        width: 400; height: 150; 
+        width: 398; height: 150; 
+        anchors.leftMargin: 2; anchors.left: parent.left;
+
+        PlasmaCore.FrameSvgItem
+        {
+            id: frame; anchors.fill: parent;
+            imagePath: "widgets/frame"; prefix: "sunken";
+        }
+
         ListModel { id: siteModel; }
         ListView 
         {
             id: siteList; model: siteModel;
-            anchors.fill: parent;
+            width: 390; height: 135; 
+            anchors.verticalCenter: parent.verticalCenter; 
+            anchors.horizontalCenter: parent.horizontalCenter;
             delegate: siteDelegate;
             highlight: siteListHighlight;
         }
         Component
         {
             id: siteListHighlight;
-            Rectangle { color: "lightblue"; }
+            Rectangle { width: 390; radius: 5; smooth: true; color: theme.highlightColor; }
         }
         Component 
         {
             id: siteDelegate;
             Rectangle
             {
-                width: 400; height: txtCode.height + 8; color: "transparent";
+                width: 390; height: txtCode.height + 8; color: "transparent";
                 Text
                 {
                     id: txtCode; text: code;
-                    width: 125; anchors.leftMargin: 5; anchors.rightMargin: 5;
+                    width: 120; anchors.leftMargin: 5; anchors.rightMargin: 5;
                     anchors.topMargin: 4; anchors.bottomMargin: 4;
                     anchors.verticalCenter: parent.verticalCenter;
-                    anchors.left: parent.left; color: theme.buttonTextColor;
+                    anchors.left: parent.left; color: theme.textColor;
                 }
                 Text
                 {
-                    id: txtName; text: name;
-                    width: 275; anchors.rightMargin: 5;
+                    id: txtName; text: name; elide: Text.ElideRight;
+                    width: 265; anchors.rightMargin: 5;
                     anchors.topMargin: 4; anchors.bottomMargin: 4;
                     anchors.verticalCenter: parent.verticalCenter;
-                    anchors.left: txtCode.right; color: theme.buttonTextColor;
+                    anchors.left: txtCode.right; color: theme.textColor;
                 }
                 MouseArea 
                 { 
@@ -108,13 +130,6 @@ Column
                 }
             }
         }
-    }
-
-    Rectangle 
-    { 
-        id: siteListFooter; radius: 5; smooth: true; color: theme.viewHoverColor;
-        width: parent.width; height: 8; 
-        border { color: theme.buttonBackgroundColor; width: 2;}
     }
 
 }

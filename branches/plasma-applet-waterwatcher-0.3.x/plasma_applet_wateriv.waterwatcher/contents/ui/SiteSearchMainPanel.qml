@@ -22,11 +22,7 @@ import "plasmapackage:/code/listsort.js" as ListSort
 
 Column
 {
-    id: searchpanel; spacing: 5;
-    anchors.verticalCenter: parent.center;
-    height: welcomeLabel.paintedHeight + anchors.bottomMargin + 
-            querypanel.paintedHeight + s1.paintedHeight + s2.paintedHeight + 
-            resultspanel.paintedHeight + filterpanel.paintedHeight + 32;
+    id: searchpanel; spacing: 5; 
 
     property bool hasSiteEngine: false;
     property bool collapsed: true;
@@ -34,6 +30,17 @@ Column
 
     signal selected(string site);
     signal selectedAnd(string site);
+
+    PlasmaCore.DataSource
+    {
+        id: siteengine; engine: "watersites";
+        onDataChanged: { searchpanel.displayResults(); }
+        Component.onCompleted: { searchpanel.hasSiteEngine = siteengine.valid; }
+    }
+
+    Keys.onDownPressed: { resultspanel.list.currentIndex += (resultspanel.list.currentIndex >= resultspanel.list.count-1) ? 0 : 1; }
+    Keys.onUpPressed: { resultspanel.list.currentIndex -= (resultspanel.list.currentIndex <= 0) ? 0 : 1; }
+    Keys.onReturnPressed: { searchpanel.selected(resultspanel.model.get(resultspanel.list.currentIndex).code); }
 
     states: [
         State
@@ -49,70 +56,91 @@ Column
         }
     ]
 
-    PlasmaCore.DataSource
+    Item
     {
-        id: siteengine; engine: "watersites";
-        onDataChanged: { searchpanel.displayResults(); }
-        Component.onCompleted: { searchpanel.hasSiteEngine = siteengine.valid; }
-    }
-   
-    Keys.onDownPressed: { resultspanel.list.currentIndex += (resultspanel.list.currentIndex >= resultspanel.list.count-1) ? 0 : 1; }
-    Keys.onUpPressed: { resultspanel.list.currentIndex -= (resultspanel.list.currentIndex <= 0) ? 0 : 1; }
-    Keys.onReturnPressed: { searchpanel.selected(resultspanel.model.get(resultspanel.list.currentIndex).code); }
+        id: titleArea;
+        width: 400; height: welcomeLabel.height + 10;
 
-    Rectangle { id: s1; width: parent.width; height: 2; color: "transparent"; }
+        PlasmaCore.FrameSvgItem
+        {
+            id: headerFrame; anchors.fill: parent;
+            imagePath: "widgets/frame"; prefix: "raised";
+        }
 
-    Row
-    {
-        spacing: 5; anchors.left: parent.left;
-        ImgButton
-        {
-            image: configSvg; element: "add"; width: 16; height: 16;
-            anchors.verticalCenter: parent.center;
-            visible: collapsed;
-            onAction: { toggleSearchUI(); }
-        }
-        ImgButton
-        {
-            image: configSvg; element: "remove"; width: 16; height: 16;
-            anchors.verticalCenter: parent.center;
-            visible: !collapsed;
-            onAction: { toggleSearchUI(); }
-        }
         Text
         {
-            id: welcomeLabel; anchors.verticalCenter: parent.center;
+            id: welcomeLabel; 
+            anchors.leftMargin: 10;
+            anchors.left: parent.left;
+            anchors.verticalCenter: parent.verticalCenter;
             text: i18n("<b>Connecting to plasma-dataengine-watersites . . .</b>");
+            color: theme.textColor;
+        }
+
+        Row
+        {
+            id: titleRow; spacing: 0; 
+            anchors.rightMargin: 10;
+            anchors.right: parent.right;
+            anchors.verticalCenter: parent.verticalCenter;
+            ImgButton
+            {
+                image: configSvg; element: "add"; width: 16; height: 16;
+                anchors.verticalCenter: parent.center;
+                visible: collapsed;
+                onAction: { toggleSearchUI(); }
+            }
+            ImgButton
+            {
+                image: configSvg; element: "remove"; width: 16; height: 16;
+                anchors.verticalCenter: parent.center;
+                visible: !collapsed;
+                onAction: { toggleSearchUI(); }
+            }
         }
     }
 
-    SiteSearchFilterPanel
+    Item
     {
-        id: filterpanel;
-        onFiltersChanged: { querypanel.setQuery(filterpanel.filters); }
-        visible: !collapsed && hasSiteEngine;
-    }
+        id: searchArea;
+        width: searchAreaContent.width; 
+        height: searchAreaContent.height;
 
-    Rectangle 
-    { 
-        id: s2; width: parent.width; height: 2; color: "transparent"; 
-        visible: !collapsed && hasSiteEngine;
-    }
+        opacity: (!collapsed && hasSiteEngine) ? 100 : 0;
+        Behavior on opacity
+        {
+            NumberAnimation { properties: "opacity"; duration: 200; }
+        }
 
-    SiteSearchQueryPanel
-    {
-        id: querypanel;
-        onPerformSearch: { searchpanel.performSearch(); }
-        visible: !collapsed && hasSiteEngine;
-    }
+        Column
+        {
+            id: searchAreaContent; spacing: 5;
 
-    SiteSearchResultsPanel
-    {
-        id: resultspanel;
-        onDoubleClicked: { searchpanel.selected(code); }
-        onPressAndHold: { searchpanel.selectedAnd(code); }
-        onClicked: { searchpanel.focus = true; }
-        visible: !collapsed && hasSiteEngine;
+            SiteSearchFilterPanel
+            {
+                id: filterpanel;
+                onFiltersChanged: { querypanel.setQuery(filterpanel.filters); }
+            }
+
+            Rectangle 
+            { 
+                id: s2; width: parent.width; height: 2; color: "transparent"; 
+            }
+
+            SiteSearchQueryPanel
+            {
+                id: querypanel;
+                onPerformSearch: { searchpanel.performSearch(); }
+            }
+
+            SiteSearchResultsPanel
+            {
+                id: resultspanel;
+                onDoubleClicked: { searchpanel.selected(code); }
+                onPressAndHold: { searchpanel.selectedAnd(code); }
+                onClicked: { searchpanel.focus = true; }
+            }
+        }
     }
 
     //

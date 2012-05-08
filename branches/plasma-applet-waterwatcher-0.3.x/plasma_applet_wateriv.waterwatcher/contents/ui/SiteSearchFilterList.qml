@@ -34,7 +34,7 @@ Item
     ListView 
     {
         id: filterList; model: filterModel; delegate: filterDelegate;
-        highlight: Rectangle { radius: 5; color: "lightblue"; }
+        highlight: Rectangle { radius: 5; color: theme.highlightColor; }
         anchors.fill: parent;
         onCurrentIndexChanged: 
         { 
@@ -49,7 +49,8 @@ Item
             width: 400; height: txtName.height + 8; color: "transparent";
             Text
             {
-                id: txtName; text: (filterListContainer.singleColumn) ? name : code + "\t" + name; color: theme.buttonTextColor;
+                id: txtName; text: (filterListContainer.singleColumn) ? name : code + "\t" + name; 
+                color: theme.textColor;
                 anchors.left: parent.left; anchors.leftMargin: 5; anchors.rightMargin: 5;
                 anchors.topMargin: 4; anchors.bottomMargin: 4; anchors.verticalCenter: parent.verticalCenter;
             }

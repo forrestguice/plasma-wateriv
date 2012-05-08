@@ -17,14 +17,11 @@
 */
 
 import QtQuick 1.0
-import "plasmapackage:/code/NetErrors.js" as NetErrors
+import "plasmapackage:/code/neterrors.js" as NetErrors
 
 Item
 {
-    id: dialog; 
-    width: panel.width;
-    height: panel.height;
-
+    id: dialog; width: panel.width; height: panel.height;
     property int error: 0;
 
     states: [

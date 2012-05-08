@@ -35,8 +35,6 @@ Column
     property bool fontItalic: false;
     property color fontColor: "black";
     property color fontShadow: "white";
-    property double fontScaleValue: 1.0;
-    property double fontScaleDate: 1.0;
 
     property bool showUnits: true;
     property bool showDate: true;
@@ -88,7 +86,7 @@ Column
 
         style: Text.Raised; color: fontColor; styleColor: fontShadow;
         font.italic: fontItalic; font.bold: fontBold; font.family: fontStyle;
-        font.pixelSize: (fontScaleValue * current_size * main.width) / 200; 
+        font.pixelSize: (current_size * main.width) / 200; 
 
         property int default_size: 38;
         property int current_size: 38;
@@ -131,7 +129,7 @@ Column
 
         text: ""; style: Text.Raised; font.bold: false; font.family: fontStyle;
         color: fontColor; styleColor: fontShadow;
-        font.pixelSize: (fontScaleDate * current_size * main.width) / 200;
+        font.pixelSize: (current_size * main.width) / 200;
 
         property int default_size: 24;
         property int current_size: 24;
