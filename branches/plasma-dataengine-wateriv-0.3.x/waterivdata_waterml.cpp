@@ -266,7 +266,7 @@ void WaterIVDataWaterML::extractSeriesValues( WaterIVEngine *engine, const QStri
         QMap<QString, QVariant> qualifiersMap;  
         if (container != 0  && container->data().contains(p + "all"))
         {
-            qDebug() << "preserving pre-existing values";
+            //qDebug() << "preserving pre-existing values";
             valuesMap = container->data().value(p + "all").toMap();
             qualifiersMap = container->data().value(p + "qualifiers").toMap();
         }
@@ -297,7 +297,7 @@ void WaterIVDataWaterML::extractSeriesValues( WaterIVEngine *engine, const QStri
             {   // max values reached; remove most ancient
                 if (i < k.size())
                 {
-                    qDebug() << "removing item to make room " << k.at(i);
+                    //qDebug() << "removing item to make room " << k.at(i) << " (" << i << ")";
                     valuesMap.remove(k.at(i));
                 }
             }
@@ -326,7 +326,7 @@ void WaterIVDataWaterML::extractSeriesValues( WaterIVEngine *engine, const QStri
             if (c >= n) break;
 
             QString key = keys.at(i);
-            QVariant date = QDateTime::fromString(key, Qt::ISODate);
+            QVariant date = QDateTime::fromString(key, Qt::TextDate);
             QList<QVariant> value = valuesMap[key].toList();
             recentValues[c] = value.at(0).toDouble();
 
