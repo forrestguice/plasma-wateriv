@@ -47,7 +47,7 @@ WaterIVData* IVRequest::formatForSource( const QString &source, const QString &r
 
 /** 
     Takes a source name and returns a corresponding fully formed request url.
-    Returns "-1" if source name cannot be transformed into a request url; the
+    @return "-1" if source name cannot be transformed into a request url; the
     error message is placed into errorMsg;
 */
 QString IVRequest::requestForSource(const QString &source, QString &errorMsg, bool &dataIsRemote )
@@ -115,7 +115,7 @@ QString IVRequest::requestForSource(const QString &source, QString &errorMsg, bo
                     //errorMsg.prepend("wateriv (site): " + source);
                     return "-1";
                 }
-                request.append("?format=" + WaterIVEngine::DEFAULT_FORMAT + "&sites=" + source);
+                request.append("?format=" + WaterIVEngine::DEFAULT_FORMAT + "&period=PT2H&sites=" + source);
             }
         }
     }

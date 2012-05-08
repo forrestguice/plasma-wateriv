@@ -1,5 +1,5 @@
 ==============================================================================
-||  WaterIV DataEngine v0.3.0 README                                        ||
+||  WaterIV DataEngine v0.3.1 README                                        ||
 ==============================================================================
 
   ==============================
@@ -23,11 +23,9 @@
 
    project url: http://code.google.com/p/plasma-wateriv/
 
-   The WaterIV dataengine retrieves timeseries data from the USGS Instantaneous 
-   Values (IV) Web Service (see http://waterservices.usgs.gov). The web service 
-   returns the data using a set of XML tags called "WaterML". The dataengine 
-   reads the data enncoded by these tags and makes it available to plasmoids 
-   using a simple naming scheme.
+   The data engine retrieves timeseries data from the USGS Instantaneous 
+   Values (IV) Web Service (see http://waterservices.usgs.gov) and makes it 
+   available to plasmoids using a simple naming scheme.
 
   ==============================
   II) Documentation
@@ -61,7 +59,7 @@
    OUTPUT: a set of key/value pairs organized by simple naming scheme
 
    See http://code.google.com/p/plasma-wateriv/wiki/WaterIVDataEngine for
-   a complete listing of available data keys (key naming scheme).
+   a complete listing of available data.
 
 
   ==============================
@@ -84,14 +82,14 @@
 
    1) change to the source directory
 
-      $ cd plasma-dataengine-wateriv-0.2.1
+      $ cd plasma-dataengine-wateriv-0.3.1
 
    2) compile the source code
 
       $ cmake -DCMAKE_INSTALL_PREFIX=/usr ./
       $ make
 
-   3) remove the debugging symbols to reduce the binary size
+   3) (optional) remove the debugging symbols to reduce the binary size
 
       $ strip ./lib/plasma_engine_wateriv.so
 
@@ -128,10 +126,10 @@
     ## prepare to create a deb
     $ mkdir packaging
     $ cd packaging/
-    $ mv ../plasma-dataengine-wateriv-0.3.0.tar.gz ./
-    $ tar -zxvf plasma-dataengine-wateriv-0.3.0.tar.gz
-    $ mv plasma-dataengine-wateriv-0.3.0.tar.gz plasma-dataengine-wateriv_0.3.0.orig.tar.gz
-    $ cd plasma-dataengine-wateriv-0.3.0
+    $ mv ../plasma-dataengine-wateriv-0.3.1.tar.gz ./
+    $ tar -zxvf plasma-dataengine-wateriv-0.3.1.tar.gz
+    $ mv plasma-dataengine-wateriv-0.3.1.tar.gz plasma-dataengine-wateriv_0.3.1.orig.tar.gz
+    $ cd plasma-dataengine-wateriv-0.3.1
 
     ## create a deb (local build (not signed with gpg))
     $ debuild -uc -us
