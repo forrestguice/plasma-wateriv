@@ -20,8 +20,7 @@ import QtQuick 1.0
 
 Column
 {
-    id: panel; 
-    spacing: 5; anchors.bottomMargin: 5;
+    id: panel; spacing: 0; 
 
     property variant searchPanel: siteSearch;  // search panel
     property variant field: inputDataSource;   // input field
@@ -52,9 +51,9 @@ Column
         Rectangle { width: 5; height: 5; color: "transparent"; }
         Text
         {
-            id: label; text: "Data Source:";
-            anchors.leftMargin: 5;
-            anchors.verticalCenter: parent.verticalCenter;
+            id: label; text: "Data Source:"; 
+            font.bold: false; color: theme.textColor;
+            anchors.leftMargin: 5; anchors.verticalCenter: parent.verticalCenter;
         }
         Rectangle { width: 5; height: 5; color: "transparent"; }
         TextField
@@ -69,24 +68,23 @@ Column
         Rectangle { width: 5; height: 5; color: "transparent"; }
     }
 
+    Rectangle { width: 5; height: 5; color: "transparent"; }
+
     TextField
     {
         id: errorField;
-        anchors.leftMargin: label.width + 5;
+        anchors.leftMargin: label.width + 10;
         anchors.left: parent.left;
         width: 315;
     }
 
-    Row
+    Rectangle { width: 5; height: 5; color: "transparent"; }
+
+    SiteSearchMainPanel
     {
-        Rectangle { width: 5; height: 5; color: "transparent"; }
-        SiteSearchMainPanel
-        {
-            id: siteSearch;
-            onSelected: { field.input.text = site; field.input.focus = true; }
-            onSelectedAnd: { field.input.text = (field.input.text + "," + site).replace(" ",""); field.input.focus = true; }
-        }
-        Rectangle { width: 5; height: 5; color: "transparent"; }
+        id: siteSearch;
+        onSelected: { field.input.text = site; field.input.focus = true; }
+        onSelectedAnd: { field.input.text = (field.input.text + "," + site).replace(" ",""); field.input.focus = true; }
     }
 
     /**

@@ -22,8 +22,7 @@ import "plasmapackage:/code/listsort.js" as ListSort
 
 Column
 {
-    id: filterpanel; anchors.verticalCenter: parent.center; spacing: 2;
-    height: anchors.bottomMargin + filterRow1.height + filterRow2.height;
+    id: filterpanel; anchors.verticalCenter: parent.center; spacing: 5;
 
     property string filters: "countyCd=" + countySource.filter + countySource.selectedCode 
                              + "&agencyCd=" + agencySource.selectedCode + "&siteStatus=active"
@@ -53,10 +52,11 @@ Column
     Row
     {
         id: filterRow1;
-        anchors.left: parent.left; spacing: 5;
+        anchors.left: parent.left; spacing: 5; anchors.leftMargin: 5;
         Text
         {
             text: i18n("State:"); anchors.verticalCenter: parent.verticalCenter;
+            color: theme.textColor;
         }
         TextButton
         {
@@ -68,6 +68,7 @@ Column
         Text
         {
             text: i18n("County:"); anchors.verticalCenter: parent.verticalCenter;
+            color: theme.textColor;
         }
         TextButton
         {
@@ -79,10 +80,11 @@ Column
      
     Row 
     {
-        id: filterRow2; anchors.left: parent.left; spacing: 5;
+        id: filterRow2; anchors.left: parent.left; spacing: 5; anchors.leftMargin: 5;
         Text
         {
             text: i18n("Agency:"); anchors.verticalCenter: parent.verticalCenter;
+            color: theme.textColor;
         }
         TextButton
         {
@@ -94,6 +96,7 @@ Column
         Text
         {
             text: i18n("Type:"); anchors.verticalCenter: parent.verticalCenter;
+            color: theme.textColor;
         }
         TextButton
         {
@@ -105,6 +108,7 @@ Column
         Text
         {
             text: i18n("Subtype:"); anchors.verticalCenter: parent.verticalCenter;
+            color: theme.textColor;
         }
         TextButton
         {

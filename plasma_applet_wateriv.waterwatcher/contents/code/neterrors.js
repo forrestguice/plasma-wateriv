@@ -16,7 +16,6 @@
     along with Plasma-WaterIV.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 /**
     nameForErrorCode() : function
     @param code the error code
@@ -56,7 +55,7 @@ function nameForErrorCode( code )
             break;
 
         default:
-            errorName = "Network Error (" + code + ")";
+            errorName = i18n("Network Error (" + code + ")");
             break;
     }
     return errorName;

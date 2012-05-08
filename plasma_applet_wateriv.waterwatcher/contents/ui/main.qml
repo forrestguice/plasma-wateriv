@@ -19,6 +19,8 @@
 import QtQuick 1.0
 import org.kde.plasma.core 0.1 as PlasmaCore
 import org.kde.qtextracomponents 0.1 as QtExtraComponents
+import "plasmapackage:/code/neterrors.js" as NetErrors
+import "plasmapackage:/code/display.js" as Display
 
 /**  
     Water Watcher QML Plasmoid (http://code.google.com/p/plasma-wateriv/)  
@@ -190,11 +192,11 @@ Item
         }
         main.currentDialog = dialog;
         var popupPosition = dialog.popupPosition(popupTarget);
-        dialog.x = popupPosition.x - 15;                             // x pos
-        dialog.y = popupPosition.y - 15;                             // y pos
-        if (dialogState != -1) dialog.mainItem.state = dialogState;  // state
+        dialog.x = popupPosition.x;                                  // x pos
+        dialog.y = popupPosition.y;                                  // y pos
         dialog.mainItem.focus = true                                 // focus
         dialog.visible = true;                                       // visible
+        if (dialogState != -1) dialog.mainItem.state = dialogState;  // state
     }
 
     /**
@@ -240,26 +242,6 @@ Item
         main.refreshDisplay();
     }
 
-    function determineNavText()
-    {
-        var results = dataengine.data[dataRequest];
-        if (typeof results === "undefined") return;
-        var numSeries = results["toc_count"];
-        if (typeof numSeries === "undefined") return;
-
-        var current = 0;
-        for (i=0; i<numSeries; i++)
-        {
-            if (i == mainWidget.displaySeries)
-            {
-                current = i + 1;
-                break;
-            }
-        }
-
-        return "" + current + " / " + numSeries;
-    }
-
     function errorMessage(errorMsg)
     {
         main_tooltip.mainText = app_name;
@@ -269,7 +251,8 @@ Item
 
         main_tooltip.subText = errorMsg;
         mainWidget.displayDate = errorMsg;
-        infodialog.panelRecent.content = errorMsg;
+        infodialog.panelRecent.content = errorMsg + "<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>&nbsp;";
+        infodialog.panelRecent.siteContent = "";
         infodialog.navText = "-/-";
     }
 
@@ -291,7 +274,7 @@ Item
         if (typeof engineVersion === "undefined" || engineVersion < minEngineVersion)
         {
             console.log(i18n("Water Watcher: requires " + minEngineVersion + ", found ") + engineVersion);
-            errorMessage(i18n("Insufficient data engine:<br/>") + minEngineName + i18n(" required"));
+            errorMessage(i18n("Insufficient data engine:<br/>%0 required").format(minEngineName));
             return false;             // error: insufficient data engine version
         }
 
@@ -330,7 +313,8 @@ Item
 
             if (!netIsValid && numSeries <= 0)
             {
-                errorMessage(i18n("Network request failed: ") + results["net_error"] + "  ");
+                //errorMessage(i18n("Network request failed: ") + results["net_error"] + "  ");
+                errorMessage(i18n("Error: %0").format(NetErrors.nameForErrorCode(results["net_error"])));
                 return false;                     // error: connection to network failed
             }
         }
@@ -365,7 +349,6 @@ Item
     */
     function refreshDisplay()
     {
-        //console.log("refreshDisplay (entered)");
         if ((plasmoid.busy = errorChecking()) == false) return;
         else mainWidget.state = "NORMAL";
 
@@ -373,9 +356,12 @@ Item
         // Gather Data
         //
         var results = dataengine.data[dataRequest];
-        var toc = results["toc_" + mainWidget.displaySeries];
+        var site = new Object();   // obj to hold site data
+        var param = new Object();  // obj to hold param data
 
-        if (typeof toc === "undefined") 
+        var toc_count = results["toc_count"];
+        var toc = results["toc_" + mainWidget.displaySeries];
+        if (typeof toc === "undefined")
         {
             console.log("missing toc! " + mainWidget.displaySeries);
             plasmoid.busy = false;
@@ -383,103 +369,57 @@ Item
         }
 
         var prefix_site = "series_" + toc["site"] + "_";
-        var site_name = results[prefix_site + "name"];
-        var site_code = results[prefix_site + "code"];
-        var site_lat = results[prefix_site + "latitude"];
-        var site_lon = results[prefix_site + "longitude"];
-        var site_properties = results[prefix_site + "properties"];
-        var site_hucCd = site_properties["hucCd"];
-        var site_countyCd = site_properties["countyCd"];
-        var site_stateCd = site_properties["stateCd"];
-        var site_typeCd = site_properties["siteTypeCd"];
-
         var prefix_var = prefix_site + toc["variable"] + "_";
-        var var_code = results[prefix_var + "code"];
-        var var_name = results[prefix_var + "name"];
-        var var_desc = results[prefix_var + "description"];
-        var var_units = results[prefix_var + "unitcode"];
-
         var prefix_stat = prefix_var + toc["statistic"] + "_";
-        var var_statName = results[prefix_stat + "name"];
-        var var_statCode = results[prefix_stat + "code"];
-
         var prefix_method = prefix_stat + toc["method"] + "_";
-        var var_date = Qt.formatDateTime(results[prefix_method + "recent_date"]);
-        var var_value = results[prefix_method + "recent_value"];
-        var var_method_id = results[prefix_method + "id"];
-        var var_method_desc = results[prefix_method + "description"];
-        var var_all = results[prefix_method + "all"];
 
-        var qualifiers = results[prefix_method + "qualifiers"];
-        var qualifier_codes = results[prefix_method + "recent_qualifier"];
+        site.name = results[prefix_site + "name"];
+        site.code = results[prefix_site + "code"];
+        site.lat = results[prefix_site + "latitude"];
+        site.lon = results[prefix_site + "longitude"];
+        site.properties = results[prefix_site + "properties"];
+        site.hucCd = site.properties["hucCd"];
+        site.countyCd = site.properties["countyCd"];
+        site.stateCd = site.properties["stateCd"];
+        site.typeCd = site.properties["siteTypeCd"];
 
-        var qualifier_desc = "";
-        for (qcode in qualifier_codes)
-        {
-            qualifier_desc += "<br/>" + qualifiers[qualifier_codes[qcode]][2];
-        }
+        param.code = results[prefix_var + "code"];
+        param.name = results[prefix_var + "name"];
+        param.desc = results[prefix_var + "description"];
+        param.units = results[prefix_var + "unitcode"];
+
+        param.statName = results[prefix_stat + "name"];
+        param.statCode = results[prefix_stat + "code"];
+
+        param.date = Qt.formatDateTime(results[prefix_method + "recent_date"]);
+        param.value = results[prefix_method + "recent_value"];
+        param.method_id = results[prefix_method + "id"];
+        param.method_desc = results[prefix_method + "description"];
+        param.all = results[prefix_method + "all"];
+        param.qualifiers = results[prefix_method + "qualifiers"];
+        param.qualifier_codes = results[prefix_method + "recent_qualifier"];
+        param.qualifier_desc = Display.createQualifierList(param.qualifier_codes, param.qualifiers);
 
         //
         // Display Data
         //
 
-        main_tooltip.mainText = "" + site_name + " (" + site_code + ")";
-        main_tooltip.subText = "" + var_name + " (" + var_code + ")<br/><br/><b>" + var_value + " " 
-                               + var_units + "</b><br/>" + var_date + "<br/>"
-                               + qualifier_desc;      // refresh tooltip content
-
         // refresh main widget
-        mainWidget.displayValue = "" + var_value;
-        mainWidget.displayUnits = "" + var_units;
-        mainWidget.displayDate = "" + var_date;
+        mainWidget.displayValue = "" + param.value;
+        mainWidget.displayUnits = "" + param.units;
+        mainWidget.displayDate = "" + param.date;
+
+        // refresh tooltip
+        main_tooltip.mainText = Display.createTooltipTitle(site, param);
+        main_tooltip.subText = Display.createTooltipText(site, param);
 
         // refresh info dialog
-        var value_table = main.createValueTable(var_all, var_units);
-        infodialog.panelRecent.title = site_name;
-        infodialog.panelRecent.content = var_name + " (" + var_code + ")<br/>"
-                                + var_method_desc + " (method " + var_method_id + ")<br/>" 
-                                + value_table + "<br/>" + qualifier_desc;
-        infodialog.navText = main.determineNavText();
-        infodialog.panelRecent.siteContent = "<table>" + 
-                                             "<tr><td><b>ID:</b>&nbsp;&nbsp;" + site_code + "</td>" +
-                                                 "<td>&nbsp;&nbsp;&nbsp;</td><td><b>Type:</b>&nbsp;&nbsp;" + site_typeCd + "</td></tr>" +
-                                             "<tr><td><b>Latitude:</b>&nbsp;&nbsp;" + site_lat + "</td><td>&nbsp;&nbsp;&nbsp;</td>" + 
-                                                 "<td><b>Longitude:</b>&nbsp;&nbsp;" + site_lon + "</td></tr>" +
-                                             "<tr><td><b>State Code:</b>&nbsp;&nbsp;" + site_stateCd + "</td><td>&nbsp;&nbsp;&nbsp;</td>" + 
-                                                 "<td><b>County Code:</b>&nbsp;&nbsp;" + site_countyCd + "</td></tr>" +
-                                             "<tr><td><b>HUC Code:</b>&nbsp;&nbsp;" + site_hucCd + "</td><td>&nbsp;&nbsp;&nbsp;</td>" + 
-                                                 "<td></td></tr></table>";
+        infodialog.navText = Display.createNavigationText(mainWidget.displaySeries, toc_count);
+        infodialog.panelRecent.title = Display.createRecentPanelTitle(site, param);
+        infodialog.panelRecent.content = Display.createRecentPanelText(site, param);
+        infodialog.panelRecent.siteContent = Display.createSitePanelText(site);
+
         plasmoid.busy = false;
-    }
-
-    /**
-        createValueTable() : function
-        @param values a hash<datestring, [value, qualifier]> of values
-        @param units the units string to display
-        @return a "<table>" of values suitable for display with html.
-    */
-    function createValueTable( values, units )
-    {
-        var keys = [];
-        for (var key in values)
-        {
-            if (values.hasOwnProperty(key)) keys.push(key);
-        }
-        keys.sort();
-
-        var c = 0;
-        var table = "<table>";
-        for (var i = keys.length - 1; i >= 0; i--)
-        {
-            if (c >= 4) break;
-            var k = keys[i];
-            var d = new Date(k);
-            var v = values[k];
-            table += "<tr><td width='50'><b>" + v[0] + " " + units + "</b></td><td>" + Qt.formatDateTime(d) + "</td></tr>";
-            c++;
-        }
-        table += "</table>";
-        return table;
     }
 
     /** 
@@ -505,7 +445,7 @@ Item
     {
         if (!dataengine.valid)      // is the engine available?
         {
-            errorMessage(i18n("Missing data engine:<br/>") + minEngineName + i18n(" required"));
+            errorMessage(i18n("Missing data engine:<br/>%0 required").format(minEngineName));
             return false;           // missing engine; abort engine update
         }
 
@@ -547,9 +487,6 @@ Item
     */
     function updateFonts()
     {
-        mainWidget.fontScaleValue = plasmoid.readConfig("fontscalevalue");
-        mainWidget.fontScaleDate = plasmoid.readConfig("fontscaledate");
-
         mainWidget.fontStyle = plasmoid.readConfig("fontstyle");    // style
         mainWidget.fontItalic = plasmoid.readConfig("fontitalic");  // italic
         mainWidget.fontBold = plasmoid.readConfig("fontbold");      // bold

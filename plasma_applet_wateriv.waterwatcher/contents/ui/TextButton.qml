@@ -17,6 +17,7 @@
 */
 
 import QtQuick 1.0
+import org.kde.plasma.core 0.1 as PlasmaCore
 
 Rectangle
 {
@@ -44,26 +45,54 @@ Rectangle
             name: "NORMAL";
             PropertyChanges { target: btn; color: backgroundNormalColor; }
             PropertyChanges { target: txt; color: textNormalColor; }
+            PropertyChanges { target: frameNormal; visible: true; }
+            PropertyChanges { target: framePressed; visible: false; }
+            PropertyChanges { target: frameHovered; visible: false; }
         },
         State
         {
             name: "HOVERED";
             PropertyChanges { target: btn; color: backgroundHoverColor; }
             PropertyChanges { target: txt; color: textHoverColor; }
+            PropertyChanges { target: frameNormal; visible: false; }
+            PropertyChanges { target: framePressed; visible: false; }
+            PropertyChanges { target: frameHovered; visible: true; }
         },
         State 
         {
             name: "TOGGLED";
             PropertyChanges { target: btn; color: backgroundSelectedColor; }
             PropertyChanges { target: txt; color: textSelectedColor; }
+            PropertyChanges { target: frameNormal; visible: false; }
+            PropertyChanges { target: framePressed; visible: false; }
+            PropertyChanges { target: frameHovered; visible: true; }
         },
         State
         {
             name: "PRESSED";
             PropertyChanges { target: btn; color: backgroundSelectedColor; }
             PropertyChanges { target: txt; color: textSelectedColor; }
+            PropertyChanges { target: frameNormal; visible: false; }
+            PropertyChanges { target: framePressed; visible: true; }
+            PropertyChanges { target: frameHovered; visible: false; }
         }
     ]
+
+    PlasmaCore.FrameSvgItem
+    {
+        id: frameNormal; anchors.fill: parent; visible: true;
+        imagePath: "widgets/button"; prefix: "normal";
+    }
+    PlasmaCore.FrameSvgItem
+    {
+        id: framePressed; anchors.fill: parent; visible: false;
+        imagePath: "widgets/button"; prefix: "pressed";
+    }
+    PlasmaCore.FrameSvgItem
+    {
+        id: frameHovered; anchors.fill: parent; visible: false;
+        imagePath: "widgets/button"; prefix: "hover";
+    }
 
     MouseArea
     {

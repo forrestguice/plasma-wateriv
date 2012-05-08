@@ -21,11 +21,9 @@ import org.kde.plasma.core 0.1 as PlasmaCore
 
 Column
 {
-    id: infodialog; spacing: 5; anchors.bottomMargin: 5;
-    width: (rowNav.width > panelCurrent.width) ? rowNav.width : 
-           panelCurrent.width + panelCurrent.anchors.leftMargin + panelCurrent.anchors.rightMargin;
-    height: rowNav.height + panelCurrent.height + navSeparator.height + 
-            anchors.topMargin + anchors.bottomMargin + (spacing*2);
+    id: infodialog; spacing: 5;
+    width: (rowNav.width > panelCurrent.width) ? rowNav.width : panelCurrent.width;
+    height: rowNav.height + panelCurrent.height + navSeparator.height + 10;
 
     signal nextSeries;
     signal prevSeries;
@@ -89,48 +87,66 @@ Column
         }
     ]
 
-    Row
+    Item
     {
-        id: rowNav; spacing: 2;
+        id: rowNav;
+        anchors.left: parent.left;
+        width: 340; height: navButtons.height;
 
-        TextButton
+        Row
         {
-            id: tabconfig; toggled: false;
-            buttonText: "Configuration";
+            spacing: 2;
+            anchors.left: parent.left;
             anchors.verticalCenter: parent.verticalCenter;
-            anchors.leftMargin: 10; anchors.rightMargin: 10;
-            onAction: { infodialog.state = "CONFIGURE"; }
+
+            TextButton
+            {
+                id: tabconfig; toggled: false;
+                buttonText: "Configuration";
+                anchors.verticalCenter: parent.verticalCenter;
+                anchors.leftMargin: 10; anchors.rightMargin: 10;
+                onAction: { infodialog.state = "CONFIGURE"; }
+            }
+
+            TextButton
+            {
+                id: tabrecent; toggled: true;
+                buttonText: "Most Recent Value";
+                anchors.verticalCenter: parent.verticalCenter;
+                anchors.leftMargin: 10; anchors.rightMargin: 10;
+                onAction: { infodialog.state = "RECENT"; }
+            }
         }
 
-        TextButton
+        Row
         {
-            id: tabrecent; toggled: true;
-            buttonText: "Most Recent Value";
+            id: navButtons;
+            anchors.right: parent.right;
             anchors.verticalCenter: parent.verticalCenter;
-            anchors.leftMargin: 10; anchors.rightMargin: 10;
-            onAction: { infodialog.state = "RECENT"; }
-        }
 
-        ImgButton
-        {
-            id: btnPrev; 
-            image: arrowSvg; element: "left-arrow";
-            anchors.leftMargin: 10;
-            onAction: { infodialog.prevSeries(); }
-        }
+            Rectangle { width: 5; height: btnPrev.height; color: "transparent"; }
 
-        Text
-        {
-            id: txtNav; text: navText;
-            font.bold: true; color: theme.viewTextColor;
-            anchors.verticalCenter: parent.verticalCenter;
-        }
+            ImgButton
+            {
+                id: btnPrev; 
+                image: arrowSvg; element: "left-arrow";
+                anchors.leftMargin: 10;
+                onAction: { infodialog.prevSeries(); }
+            }
 
-        ImgButton
-        {
-            id: btnNext; 
-            image: arrowSvg; element: "right-arrow";
-            onAction: { infodialog.nextSeries(); }
+            Text
+            {
+                id: txtNav; text: navText;
+                font.bold: true; color: theme.viewTextColor;
+                anchors.verticalCenter: parent.verticalCenter;
+            }
+
+            ImgButton
+            {
+                id: btnNext; 
+                image: arrowSvg; element: "right-arrow";
+                onAction: { infodialog.nextSeries(); }
+            }
         }
     }
 

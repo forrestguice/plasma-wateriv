@@ -58,6 +58,5 @@ Column
         }
 
         Rectangle { width: 5; height: 5; color: "transparent"; }
-
     }
 }

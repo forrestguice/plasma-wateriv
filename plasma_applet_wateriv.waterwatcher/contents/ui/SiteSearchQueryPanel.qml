@@ -21,7 +21,8 @@ import org.kde.plasma.core 0.1 as PlasmaCore
 
 Row
 {
-    id: searchRow; spacing: 5; anchors.left: parent.left;
+    id: searchRow; spacing: 5; 
+    anchors.left: parent.left;
 
     property string query: searchField.input.text;
     signal performSearch();
@@ -44,14 +45,14 @@ Row
 
     TextButton
     {
-        buttonText: "Search"; toggled: true;
+        buttonText: "Search";
         anchors.verticalCenter: parent.verticalCenter;
         onAction: { searchRow.performSearch(); }
     }
 
     TextField
     {
-        id: searchField; width: 300; state: "READONLY"; readOnly: true;
+        id: searchField; width: 310; state: "READONLY"; readOnly: true;
         anchors.verticalCenter: parent.verticalCenter;
         onAction: { searchRow.toggleAdvanced(); }
         onCancel: { searchRow.toggleAdvanced(); }
