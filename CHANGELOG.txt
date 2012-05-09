@@ -1,6 +1,12 @@
 Water Watcher Plasmoid CHANGELOG
 
  ----------------------------------
+ 0.3.2 : plasma-applet-waterwatcher
+
+ //* BugFix: #17; fixed a crash occuring when switching between recent sources on
+   unconfigured instances of the plasmoid.
+
+ ----------------------------------
  0.3.1 : plasma-applet-waterwatcher
 
  * Add UI: the "recent value" tab now displays up to the last four values.

@@ -81,15 +81,6 @@ Column
             anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter;
             ImgButton
             {
-                id: btnTitle3; anchors.verticalCenter: parent.verticalCenter;
-                image: configSvg; element: "add"; width: 16; height: 16;
-                onAction: 
-                {  
-                    launchMarble();
-                }
-            }
-            ImgButton
-            {
                 id: btnTitle1; anchors.verticalCenter: parent.verticalCenter;
                 image: configSvg; element: "add"; width: 16; height: 16;
                 visible: sitePanelCollapsed;

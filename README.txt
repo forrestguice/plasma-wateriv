@@ -1,5 +1,5 @@
 
-    WaterWatcher (QML Plasmoid) 0.3.1 README
+    WaterWatcher (QML Plasmoid) 0.3.2 README
     http://code.google.com/p/plasma-wateriv/
 
     ==========================================================================
