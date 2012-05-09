@@ -121,6 +121,7 @@ Column
     */
     function nextRecentSource()
     {
+        var i = 0;
         recent_sources_top = plasmoid.readConfig("recent_source_top", 0);
         var c = recent_sources_top;
         do {
@@ -132,11 +133,11 @@ Column
                 plasmoid.writeConfig("recent_source_top", recent_sources_top);
                 break;
             }
-        } while (recent_sources_top != c);
+            i++;
+        } while (recent_sources_top != c && i < recent_sources_max && c != "-1");
 
         var value = plasmoid.readConfig("recent_source_" + recent_sources_top, "");
         if (value != "") field.input.text = value;
-        //console.log("next to: " + recent_sources_top);
     }
    
     /**
@@ -145,6 +146,7 @@ Column
     */
     function prevRecentSource()
     {
+        var i = 0;
         recent_sources_top = plasmoid.readConfig("recent_source_top", 0);
         var c = recent_sources_top;
         do {
@@ -156,11 +158,11 @@ Column
                 plasmoid.writeConfig("recent_source_top", recent_sources_top);
                 break;
             }
-        } while (recent_sources_top != c);
+            i++;
+        } while (recent_sources_top != c && i < recent_sources_max && c != "-1");
 
         var value = plasmoid.readConfig("recent_source_" + recent_sources_top, "");
         if (value != "") field.input.text = value;
-        //console.log("previous to: " + recent_sources_top);
     }
 
     /**

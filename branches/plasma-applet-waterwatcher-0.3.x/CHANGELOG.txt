@@ -3,7 +3,7 @@ Water Watcher Plasmoid CHANGELOG
  ----------------------------------
  0.3.2 : plasma-applet-waterwatcher
 
- //* BugFix: #17; fixed a crash occuring when switching between recent sources on
+ * BugFix: #17; fixed a crash occuring when switching between recent sources on
    unconfigured instances of the plasmoid.
 
  ----------------------------------
