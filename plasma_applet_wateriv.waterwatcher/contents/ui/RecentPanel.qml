@@ -33,17 +33,6 @@ Column
     property bool sitePanelCollapsed: false;
     property string emptyContent: "";
 
-    PlasmaCore.DataSource
-    {
-        id: appsengine; engine: "apps";
-        connectedSources: ["kde4-marble.desktop"];
-    }
-    PlasmaCore.DataSource
-    {
-        id: monitorengine; engine: "systemmonitor";
-        connectedSources: ["ps"]; interval: 1000;
-    }
-
     Item
     {
         width: panelWidth; height: headerRow.height;
@@ -178,44 +167,6 @@ Column
     {
         panel.sitePanelCollapsed = !panel.sitePanelCollapsed; 
         plasmoid.writeConfig("sitepanel_collapsed", panel.sitePanelCollapsed);
-    }
-
-    function launchMarble()
-    {
-        var pid1 = findMarblePID();
-        console.log("marble pid (0): " + pid1);
-
-        var data = appsengine.data["kde4-marble.desktop"];
-        if (typeof data === "undefined")
-        {
-            // error: marble is not installed
-            console.log("no marble");
-        }
-
-        var service = appsengine.serviceForSource("kde4-marble.desktop");
-        var operation = service.operationDescription("launch");
-        var job = service.startOperationCall(operation);
-        console.log("launched marble");
-
-        var pid2 = findMarblePID();
-        console.log("marble pid (1): " + pid2);
-
-    }
-
-    function findMarblePID()
-    {
-        var pid = -1;
-
-        var data = monitorengine.data["ps"];
-        var value = data["value"];
-
-        //for (var key in value)
-        //{
-        //    console.log("data: " + value[key]);
-        //}
-        console.log("value: " + data["value"]);
-
-        return pid;
     }
 
 }
