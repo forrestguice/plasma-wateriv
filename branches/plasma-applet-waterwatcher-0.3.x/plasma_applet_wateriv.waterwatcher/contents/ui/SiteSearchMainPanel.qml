@@ -77,6 +77,43 @@ Column
             color: theme.textColor;
         }
 
+        Rectangle
+        {
+            width: 400 - titleRow.width;
+            height: welcomeLabel.height;
+            anchors.left: parent.left;
+            anchors.right: titleRow.left;
+            anchors.verticalCenter: parent.verticalCenter;
+            color: "transparent";
+
+            MouseArea
+            {
+                anchors.fill: parent; 
+                hoverEnabled: true;
+                onPressed: 
+                { 
+                    if (collapsed) showBtn.state = "PRESSED";
+                    else hideBtn.state = "PRESSED";
+                }
+                onEntered:
+                {
+                    if (collapsed) showBtn.state = "HOVERED";
+                    else hideBtn.state = "HOVERED";
+                }
+                onExited:
+                {
+                    if (collapsed) showBtn.state = "NORMAL";
+                    else hideBtn.state = "NORMAL";
+                }
+                onClicked: 
+                { 
+                    if (collapsed) showBtn.state = "NORMAL";
+                    else hideBtn.state = "NORMAL";
+                    toggleSearchUI();
+                }
+            }
+        }
+
         Row
         {
             id: titleRow; spacing: 0; 
@@ -85,6 +122,7 @@ Column
             anchors.verticalCenter: parent.verticalCenter;
             ImgButton
             {
+                id: showBtn;
                 image: configSvg; element: "add"; width: 16; height: 16;
                 anchors.verticalCenter: parent.center;
                 visible: collapsed;
@@ -92,12 +130,14 @@ Column
             }
             ImgButton
             {
+                id: hideBtn;
                 image: configSvg; element: "remove"; width: 16; height: 16;
                 anchors.verticalCenter: parent.center;
                 visible: !collapsed;
                 onAction: { toggleSearchUI(); }
             }
         }
+
     }
 
     Item

@@ -34,6 +34,10 @@ function nameForErrorCode( code )
             errorName = i18n("Host Not Found"); 
             break;
 
+        case 99:
+            errorName = i18n("Unknown Error"); 
+            break;
+
         case 400:
             errorName = i18n("Bad Request (400)"); 
             break;
@@ -77,6 +81,10 @@ function msgForErrorCode( code )
 
         case 3:     // host not found
             errorMsg = i18n("Service host name was not found.&nbsp;&nbsp;<hr/>The network connection is unavailable.&nbsp;&nbsp;"); 
+            break;
+
+        case 99:     // unknown error
+            errorMsg = i18n("An unknown network error occured.&nbsp;&nbsp;<hr/>The network connection is unavailable.&nbsp;&nbsp;"); 
             break;
 
         case 400:   // bad request

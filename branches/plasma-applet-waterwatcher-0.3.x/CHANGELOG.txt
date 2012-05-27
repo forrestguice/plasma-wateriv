@@ -3,6 +3,9 @@ Water Watcher Plasmoid CHANGELOG
  ----------------------------------
  0.3.2 : plasma-applet-waterwatcher
 
+ * Add UI: added "Any County" and "Any Agency" filters to site search dialog.
+ * Add UI: net_error dialog now allows immediately retrying failed connections.
+ * BugFix: plasmoid remembers index of displayed timeseries between launches.
  * BugFix: #17; fixed a crash occuring when switching between recent sources on
    unconfigured instances of the plasmoid.
 

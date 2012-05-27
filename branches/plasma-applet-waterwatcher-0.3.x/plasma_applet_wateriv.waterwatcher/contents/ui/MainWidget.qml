@@ -25,7 +25,8 @@ Column
     anchors.horizontalCenter: parent.horizontalCenter;
     anchors.verticalCenter: parent.verticalCenter;
 
-    property int displaySeries: 0;
+    //property int displaySeries: -10;
+
     property string displayDate: "";
     property string displayValue: "";
     property string displayUnits: "";
