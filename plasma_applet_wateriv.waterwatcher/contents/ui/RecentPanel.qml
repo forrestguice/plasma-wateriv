@@ -65,8 +65,46 @@ Column
             Rectangle { width: 5; height: 5; color: "transparent"; }
         }
 
+        Rectangle
+        {
+            width: parent.width - headerRow.width - titleRow.width;
+            height: txtTitle.height;
+            anchors.left: headerRow.right;
+            anchors.right: titleRow.left;
+            anchors.verticalCenter: parent.verticalCenter;
+            color: "transparent";
+
+            MouseArea
+            {
+                anchors.fill: parent;
+                hoverEnabled: true;
+                onPressed:
+                {
+                    if (sitePanelCollapsed) btnTitle1.state = "PRESSED";
+                    else btnTitle2.state = "PRESSED";
+                }
+                onEntered:
+                {
+                    if (sitePanelCollapsed) btnTitle1.state = "HOVERED";
+                    else btnTitle2.state = "HOVERED";
+                }
+                onExited:
+                {
+                    if (sitePanelCollapsed) btnTitle1.state = "NORMAL";
+                    else btnTitle2.state = "NORMAL";
+                }
+                onClicked:
+                {
+                    if (sitePanelCollapsed) btnTitle1.state = "NORMAL";
+                    else btnTitle2.state = "NORMAL";
+                    panel.toggleSiteInfo();
+                }
+            }
+        }
+
         Row
         {
+            id: titleRow;
             anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter;
             ImgButton
             {

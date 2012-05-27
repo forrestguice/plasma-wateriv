@@ -18,8 +18,9 @@ install(FILES plasma_applet_wateriv.waterwatcher/metadata.desktop
 #
 include (InstallRequiredSystemLibraries)
 
-set (CPACK_GENERATOR "DEB")
-set (CPACK_PACKAGE_NAME "plasma-applet-waterwatcher")
+set (CPACK_GENERATOR "ZIP")
+#set (CPACK_PACKAGE_NAME "plasma-applet-waterwatcher")
+set (CPACK_SOURCE_PACKAGE_FILE_NAME "plasma-applet-waterwatcher-${waterwatcher_VERSION_MAJOR}.${waterwatcher_VERSION_MINOR}.${waterwatcher_VERSION_PATCH}")
 set (CPACK_PACKAGE_VERSION_MAJOR "${waterwatcher_VERSION_MAJOR}")
 set (CPACK_PACKAGE_VERSION_MINOR "${waterwatcher_VERSION_MINOR}")
 set (CPACK_PACKAGE_VERSION_PATCH "${waterwatcher_VERSION_PATCH}")

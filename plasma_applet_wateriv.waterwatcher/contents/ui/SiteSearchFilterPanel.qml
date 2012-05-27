@@ -24,9 +24,12 @@ Column
 {
     id: filterpanel; anchors.verticalCenter: parent.center; spacing: 5;
 
-    property string filters: "countyCd=" + countySource.filter + countySource.selectedCode 
-                             + "&agencyCd=" + agencySource.selectedCode + "&siteStatus=active"
-                             + "&dataType=iv" + minorTypeSource.siteQueryFilter;
+    property string filters: countySource.siteQueryFilter 
+                             + "&dataType=iv" 
+                             + "&siteStatus=active"
+                             + agencySource.siteQueryFilter
+                             + minorTypeSource.siteQueryFilter;
+
     property variant currentDialog: -1;
     property variant currentTarget: -1;
 
@@ -157,8 +160,11 @@ Column
             }
             onAction: { stateSelector.selectedIndex = stateSelector.list.currentIndex; filterpanel.hideDialog(dialogSelectState, stateFilter); }
         }
+
         Keys.onDownPressed: { stateSelector.list.currentIndex += (stateSelector.list.currentIndex >= (stateSelector.list.count-1) ? 0 : 1); }
+
         Keys.onUpPressed: { stateSelector.list.currentIndex -= (stateSelector.list.currentIndex <= 0 ? 0 : 1); }
+
         Keys.onEscapePressed: { stateSelector.list.currentIndex = stateSelector.selectedIndex; filterpanel.toggleDialog(dialogSelectState, stateFilter); }
         Keys.onReturnPressed: { stateSelector.selectedIndex = stateSelector.list.currentIndex; filterpanel.toggleDialog(dialogSelectState, stateFilter); }
     }
@@ -177,6 +183,8 @@ Column
         property string filter: "";
         property string selectedCode: "";
         property string selectedLabel: "";
+        property string siteQueryFilter: (agencySource.selectedCode == "Any") ? "" : 
+                                         "&agencyCd=" + agencySource.selectedCode
     }
     Item
     {
@@ -217,6 +225,9 @@ Column
         property string filter: stateSource.selectedNumeric; 
         property string selectedCode: "";
         property string selectedLabel: "";
+        property string siteQueryFilter: ((countySource.selectedCode == -1) ? 
+                                  "stateCd=" + stateSource.selectedAlpha : 
+                                  "countyCd=" + countySource.filter + countySource.selectedCode)
     }
     Item
     {
@@ -301,8 +312,8 @@ Column
         property string filter: "";
         property string selectedCode: "";
         property string selectedLabel: "";
-        property string siteQueryFilter: (majorTypeSource.selectedCode == "All") ? "" :
-                                          (minorTypeSource.selectedCode == "All") ? 
+        property string siteQueryFilter: (majorTypeSource.selectedCode == "Any") ? "" :
+                                          (minorTypeSource.selectedCode == "Any") ? 
                                             "&sitetypes=" + majorTypeSource.selectedCode : 
                                               "&sitetypes=" + minorTypeSource.selectedCode;
     }
@@ -336,12 +347,16 @@ Column
     // functions
     //
 
+    /**
+    */   
     function toggleDialog( dialog, target )
     {
         if (dialog.visible) hideDialog(dialog, target);
         else showDialog(dialog, target);
     }
 
+    /**
+    */   
     function showDialog( dialog, target )
     {
         if (filterpanel.currentDialog != -1) hideDialog(currentDialog, currentTarget);
@@ -357,6 +372,8 @@ Column
         dialog.mainItem.focus = true;
     }
 
+    /**
+    */   
     function hideDialog( dialog, target )
     {
         if (typeof target === "object") target.toggled = false;
@@ -369,6 +386,8 @@ Column
         }
     }
 
+    /**
+    */   
     function updateStateDisplay()
     {
         stateSelector.model.clear();
@@ -387,6 +406,8 @@ Column
         stateListTimer.start();
     }
 
+    /**
+    */   
     function updateAgencyDisplay()
     {
         agencySelector.model.clear();
@@ -403,10 +424,13 @@ Column
                 agencySelector.model.insert(i, {"name":nameValue, "code":codeValue});
             }
         }
-        agencySelector.model.insert(0, {"name":"United States Geological Survey", "code":"USGS"});
+        agencySelector.model.insert(0, {"name":"Any Agency", "code":"Any"});
+        agencySelector.model.insert(1, {"name":"United States Geological Survey", "code":"USGS"});
         agencySelector.list.currentIndex = 0;
     }
 
+    /**
+    */   
     function updateCountyDisplay()
     {
         countySelector.model.clear();
@@ -423,9 +447,12 @@ Column
                 countySelector.model.insert(i, {"name":nameValue, "code":result["countycode"], "statecode":result["statecode"]});
             }
         }
-        countySelector.list.currentIndex = 0;
+        countySelector.model.insert(0, {"name":"Any County", "code":-1, "statecode":-1});
+        countySelector.list.currentIndex = 1;
     }
 
+    /**
+    */   
     function updateMajorTypeDisplay()
     {
         majorTypeSelector.model.clear();
@@ -442,10 +469,12 @@ Column
                 majorTypeSelector.model.insert(i, {"name":nameValue, "code":result["code"]});
             }
         }
-        majorTypeSelector.model.insert(0, {"name":"All Major Site Types", "code":"All"});
+        majorTypeSelector.model.insert(0, {"name":"Any Major Site Type", "code":"Any"});
         typeListTimer.start();
     }
 
+    /**
+    */   
     function updateMinorTypeDisplay()
     {
         minorTypeSelector.model.clear();
@@ -462,7 +491,7 @@ Column
                 minorTypeSelector.model.insert(i, {"name":nameValue, "code":result["code"]});
             }
         }
-        minorTypeSelector.model.insert(0, {"name":"All Minor Site Types", "code":"All"});
+        minorTypeSelector.model.insert(0, {"name":"Any Minor Site Type", "code":"Any"});
         minorTypeSelector.list.currentIndex = 0;
     }
 

@@ -3,7 +3,7 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
                           http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
-   <kcfgfile/>
+   <kcfgfile name="waterwatcher"/>
 
    <group name="Appearance">
       <entry name="fontstyle" type="Font">
@@ -67,12 +67,17 @@
          <label>The update interval (in minutes). The minimum interval is 15 minutes. Please consider using a larger interval such as an hour. Most data sources take readings every 15 minutes but updates from the web service occur no more than once an hour.</label>
          <default>30</default>
        </entry>
+
+      <entry name="tocindex" type="int">
+         <label>The index of the last selected set of values.</label>
+         <default>0</default>
+       </entry>
    </group>
 
    <group name="SearchPanel">
       <entry name="stateindex" type="int">
          <label>The index of the last selected state filter.</label>
-         <default>4</default>
+         <default>3</default>
        </entry>
 
       <entry name="typeindex" type="int">

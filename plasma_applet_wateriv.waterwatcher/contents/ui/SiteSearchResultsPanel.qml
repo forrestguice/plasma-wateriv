@@ -21,7 +21,7 @@ import org.kde.plasma.core 0.1 as PlasmaCore
 
 Column
 {
-    id: resultspanel; spacing: 4;
+    id: resultspanel; spacing: 0;
 
     property variant model: siteModel;
     property variant list: siteList;
@@ -35,6 +35,8 @@ Column
         id: navSeparator; svg: lineSvg; elementId: "horizontal-line";
         width: parent.width; height: 3;
     }
+
+    Rectangle { color: "transparent"; width: 4; height: 4; }
 
     Rectangle
     {
@@ -72,6 +74,8 @@ Column
             anchors.verticalCenter: parent.verticalCenter;
         }
     }
+
+    Rectangle { color: "transparent"; width: 4; height: 4; }
 
     Item
     {

@@ -21,8 +21,12 @@ import "plasmapackage:/code/neterrors.js" as NetErrors
 
 Item
 {
-    id: dialog; width: panel.width; height: panel.height;
+    id: dialog; 
+    width: panel.width; 
+    height: panel.height + s1.height + retryButton.height;
+
     property int error: 0;
+    property bool showRetryButton: (error == 3 || error == 99);
 
     states: [
         State
@@ -80,8 +84,22 @@ Item
     InfoPanel
     {
         id: panel;
-        anchors.verticalCenter: dialog.center;
-        anchors.horizontalCenter: dialog.center;
+        anchors.top: dialog.top;
+        anchors.horizontalCenter: parent.horizontalCenter;
+    }
+
+    Rectangle
+    { 
+        id: s1; color: "transparent"; anchors.top: panel.bottom; 
+        height: 10; width: 5; visible: showRetryButton;
+    }
+    
+    TextButton
+    {
+        id: retryButton; toggled: false; visible: showRetryButton;
+        buttonText: i18n("Retry"); onAction: { main.retryConnection(); }
+        anchors.right: dialog.right; anchors.rightMargin: 5;
+        anchors.top: s1.bottom; 
     }
 
 }

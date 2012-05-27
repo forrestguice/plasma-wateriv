@@ -39,6 +39,7 @@ Item
 
     property variant currentDialog: -1;
 
+    property int displaySeries: 0;
     property string dataRequest: "-1";
     property bool dataRequestIsValid: true;
     property bool dataRequestIsEmpty: (dataRequest == "-1" || dataRequest == "" || dataRequest == " ");
@@ -46,43 +47,40 @@ Item
     property int pollingInterval: 30;   // interval in minutes
     onPollingIntervalChanged: { if (pollingInterval < 15) pollingInterval = 15; }
 
-    Component.onCompleted: { plasmoid.busy = true; }
+    Component.onCompleted: 
+    { 
+        plasmoid.busy = true; 
+        loadtimer.start();
+    }
+
+    PlasmaCore.Theme { id: theme; }
+    PlasmaCore.Svg { id: arrowSvg; imagePath: "widgets/arrows"; }
+    PlasmaCore.Svg { id: lineSvg; imagePath: "widgets/line"; }
+    PlasmaCore.Svg { id: configSvg; imagePath: "widgets/configuration-icons"; }
+    PlasmaCore.Svg { id: netSvg; imagePath: "icons/network"; }
 
     PlasmaCore.DataSource 
     {
         id: dataengine; engine: "wateriv"; 
-        property bool virgin: true;             // hack: has yet to connect flag
         interval: pollingInterval * 60000;
         onDataChanged: { refreshDisplay(); }
-        Component.onCompleted: { loadtimer.start(); }
-
-        function makeConnection()
-        {
-            if (dataengine.virgin)
-            {   // hack: on first time connect then disconnect then connect
-                // otherwise the plasmoid never receives the first update
-                dataengine.connectSource(dataRequest);
-                dataengine.disconnectSource(dataRequest);
-            }
-            connecttimer.start();
-        }
     }
 
     Timer
     {
-        id: loadtimer; interval: 1000; running: false; repeat: false;
+        id: loadtimer; interval: 1500; running: false; repeat: false;
         onTriggered: 
         {
             plasmoid.addEventListener("Activate", main.activate);
             plasmoid.addEventListener("ConfigChanged", main.configChanged);
-            main.configChanged();
+            configChanged();
         }
     }
 
     Timer
     {
         id: connecttimer; interval: 1000; running: false; repeat: false;
-        onTriggered: { dataengine.connectSource(dataRequest); }
+        onTriggered: { dataengine.connectedSources = [ dataRequest ]; }
     }
 
     MouseArea
@@ -96,12 +94,6 @@ Item
         }
         onClicked: { main.activate(); }
     }
-
-    PlasmaCore.Theme { id: theme; }
-    PlasmaCore.Svg { id: arrowSvg; imagePath: "widgets/arrows"; }
-    PlasmaCore.Svg { id: lineSvg; imagePath: "widgets/line"; }
-    PlasmaCore.Svg { id: configSvg; imagePath: "widgets/configuration-icons"; }
-    PlasmaCore.Svg { id: netSvg; imagePath: "icons/network"; }
 
     PlasmaCore.ToolTip
     {
@@ -221,9 +213,10 @@ Item
         var numSeries = results["toc_count"];
         if (typeof numSeries === "undefined") return;
 
-        mainWidget.displaySeries += 1;
-        if (mainWidget.displaySeries >= numSeries) mainWidget.displaySeries = 0;
+        main.displaySeries += 1;
+        if (main.displaySeries >= numSeries) main.displaySeries = 0;
         main.refreshDisplay();
+        plasmoid.writeConfig("tocindex", main.displaySeries);
     }
 
     /**
@@ -237,9 +230,10 @@ Item
         var numSeries = results["toc_count"];
         if (typeof numSeries === "undefined") return;
 
-        mainWidget.displaySeries -= 1;
-        if (mainWidget.displaySeries < 0) mainWidget.displaySeries = numSeries - 1;
+        main.displaySeries -= 1;
+        if (main.displaySeries < 0) main.displaySeries = numSeries - 1;
         main.refreshDisplay();
+        plasmoid.writeConfig("tocindex", main.displaySeries);
     }
 
     function errorMessage(errorMsg)
@@ -301,7 +295,7 @@ Item
         if (typeof numSeries === "undefined") 
         {
             console.log("error: no toc_count key");
-            mainWidget.displaySeries = 0;
+            main.displaySeries = 0;
             return false;             // error: no timeseries to display
         }
  
@@ -334,10 +328,11 @@ Item
             return false;                     // error: no series to display
         }
 
-        if (mainWidget.displaySeries >= numSeries || mainWidget.displaySeries < 0)
+        if (main.displaySeries >= numSeries || main.displaySeries < 0)
         {
             console.log("warning: current series out of bounds, adjusting");
-            mainWidget.displaySeries = 0;     // error: series out of bounds
+            main.displaySeries = 0;     // error: series out of bounds
+            plasmoid.writeConfig("tocindex", 0);
         }
 
         return true;   // end reached - no major errors occured
@@ -360,10 +355,10 @@ Item
         var param = new Object();  // obj to hold param data
 
         var toc_count = results["toc_count"];
-        var toc = results["toc_" + mainWidget.displaySeries];
+        var toc = results["toc_" + main.displaySeries];
         if (typeof toc === "undefined")
         {
-            console.log("missing toc! " + mainWidget.displaySeries);
+            console.log("missing toc! " + main.displaySeries);
             plasmoid.busy = false;
             return;
         }
@@ -414,7 +409,7 @@ Item
         main_tooltip.subText = Display.createTooltipText(site, param);
 
         // refresh info dialog
-        infodialog.navText = Display.createNavigationText(mainWidget.displaySeries, toc_count);
+        infodialog.navText = Display.createNavigationText(main.displaySeries, toc_count);
         infodialog.panelRecent.title = Display.createRecentPanelTitle(site, param);
         infodialog.panelRecent.content = Display.createRecentPanelText(site, param);
         infodialog.panelRecent.siteContent = Display.createSitePanelText(site);
@@ -429,6 +424,7 @@ Item
     */
     function configChanged()
     {
+        //console.log("configChanged");
         plasmoid.busy = true;
         updateFonts();
         updateShown();
@@ -451,12 +447,12 @@ Item
 
         if (!dataRequestIsEmpty) 
         {
-            //console.log("disconnecting source: " + dataRequest);
-            dataengine.disconnectSource(dataRequest);
+            dataengine.connectedSources = [];
         }
 
-        pollingInterval = plasmoid.readConfig("datapolling");
         dataRequest = plasmoid.readConfig("datasource");
+        pollingInterval = plasmoid.readConfig("datapolling");
+        displaySeries = plasmoid.readConfig("tocindex");
 
         if (dataRequestIsEmpty)
         {
@@ -464,8 +460,18 @@ Item
             return false;
         }
 
-        dataengine.makeConnection();
+        connecttimer.start();
         return true;
+    }
+
+    /**
+        retryConnection() : function
+    */
+    function retryConnection()
+    {
+        plasmoid.busy = true;
+        dataengine.connectedSources = [];
+        connecttimer.start();
     }
 
     /**
